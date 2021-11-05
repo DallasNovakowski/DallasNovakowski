@@ -1,6 +1,6 @@
 ### Hi there 👋
 
-This is the personal website of Dallas Novakowski
+Projects here are in oTree and R. Excluding datasets that are large or collected without participant permission to disseminate, data will be published here. If it isn't, or you have any questions, contact me at dallasnovakowski@gmail.com
 
 <!--
 **DallasNovakowski/DallasNovakowski** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
