@@ -44,6 +44,9 @@ title: Dallas Novakowski
 
 I am studying at the University of Calgary‘s Haskayne School of Business, supervised by Mehdi Mourali. In my research, I use evolutionary psychology to try and help people make decisions. I am also excited to use and share open science practices. {{< staticref "uploads/DallasCV_July1_2021.doc" "newtab" >}}CV{{< /staticref >}}
 
-Contact me at dallasnovakowski@gmail.com, and see available materials at https://osf.io/p9vhn/ and https://github.com/DallasNovakowski
+Research materials are available through [GitHub](https://github.com/DallasNovakowski) and the [Open Science Framework](https://osf.io/p9vhn/).
+
+
+Contact me at dallasnovakowski@gmail.com
 
 
