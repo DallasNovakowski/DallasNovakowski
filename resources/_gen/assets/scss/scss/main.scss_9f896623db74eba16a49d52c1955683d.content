@@ -9500,3 +9500,18 @@ div.chart {
 
 .article-container {
   max-width: 1200px; }
+
+#TableOfContents li a, .toc-top li a {
+  padding: .125rem .5rem; }
+
+#TableOfContents li a {
+  font-size: .75rem; }
+
+.toc-top li a {
+  font-size: 1rem; }
+
+#TableOfContents ul {
+  margin-bottom: 0; }
+
+#TableOfContents, .docs-toc-title {
+  border-left: 1px solid #1565c0; }
