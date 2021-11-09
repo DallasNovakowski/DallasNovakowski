@@ -33,15 +33,11 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 
 [oTree](https://www.otree.org/) is an open-source, Python-based framework that lets you build Multiplayer strategy games, behavioral experiments, and surveys/quizzes. What I especially like is that entire projects can be saved in their raw code form, being easily shared, reproduced, and modified. 
 
-Despite its extreme versatility, picking up a new software platform for conducting studies can have a steep learning curve. Combined with a need to learn Python (and javascript/html/Django) makes it feel like a steep curve straight into HELL `r emojifont::emoji("scream")`
+Despite its extreme versatility, picking up a new software platform for conducting studies can have a steep learning curve. I personally struggle quite a lot to get the pieces fitting together. 
 
 One of the many hurdles I have faced in my oTree journey is getting my project properly onto a server and getting it implemented in Prolific.
 
-<br>
-
-*To my horror*, most forums assume some degree of knowledge and competence in programming.
-
-This guide is designed for people like me: those just getting into programming, with small tasks often ballooning into week-long slogs of work, frustration, and probably existential crises. What follows is a step-by-step instruction to get you from only running your project in localhost to having it be accessible to participants on Prolific. 
+This guide is designed for people like me: those just getting into programming, with simple things being harder than they need to be. What follows is a step-by-step instruction to get you from only running your project in localhost to having it be accessible to participants on Prolific. 
 
 Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge not included here. My hope is to provide updates to this post as I become brainier.
 
@@ -52,8 +48,7 @@ This guide is made to be followed sequentially. For example, you'll have a rough
 
 ## Useful Resources
 
-I am one of the least qualified people to give advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [Otree
-discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
+I am one of the least qualified people to give advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [Otree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
 
 Special thanks to Chris Wickens for being active not just in the development of oTree, but in responding to the many questions posed by the community.
 
@@ -69,8 +64,7 @@ I'm also indebted to those that have posted video tutorials on using oTree:
 
 I don't know whether these assumptions are a necessary part of being able to follow this workflow, but I do know I got it working in this environment
 
-1.  Have your project set up in PyCharm (free license available for
-    students and academics)
+1.  Have your project set up in PyCharm (free license available for students and academics)
 
 2.  Have a functioning, multi-app otree project
 
@@ -159,7 +153,7 @@ Recommended practice in prolific seems to be  re-directing participants back to 
 ```{python completionlink, eval=FALSE}
 SESSION_CONFIGS = [
 dict(name='your_prolific_study', 
-     app_sequence=['consent', 'intro', 'your_prolific_study',
+     app_sequence=['consent', 'intro', 'your_experiment',
      'questionnaires', 'payment_info'], 
      num_demo_participants=1, 
      completionlink=
@@ -239,14 +233,9 @@ PARTICIPANT_FIELDS =['consent']
 
 [Useful resource here](https://github.com/oTree-org/otree-docs/blob/143a6ab7b61d54ec2be1a8bc09515d78e0b07c71/source/server/heroku.rst#heroku-setup-option-2)
 
-Heroku is the recommended platform for getting your study online.
+Heroku is the major platform for getting your study online.
 
-There are a few ways to connect to heroku -- otreehub, github (through Heroku), and the command shell (uses git) - otreehub is currently the recommended method, but requires a subscription fee for \>2 projects. In fact, oTree hub doesn't recommend that you ever delete an app:
-
-> "After you finish a study, don't delete your site from Heroku, because oTree Hub's registration keys are not reusable. Instead, you should keep your site so that you can run your next study on it. You can deploy new code and even change the URL name. There is no need to create a new site".
-
-During learning/testing, I find that I end up going through a few different versions, so I describe the command shell and GitHub methods. I find the GitHub method most user-friendly.
-
+There are a few ways to connect to heroku -- otreehub, github (through Heroku), and the command shell (uses git). Through my personal learning, I became most familiar with the command shell method and GitHub, but I'd also try checking out oTree Hub, which is the recommended method for holding your hand through deployment.
 
 ## Command shell method
 
@@ -416,7 +405,6 @@ Heroku charges by the second, so monthly fees will generally be smaller than the
 
 13. Click `settings` tab, click  `reveal configs` button
 
-
 14.  in `key` field, type `OTREE_AUTH_LEVEL`; in `value` field, type `STUDY`; click `add`
     
         - Controls what a user without password can do
@@ -462,7 +450,6 @@ Your resulting link will look like:
 
 # Prolific Side
 
-
 After the past two sections, you should have the means to *track Prolific URLs*, *administer completion links*, and *host your study outside of your local server*. The next major step is to make this hosted URL available and compatible for administration on Prolific.
 
 If you open a new study in Prolific, their interface is very user-friendly in this respect
@@ -497,15 +484,11 @@ After configuring your URL (assuming functioning and open Heroku app),
 
 2.  Preview it
 
-
 > ![](prolific_preview.png)
-
 
 3.  Click on open study link
 
-
 > ![](open_study.png)
-
 
 4. Click through until the page that records `participant_label`
 
@@ -551,32 +534,6 @@ This started as a personal guide for my own quality assurance, so likely is miss
 <summary> ON PARTICIPANT LABELS </summary>
 
 Usually, if you are using participant labels, you need a `participant_label_file` which is a relative (or absolute) path to a text file with the participant labels. It should contain one participant label per line.
-
-</details>
-
-
-<details>
-
-<summary> ON OTREE HUB </summary>
-
-
--   Otreehub
-
-    -   Easy, quick
-    -   Requires publicizing code
-    -   Only two slots available
-
--   Github
-
-    -   Github desktop  add local depository  add file destination
-    -   Heroku  connect to github
-    -   Add repository name, search, and connect
-    -   Go to Heroku website, should see it connects
-    -   easy
-
--   Command prompt/terminal
-
-    -   Full control through advanced coding
 
 </details>
 
@@ -670,47 +627,12 @@ long as there are spots remaining.
 
 <details>
 
-<summary> OTREE STUDIO </summary>
-
--   Otree Studio is recommended in the docs, but it's a quasi-text-based
-    format.
-
-    -   If I'm going to be dealing with a bunch of text commands anyway,
-        I'd prefer to be more hands on (warning: greater need to
-        understand python and Django languages)
-
--   Easier to do straight imports from forums and external sources
-
--   Otree studio has limited project slots \~2
-
--   Otree studio is public
-
-o Projects cannot be imported into oTree Studio. 
-<https://groups.google.com/g/otree/c/OSzij9_NdUM/m/ZfIPFkzZBgAJ>
-
-
-</details>
-
-
-
-<details>
-
 <summary> NUMBER OF DATABASE CONNECTIONS </summary>
 
 
-<https://groups.google.com/g/otree/c/1aYV-JY5l2Y/m/_BiyB5WwBAAJ> - The
-number of database connections is not related to the number of
-participants. Rather, it is related to the number of server processes.
-In the simplest setup, each process has 1 database connection. Now that
-oTree runs in a single main process, it uses fewer connections than
-before, when there were 3 processes that used connection pooling which
-further complicates things.
+<https://groups.google.com/g/otree/c/1aYV-JY5l2Y/m/_BiyB5WwBAAJ> - The number of database connections is not related to the number of participants. Rather, it is related to the number of server processes. In the simplest setup, each process has 1 database connection. Now that oTree runs in a single main process, it uses fewer connections than before, when there were 3 processes that used connection pooling which further complicates things.
 
--   In reality, there may be a few more connections active. For example
-    there is actually a second process that runs a task queue. I haven't
-    confirmed this but I would expect that the new version should only
-    use like 5 or fewer connections even when there are many
-    participants.
+-   In reality, there may be a few more connections active. For example there is actually a second process that runs a task queue. I haven't confirmed this but I would expect that the new version should only use like 5 or fewer connections even when there are many participants.
 
 </details>
 
