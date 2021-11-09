@@ -27,15 +27,6 @@ output:
 
 
 
-<style type="text/css">
-.article-container {
-  max-width: 1000px;
-}
-</style>
-
-
-
-
 
 
 [oTree](https://www.otree.org/) is an open-source, Python-based framework that lets you build Multiplayer strategy games, behavioral experiments, and surveys/quizzes. What I especially like is that entire projects can be saved in their raw code form, being easily shared, reproduced, and modified. 
