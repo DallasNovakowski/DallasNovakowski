@@ -37,7 +37,7 @@ One of the many hurdles I have faced in my oTree journey is getting my project p
 
 This guide is designed for people like me: those just getting into programming, with simple things being harder than they need to be. What follows is a step-by-step instruction to get you from only running your project in localhost to having it be accessible to participants on Prolific. 
 
-Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge not included here. My hope is to provide updates to this post as I become brainier.
+Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge and not included here. My hope is to provide updates to this post as I become brainier.
 
 {{% callout note %}}
 This guide is made to be followed sequentially. For example, you'll have a rougher time skipping straight to the Heroku section, because some of the referenced objects are built for my example environment.
