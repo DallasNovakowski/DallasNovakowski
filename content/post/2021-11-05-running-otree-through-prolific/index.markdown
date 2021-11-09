@@ -46,7 +46,8 @@ This guide is made to be followed sequentially. For example, you'll have a rough
 
 ## Useful Resources
 
-I am one of the least qualified people to give advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [Otree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
+
+I am one of the least qualified people to give advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [oTree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
 
 Special thanks to Chris Wickens for being active not just in the development of oTree, but in responding to the many questions posed by the community.
 
