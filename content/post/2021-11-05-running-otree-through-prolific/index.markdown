@@ -8,7 +8,11 @@ categories:
   - otree
   - prolific
   - heroku
-tags: []
+tags: 
+  - github
+  - otree
+  - prolific
+  - heroku
 subtitle: ''
 summary: ''
 authors: []
