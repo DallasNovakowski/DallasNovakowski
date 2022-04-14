@@ -24,7 +24,7 @@ social:
   icon_pack: fas
   link: /#contact
 - display:
-    header: true
+    header: false
   icon: twitter
   icon_pack: fab
   label: Follow me on Twitter
@@ -35,12 +35,15 @@ social:
 - icon: github
   icon_pack: fab
   link: https://github.com/DallasNovakowski
-# - icon: linkedin
-#   icon_pack: fab
-#   link: https://www.linkedin.com/
 - icon: osf
   icon_pack: ai
   link: https://osf.io/p9vhn/
+- icon : orcid
+  icon_pack: ai
+  link: https://orcid.org/0000-0003-3234-3115 
+# - icon: linkedin
+#   icon_pack: fab
+#   link: https://www.linkedin.com/
 superuser: true
 title: Dallas Novakowski
 ---
