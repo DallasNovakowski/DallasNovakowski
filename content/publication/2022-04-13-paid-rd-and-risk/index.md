@@ -21,7 +21,12 @@ publishDate: "2015-10-11T00:00:00Z"
 summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus
   ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum.
 tags:
-- Source Themes
+- Envy
+- Inequality
+- Risk-taking
+- Personality
+- Relative Deprivation
+- Individual differences
 title: "Personal relative deprivation and risk An examination of individual
 differences in personality, attitudes, and behavioral outcomes"
 # url_code: ""
