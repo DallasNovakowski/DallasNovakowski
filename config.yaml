@@ -5,8 +5,8 @@ theme: "starter-hugo-academic"
 # This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
 
 title: Dallas Novakowski # Website name
-baseurl: 'http://your-site-name.netlify.app' # Website URL
-copyright: '' # Footer text, e.g. '© {year} Me'
+baseurl: 'http://dallasnova.netlify.app' # Website URL
+copyright: '© {year} Dallas Novakowski' # Footer text, e.g. '© {year} Me'
 
 ############################
 ## LANGUAGE
