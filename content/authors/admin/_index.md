@@ -48,7 +48,7 @@ superuser: true
 title: Dallas Novakowski
 ---
 
-I am a fifth-year PhD Candidate in Marketing at the University of Calgary‘s Haskayne School of Business, supervised by Mehdi Mourali. In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
+I am a fifth-year PhD Candidate in Marketing at the University of Calgary's Haskayne School of Business, supervised by Mehdi Mourali. In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
 
 My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on distrust and the consumption of security products, and the effects early traumatic events on substance abuse. {{< staticref "uploads/DallasCV_July1_2021.docx" "newtab" >}}CV{{< /staticref >}}
 
