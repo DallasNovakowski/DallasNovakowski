@@ -106,7 +106,7 @@ copyright_license:
     allow_derivatives: true
     share_alike: true
     allow_commercial: false
-    notice: 'This work is licensed under {license}'
+    notice: 'License: {license}'
 abstract_length: 135
 plugins_js: []
 avatar:
