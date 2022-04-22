@@ -22,7 +22,7 @@ role: PhD Candidate in Marketing
 social:
 - icon: envelope
   icon_pack: fas
-  link: /#contact
+  link: mailto:dallasnovakowski@gmail.com
 - display:
     header: false
   icon: twitter
