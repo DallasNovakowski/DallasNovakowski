@@ -1,0 +1,208 @@
+---
+title: Efficient data visualization with simpler raincloud plots
+author: Dallas Novakowski
+date: '2022-08-28'
+slug: efficient-data-visualization-with-simpler-raincloud-plots
+categories:
+  - dataviz
+  - r
+  - tutorial
+  - tidyverse
+  - ggplot2
+tags:
+  - raincloud
+  - data visualization
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2022-08-28T20:08:11-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+One major challenge in data visualization is making plots that are both transparent and simple. Raincloud plots are a recent addition to the collective data science toolbox, allowing for raw data, density distributions, and boxplots to be presented simultaneously. I find the density and boxplot largely redundant; both capture the variable's locality, spread, and skewness. Plots have limited space to communicate a potentially complex story, so objects should strive for efficiency. A straightforward modification is to replace boxplots by adding quantiles into the density distribution.
+
+```{r load-packages, echo = F}
+library(tidyverse)
+library(ggdist) # for shadeable density slabs
+library(ggbeeswarm)
+library(gghalves) # for half-half geoms
+library(ggpp) # for position_dodge2nudge
+library(cowplot) # for publication-ready themes
+```
+
+
+```{r load-data, echo=FALSE}
+df <- data.frame(score = rgamma(300, 4, 1), 
+                 gender = sample(c("M", "F"), 300, replace = TRUE), 
+                genotype = factor(sample(1:3, 300, replace = TRUE)))
+
+
+
+cbPalette <-
+  c(
+    "#999999",
+    "#E69F00",
+    "#56B4E9",
+    "#009E73",
+    "#F0E442",
+    "#0072B2",
+    "#D55E00",
+    "#CC79A7"
+  )
+
+cbPalette <- lighten(
+  cbPalette,
+  amount = 0.6,
+  method = c("relative", "absolute"),
+  space = c(
+    # "HCL"
+    "HLS"
+            # "combined"
+            ),
+  fixup = TRUE
+)
+```
+
+
+
+```{r first-plot, echo=FALSE}
+ggplot(data = df, 
+       aes(y = score,
+           x = genotype,
+           shape = gender,
+           fill = gender)) +
+  stat_slab(alpha = .5,side = "right", scale = 0.4,show.legend = F,
+            position = position_dodge(width = .8),
+    aes(fill_ramp = stat(level)),.width = c(.50, .95,1)) +
+  gghalves::geom_half_point(aes(color = gender),
+                            position = position_dodge2nudge(),
+  side = "l",
+  range_scale = .5,
+  alpha = .3,
+  size = 1
+) +
+  scale_colour_manual(values = cbPalette, aesthetics = c("colour","fill"))+
+  guides(fill_ramp = "none",color = guide_legend(override.aes = list(
+    size = 5,
+    alpha = 1))) + 
+    geom_pointrange(position = position_dodge2nudge(x=.05,width = .8),fatten = 1.2,show.legend = FALSE,mapping = aes(x = genotype, y = score,shape = gender,
+           fill = gender),
+                  stat = "summary",
+                  fun.y = mean) +
+  theme_half_open() + 
+  coord_flip()
+```
+
+
+I've tried using raincloud plots, but I often need to add extra geoms like the mean and confidence intervals. By the end, I find that the resulting plots have more visual clutter than I'd like.
+
+<!-- but whenever I do, I've been put off by the sheer amount of stuff on display, especially when I want to add extra geoms, such as  mean-95% CI values, connecting lines, and annotations. -->
+
+
+```{r rain-box-mean}
+ggplot(data = df, 
+       aes(y = score,
+           x = genotype,
+           shape = gender,
+           fill = gender)) +
+  stat_slab(alpha = .5,side = "right", scale = 0.4,show.legend = F,
+            position = position_dodge(width = .8)) +
+  gghalves::geom_half_point(aes(color = gender),
+                            position = position_dodge2nudge(x = -.05, width = .8),
+  side = "l",
+  range_scale = .4,
+  alpha = .3,
+  size = 1
+) +  geom_boxplot(width = .05,alpha = .5,outlier.alpha=0,position = position_dodge(width  = .8),show.legend = FALSE) +
+  scale_colour_manual(values = cbPalette, aesthetics = c("colour","fill"))+
+  guides(fill_ramp = "none",color = guide_legend(override.aes = list(
+    size = 5,
+    alpha = 1))) + 
+    geom_pointrange(position = position_dodge2nudge(x=.05,width = .8),fatten = 1.2,show.legend = FALSE,mapping = aes(x = genotype, y = score,shape = gender,
+           fill = gender),
+                  stat = "summary",
+                  fun.y = mean) +
+  theme_half_open() + 
+  coord_flip()
+```
+
+
+One appealing method is to just use kernel-jittered raw data, but the the "accessible" gold standard is violin plots, showing a variable's density, often overlaid with mean values and quantile lines. I find the mirrored density plot in a violin unappealing, because it is redundant with no extra information content.
+
+
+Raincloud plots consist of a density distribution, box-and-whisker plot, and raw data (often with transparency and/or jittering to compensate for overplotting)
+
+
+Importantly, shading a density curve according to quantiles looks intuitive - you can clearly see the "inside" and "outside" values.
+
+
+Many nerds want to see the underlying data structure
+
+redundancy seems worth eliminating.
+
+
+
+One alternative to jittering your raw data is the `ggdist::stat_dots` element. To address overplotting, `stat_dots` opts for stacking and resizing points like a histogram. The resulting raw data lacks that "rainy" look, but the plotting helps in identifying over-represented response categories (e.g., many respondents answering at the min, median, or max points of a self-report scale). In addition, the stacking has a crisp look that I find very satisfying.
+
+
+```{r histo-dots}
+ggplot(data = df, 
+       aes(y = score,
+           x = genotype,
+           shape = gender,
+           fill = gender)) +
+  stat_slab(side = "right", scale = 0.4,show.legend = F,
+            position = position_dodge(width = .8),
+    aes(fill_ramp = stat(level)),.width = c(.50, .95,1)) +
+
+    stat_dots(side = "left",scale = 0.3,show.legend = T,.width = c(0.5, 0.95),
+    position = position_dodge(width = .8),
+                    aes(color = gender)) +
+  
+  scale_colour_manual(values = cbPalette, aesthetics = c("colour","fill"))+
+  guides(fill_ramp = "none",color = guide_legend(override.aes = list(
+    size = 5,
+    alpha = 1))) + 
+    geom_pointrange(position = position_dodge2nudge(x=.05,width = .8),fatten = 1.2,show.legend = FALSE,mapping = aes(x = genotype, y = score,shape = gender,
+           fill = gender),
+                  stat = "summary",
+                  fun.y = mean) +
+  theme_half_open()
+```
+
+
+```{r}
+df2 <- data.frame(score = rgamma(3000, 4, 1), 
+                 gender = sample(c("M", "F"), 300, replace = TRUE), 
+                genotype = factor(sample(1:3, 300, replace = TRUE)))
+
+```
+
+This method can be used with large sample methods as well. You can adjust the quantiles argument to change the granularity of the points; size of points change automatically.
+
+```{r histo-dots2}
+ggplot(data = df2, 
+       aes(y = score,x = genotype,fill = gender)) +
+  stat_slab(side = "right", scale = 0.4,
+            position = position_dodge(width = .8),
+            aes(fill_ramp = stat(level)),.width = c(.50, .95,1)) +
+  stat_dots(side = "left",scale = 0.4, show.legend = F,
+              quantiles = 1000,layout = "weave",dotsize=.99,
+            position = position_dodge(width = .8),
+            aes(color = gender, shape = "20")) +
+  geom_pointrange(position = position_dodge2nudge(x=.05,width = .8),fatten = 1.2,show.legend = FALSE,
+                  mapping = aes(x = genotype, y = score, shape = gender,
+                                fill = gender),
+                  stat = "summary",
+                  fun.y = mean) +
+  scale_colour_manual(values = cbPalette, aesthetics = c("colour","fill"))+
+  guides(fill_ramp = "none") + 
+    
+  theme_half_open()
+```
+
