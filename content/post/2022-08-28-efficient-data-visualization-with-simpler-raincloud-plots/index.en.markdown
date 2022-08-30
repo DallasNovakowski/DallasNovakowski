@@ -29,7 +29,46 @@ draft: true
 ---
 
 
-```{r load-packages, echo = F, warning=FALSE,message=F}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+One major challenge in data visualization is making plots that are both transparent and simple. Raincloud plots are a recent addition to the collective data science toolbox, allowing for raw data, density distributions, and boxplots to be presented simultaneously. Here, we'll explore a modification, what I'll call a *fadecloud*, that removes the boxplot and instead colors in the density distribution according to meaningful cut-off points.
+
+<!-- or maybe rampcloud, boxcloud, intervalcloud, quantcloud, rangecloud) -->
+
+<!-- At the end of the day, raincloud plots are not a simple way to vizualize data. I think bar plots have been so ubiquitous because there we have some hard-wired, lizard-brain intuition that understands "more bar is more number."  -->
+
+I've tried using raincloud plots, but I often need to add extra geoms like the mean and confidence intervals. By the end, there is more visual clutter than I'd like. I find that in a raincloud plot, a density distribution and boxplot are a bit redundant; both capture the variable's locality, spread, and skewness. The major difference is that boxplots visualize discrete values and cutoffs, whereas the density distribution provides a more holistic picture of the data. Combining the boxplot and density objects might help improve the plot's efficiency, presenting equivalent information with fewer objects.
+
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/rain-box-mean-1.png" width="672" />
+
+Please note I custom made the raincloud plots in this post for increased comparability, while these versions capture the core features of the raincloud plot, they are generally better-implemented in packages like [{RainCloudPlots}](https://github.com/RainCloudPlots/RainCloudPlots).
+
+<!-- By making existing plot elements more informative -->
+
+<!-- I suggest that the plot space can be used more efficiently by c -->
+
+<!-- The raincloudplots package can create some beautiful and elegant plots. -->
+
+
+# Getting started
+
+Load packages...
+
+
+```r
 library(tidyverse)
 library(ggdist) # for shadeable density slabs
 library(gghalves) # for half-half geoms
@@ -39,8 +78,10 @@ library(colorspace) # for lightening color palettes
 library(gridExtra) # for grid.arrange
 ```
 
+Create data...
 
-```{r load-data, echo=FALSE, warning=FALSE,message=F}
+
+```r
 set.seed(1234)
 
 df <- data.frame(satisfaction = rgamma(300, 4, 1), 
@@ -48,8 +89,10 @@ df <- data.frame(satisfaction = rgamma(300, 4, 1),
                 brand = factor(sample(1:3, 300, replace = TRUE)))
 ```
 
+Set ggplot canvas and styling...
 
-```{r cloudplot,echo=F, warning=FALSE,message=F}
+
+```r
 # Setting colorblind-friendly palette
 cbPalette <-c("#999999","#E69F00", "#56B4E9","#009E73",
               "#F0E442", "#0072B2", "#D55E00","#CC79A7")
@@ -67,83 +110,6 @@ cloudplot <- ggplot(data = df,
 ```
 
 
-```{r new-rain, echo=FALSE, warning=FALSE,message=F, eval=F}
-cloudplot +
-  # density slab
-    stat_slab(side = "right", scale = 0.4,show.legend = F,
-            position = position_dodge(width = .8),
-            aes(fill_ramp = stat(level)),.width = c(.50, .95,1)) +
-  # dots
-    gghalves::geom_half_point(aes(color = owner),
-                            position = position_dodge2nudge(),
-                            side = "l", range_scale = .5,
-                            alpha = .6, size = 1.5) +
-  # dot-whisker for means
-  stat_summary(fun.data = "mean_cl_normal",show.legend = FALSE,size = .4,
-               position = position_dodge2nudge(x=.05,width = .8)) +
-  coord_flip()
-```
-
-
-```{r save-fadecloud, echo = F, eval=FALSE}
-ggsave("featured-fadecloud.png", width = 10, height = 6, units = "in", dpi = 300)
-```
-
-One major challenge in data visualization is making plots that are both transparent and simple. Raincloud plots are a recent addition to the collective data science toolbox, allowing for raw data, density distributions, and boxplots to be presented simultaneously. Here, we'll explore a modification, what I'll call a *fadecloud*, that removes the boxplot and instead colors in the density distribution according to meaningful cut-off points.
-
-<!-- or maybe rampcloud, boxcloud, intervalcloud, quantcloud, rangecloud) -->
-
-<!-- At the end of the day, raincloud plots are not a simple way to vizualize data. I think bar plots have been so ubiquitous because there we have some hard-wired, lizard-brain intuition that understands "more bar is more number."  -->
-
-I've tried using raincloud plots, but I often need to add extra geoms like the mean and confidence intervals. By the end, there is more visual clutter than I'd like. I find that in a raincloud plot, a density distribution and boxplot are a bit redundant; both capture the variable's locality, spread, and skewness. The major difference is that boxplots visualize discrete values and cutoffs, whereas the density distribution provides a more holistic picture of the data. Combining the boxplot and density objects might help improve the plot's efficiency, presenting equivalent information with fewer objects.
-
-
-```{r rain-box-mean, warning=FALSE,message=F, echo = F}
- cloudplot +
-  # density slab  
-  stat_slab(side = "right", scale = 0.4,show.legend = F,
-            position = position_dodge(width = .8)) +
-    # dots
-   gghalves::geom_half_point(aes(color = owner),
-                            position = position_dodge2nudge(x = -.05, width = .8),
-                            side = "l", range_scale = .4, alpha = .7,size = 1) +  
-  
-   geom_boxplot(width = .05,alpha = .5,outlier.alpha=0,
-               position = position_dodge(width  = .8),show.legend = FALSE) +
-  # dot-whisker for means
-    stat_summary(fun.data = "mean_cl_normal",show.legend = FALSE,size = .4,
-               position = position_dodge2nudge(x=.05,width = .8)) +
-
-  coord_flip()
-```
-
-Please note I custom made the raincloud plots in this post for increased comparability, while these versions capture the core features of the raincloud plot, they are generally better-implemented in packages like [{RainCloudPlots}](https://github.com/RainCloudPlots/RainCloudPlots).
-
-<!-- By making existing plot elements more informative -->
-
-<!-- I suggest that the plot space can be used more efficiently by c -->
-
-<!-- The raincloudplots package can create some beautiful and elegant plots. -->
-
-
-# Getting started
-
-Load packages...
-
-```{r chunk-package, ref.label=c('load-packages'), eval=F,echo=T}
-```
-
-Create data...
-
-```{r chunk-data, ref.label=c('load-data'), eval=F,echo=T}
-```
-
-Set ggplot canvas and styling...
-
-```{r chunk-canvas, ref.label=c('cloudplot'), eval=F,echo=T}
-```
-
-
 # Fading (or shading) your distribution
 
 An easy way to include shading into a density distribution is through the [{ggdist}](https://mjskay.github.io/ggdist/) package. In my eyes, {ggdist} is a dark horse in the data science ecosystem. It doesn't seem to get a lot of attention in your average forum or blog, but it has loads of functionality for visualizing distributions and uncertainty. 
@@ -151,7 +117,8 @@ An easy way to include shading into a density distribution is through the [{ggdi
 The fading is accomplished through the `fill_ramp` aesthetic, in combination with the `.width` attribute, which specifies the quantiles you want to shade. I personally like the `c(.50, .95, 1)` setting, which gives an intuitive picture of the inner- and outer- halves, while showing outliers beyond the 95th percentile, but you can change the quantiles to suit your needs. The shading defaults to white, but you can also modify it to ramp towards other colors.
 
 
-```{r v-fade-vio, warning=FALSE,message=F}
+
+```r
 ggplot(data = df, aes(y = satisfaction, x = brand)) +
   # density distribution slab
   stat_slab(side = "both", show.legend = T,
@@ -167,6 +134,8 @@ ggplot(data = df, aes(y = satisfaction, x = brand)) +
   theme_half_open()
 ```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/v-fade-vio-1.png" width="672" />
+
 Despite the questionable coloring, you can see how fill_ramp can also be used for violin plots. So when you want a more streamlined, aggregated plot, you have another option beyond just choosing either a violin plot or a boxplot.
 
 # Adding raw data to complete the fadecloud
@@ -174,37 +143,14 @@ Despite the questionable coloring, you can see how fill_ramp can also be used fo
 An alternative to jittering your raw data is the `ggdist::stat_dots` element. To address overplotting, `stat_dots` opts for stacking and resizing points. The resulting raw data looks more "drippy" than "rainy," but I think the stacking ultimately makes the raw data more useful when trying to identify over/under-populated bins (e.g., many respondents answering at the min, median, or max points of a self-report scale). In addition, the stacking has a crisp look that can be very satisfying.
 
 
-```{r satisfying, eval = F, echo = F}
-library(png)
-library(jpeg)
-library(grid)
-library(tibble)
-library("patchwork")
-
-ima <- readPNG("satisfying.png", native = TRUE)
-
-  inset_element(p = ima,
-                left = 0.65,
-                bottom = 0.95,
-                right = 0.95,
-                top = 0.65) 
-
-
-ima2 <- matrix(rgb(ima[,,1],ima[,,2],ima[,,3], ima[,,4] * 0.1), nrow=dim(ima)[1])
-
-
-im <- readPNG("satisfied_seal.png", native = TRUE)
-
-im2 <- matrix(rgb(im[,,1],im[,,2],im[,,3], im[,,4] * 0.1), nrow=dim(im)[1])
-
-
-```
 
 
 
 
 
-```{r v-histodots-fadecloud, warning=FALSE,message=F}
+
+
+```r
 fadecloud <- cloudplot +
   stat_slab(side = "right", scale = 0.4,show.legend = F,
             position = position_dodge(width = .8),
@@ -216,15 +162,14 @@ fadecloud <- cloudplot +
   stat_summary(fun.data = "mean_cl_normal",show.legend = FALSE,size = .4,
                position = position_dodge2nudge(x=.05,width = .8))
 ```
-```{r present-fadecloud,echo=FALSE}
-fadecloud
-```
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/present-fadecloud-1.png" width="672" />
 
 
 `stat_dots` can be used with large samples as well. You can adjust the `quantiles` argument to change the granularity of the points; size of points change automatically. Generally, more quantiles will give your raw data fewer, smaller bins, looking more like a noisy histogram. Fewer quantiles will aggregate more data points into fewer bins, and look like a smooth, 'dotty' reflection of your density curve.
 
 
-```{r histo-dots2, warning=FALSE,message=F}
+
+```r
 df2 <- data.frame(satisfaction = rgamma(3000, 4, 1), 
                  owner = sample(c("dogs", "cats"), 3000, replace = TRUE), 
                 brand = factor(sample(1:3, 3000, replace = TRUE)))
@@ -248,12 +193,15 @@ ggplot(data = df2,
   coord_flip()
 ```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/histo-dots2-1.png" width="672" />
+
 
 <!-- At this orientation, maybe a name for it is "drip-plot" -->
 
 And then there is the typical raincloud, featured at the beginning of this post, with 'rainy' dots being drawn with `gghalves::geom_half_point`, coupled with a boxplot for flavor. Note how the boxes and 50% region are consistent, but the whiskers and 95% shading do not always line up, reflecting different thresholds for identifying outliers. Whereas quantiles are at fixed percentiles, boxplots compute whisker length as  Q1 - 1.5\*IQR and Q3 + 1.5\*IQR (IQR: Inter Quartile Range).
 
-```{r new-rain2, echo=FALSE, warning=FALSE,message=F, echo = T}
+
+```r
 raincloud <- cloudplot +
   # density slab
     stat_slab(side = "right", scale = 0.4,show.legend = F,
@@ -273,9 +221,7 @@ raincloud <- cloudplot +
   coord_flip()
 ```
 
-```{r show-raincloud, echo = F}
-raincloud
-```
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/show-raincloud-1.png" width="672" />
 
 
 Other features like a median are also easy enough to add with point geoms. A nicer option though would be to put a single line through the distribution at the median. Hopefully some day we can also get the option to have fadeclouds mirror each other, like in split violin plots and some of the new options in the r package {raincloudplots}. In addition to helping to emphasize groups at the same axis level, it might save some space in the event of extremely high density peaks, allowing peaks to face away from each other. 
@@ -286,7 +232,8 @@ Other features like a median are also easy enough to add with point geoms. A nic
 
 One appealing method is to just use raw data. As mentioned earlier, with a smaller number of quantiles ("bins" for a range of values), stacked points with `stat_dots` start to look like a density distribution anyway.
 
-```{r v-vipo, warning=FALSE,message=F}
+
+```r
 vipo <- cloudplot +
   # dots
   stat_dots(side = "both",scale = 0.6,show.legend = T,dotsize = 1.5,
@@ -340,9 +287,7 @@ scale_colour_ramp_discrete( from = "white",
 ```
 
 
-```{r arrange, echo = F}
-grid.arrange(vipo,vipo_box,vipo_int, vipo_fade, ncol = 2,nrow=2) 
-```
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/arrange-1.png" width="672" />
 
 These plots are small, but that can be helpful to get a sense of what is makes sense at a glance. I think my code for fading raw data is janky, but even if it worked, it doesn't seem to be the way to go, the space between points dilutes how informative fading would be. On a side note, I didn't expect the stacked raw data with a boxplot to look as good as it does.
 
@@ -350,7 +295,31 @@ These plots are small, but that can be helpful to get a sense of what is makes s
 
 Below is a final collection of my favorite plotting designs. Take a look and see what suits your goals and tastes. 
 
-```{r new-rain3, echo=FALSE, warning=FALSE,message=F, echo = F}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/arrange-new-1.png" width="672" />
+
+<details>
+<summary> <b> Show me the code for new additions in these last few plots!</b> </summary>
+
+`greetings_supernerd`
+
+![](hackit.png)
+
+
+```r
 new_raincloud  <- cloudplot +
   # density slab
     stat_slab(side = "left", scale = 0.4,show.legend = F, alpha = .7,
@@ -367,9 +336,6 @@ new_raincloud  <- cloudplot +
   stat_summary(fun.data = "mean_cl_normal",show.legend = FALSE,size = .2,
                position = position_dodge2nudge(width = .8,x = -.06)) + labs(subtitle = "Regular raincloud")+
        theme(legend.position = "none")
-```
-
-```{r fadecloud-title, echo = F}
 new_fadecloud <- cloudplot +
 
   stat_slab(side = "left", scale = 0.4,show.legend = F,
@@ -383,10 +349,6 @@ stat_dots(scale = 0.5,show.legend = T,dotsize = 1.5,
                position = position_dodge2nudge(width = .8,x = -.06))+
   labs(subtitle = "New fadecloud")+
   theme(legend.position = "none")
-```
-
-
-```{r final-fade-vio, warning=FALSE,message=F, echo = F}
 new_vio <- ggplot(data = df, aes(y = satisfaction, x = brand, group = owner)) +
   # density distribution slab
   stat_slab(side = "both", show.legend = T,
@@ -405,27 +367,6 @@ new_vio <- ggplot(data = df, aes(y = satisfaction, x = brand, group = owner)) +
   labs(subtitle = "Faded violin")+
   theme(legend.position = "none")
 
-```
-
-```{r vipo-dark, echo = F, eval=FALSE}
-vipo_fade_dark <- ggplot(data = df, aes(y = satisfaction, x = brand)) +
-    stat_dots(side = "both", scale = 0.4, show.legend = T, dotsize = 1.5,
-            position = position_dodge(width = .8), aes(colour_ramp = stat(level),color = owner, fill_ramp = stat(level),fill = owner)) +
-
-scale_colour_ramp_discrete( from = "white",
-  range = c(0.9, 1), aesthetics = "clour_ramp") +
-
-# scale_fill_ramp_discrete(  from = "white",
-#   range = c(0.7, 1), aesthetics = "fill_ramp") +
-  
-  scale_colour_manual(values = cbPalette1, aesthetics = c("colour","fill"))+
-  guides(colour_ramp = "none") + 
-  theme_half_open() +
-       theme(legend.position = "none")+ labs(subtitle = "Fading points")
-```
-
-
-```{r split-vio, echo = F}
 #This one doesn't seem to be appearing on the html page, so special secret code for you, my friend!
 
 GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin,
@@ -511,22 +452,6 @@ splitplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
   theme_half_open() +   guides(fill_ramp = "none") +
   labs(subtitle = "Split violin")+
   theme(legend.position = "none")
-```
-
-
-
-```{r arrange-new, echo = F, fig.height=8}
-grid.arrange(vipo,vipo_box,new_raincloud,new_fadecloud,new_vio,splitplot, ncol = 2,nrow=3, respect = FALSE) 
-```
-
-<details>
-<summary> <b> Show me the code for new additions in these last few plots!</b> </summary>
-
-`greetings_supernerd`
-
-![](hackit.png)
-
-```{r extra-plots, ref.label=c('new-rain3',"fadecloud-title",'final-fade-vio','split-vio'), eval=F,echo=T}
 ```
 </details>
 
