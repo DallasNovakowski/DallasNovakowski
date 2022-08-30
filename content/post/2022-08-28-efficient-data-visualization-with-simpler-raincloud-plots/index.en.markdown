@@ -25,7 +25,6 @@ image:
   focal_point: ''
   preview_only: no
 projects: []
-draft: true
 ---
 
 
@@ -112,7 +111,7 @@ cloudplot <- ggplot(data = df,
 
 # Fading (or shading) your distribution
 
-An easy way to include shading into a density distribution is through the [{ggdist}](https://mjskay.github.io/ggdist/) package. In my eyes, {ggdist} is a dark horse in the data science ecosystem. It doesn't seem to get a lot of attention in your average forum or blog, but it has loads of functionality for visualizing distributions and uncertainty. 
+An easy way to include shading into a density distribution is through the [{ggdist}](https://mjskay.github.io/ggdist/) package. It has loads of functionality for visualizing distributions and uncertainty. 
 
 The fading is accomplished through the `fill_ramp` aesthetic, in combination with the `.width` attribute, which specifies the quantiles you want to shade. I personally like the `c(.50, .95, 1)` setting, which gives an intuitive picture of the inner- and outer- halves, while showing outliers beyond the 95th percentile, but you can change the quantiles to suit your needs. The shading defaults to white, but you can also modify it to ramp towards other colors.
 
