@@ -1,0 +1,3 @@
+https://dallasnova.netlify.app/*  https://dallasnova.rbind.io/:splat  301!
+http://dallasnova.netlify.app/*   https://dallasnova.rbind.io/:splat  301!
+http://dallasnova.rbind.io/*      https://dallasnova.rbind.io/:splat  301!
