@@ -2,7 +2,7 @@
 title: Efficient data visualization with faded raincloud plots
 author: Dallas Novakowski
 date: '2022-08-28'
-slug: efficient-data-visualization-with-boxless-raincloud-plots
+slug: efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot
 categories:
   - dataviz
   - r
@@ -13,10 +13,16 @@ categories:
   - experiments
 tags:
   - raincloud
+  - r
   - data visualization
   - experiments
+  - raincloud
+  - boxplot
+  - ggplot
+  - ggdist
 subtitle: 'Fadeclouds, anyone?'
-summary: ''
+summary: 'Fadeclouds: Improving raincloud plots in ggplot by deleting boxplots and shading density distribution, using ggdist'
+description: 'Fadeclouds: Improving raincloud plots in ggplot by deleting boxplots and shading density distribution, using ggdist'
 authors: []
 lastmod: '2022-08-28T20:08:11-07:00'
 featured: no
