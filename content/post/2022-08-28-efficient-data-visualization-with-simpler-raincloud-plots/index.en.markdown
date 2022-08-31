@@ -21,8 +21,10 @@ tags:
   - ggplot
   - ggdist
 subtitle: 'Fadeclouds, anyone?'
-summary: 'Fadeclouds: Improving raincloud plots in ggplot by deleting boxplots and shading density distribution, using ggdist'
-description: 'Fadeclouds: Improving raincloud plots in ggplot by deleting boxplots and shading density distribution, using ggdist'
+summary: "The raincloud plot is probably the 'gold standard' in transparent data vizualization, but it requires charting a lot of objects. To improve the legibility of the raincloud, we'll explore a modification that colors in the density distribution according to meaningful cut-off points. The result is a 'fadecloud' plot, which can be presented without the boxplot. Done primarily with ggplot and ggdist."
+
+description: "The raincloud plot is probably the 'gold standard' in transparent data vizualization, but it requires charting a lot of objects. To improve the legibility of the raincloud, we'll explore a modification that colors in the density distribution according to meaningful cut-off points. The result is a 'fadecloud' plot, which can be presented without the boxplot. Done primarily with ggplot and ggdist."
+
 authors: []
 lastmod: '2022-08-28T20:08:11-07:00'
 featured: no
