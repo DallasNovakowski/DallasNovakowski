@@ -1,0 +1,124 @@
+---
+title: Running oTree on Prolific for Beginners
+author: ''
+date: '2021-11-05'
+slug: running-otree-on-prolific-for-beginners
+categories:
+  - github
+  - otree
+  - prolific
+  - heroku
+tags: 
+  - github
+  - otree
+  - prolific
+  - heroku
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-11-05T13:12:50-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+output:
+  blogdown::html_page:
+    number_sections: true
+    toc: true
+---
+
+
+
+
+
+[oTree](https://www.otree.org/) is an open-source, Python-based framework that lets you build Multiplayer strategy games, behavioral experiments, and surveys/quizzes. What I especially like is that entire projects can be saved in their raw code form, being easily shared, reproduced, and modified. 
+
+Despite its extreme versatility, picking up a new software platform for conducting studies can have a steep learning curve. I personally struggle quite a lot to get the pieces fitting together. 
+
+One of the many hurdles I have faced in my oTree journey is getting my project properly onto a server and getting it implemented in Prolific.
+
+This guide is designed for people like me: those just getting into programming, with simple things being harder than they need to be. What follows is a step-by-step instruction to get you from only running your project in localhost to having it be accessible to participants on Prolific. 
+
+Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge and not included here. My hope is to provide updates to this post as I become more knowledgeable.
+
+{{% callout note %}}
+This guide is made to be followed sequentially. For example, you'll have a rougher time skipping straight to the Heroku section, because some of the referenced objects are built for my example environment.
+{{% /callout %}}
+
+
+## Useful Resources
+
+
+I am far from qualified in giving advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [oTree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
+
+Special thanks to Chris Wickens for being active not just in the development of oTree, but in responding to the many questions posed by the community.
+
+- I'd also recommend checking out [oTree's example code repository](https://www.otreehub.com/code/) if you're in the early stages of working out how to use oTree. You can see a lot of examples of functions in different contexts, which I find helpful for learning (and stealing) 
+
+I'm also indebted to those that have posted video tutorials on using oTree:
+
+-   [oTree tutorials](<https://www.youtube.com/watch?v=VrPdBEghYEM>)
+
+-   [Accounting experiments](<https://www.accountingexperiments.com/post/otree-tutorial-part-4/>)
+
+# Assumptions
+
+I don't know whether these assumptions are a necessary part of being able to follow this workflow, but I do know I got it working in this environment
+
+1.  Have your project set up in PyCharm (free license available for students and academics)
+
+2.  Have a functioning, multi-app otree project
+
+    -   This guide might be limited to one-sided (i.e.,
+        non-partnered) studies, check accordingly
+
+3.  Have otree up-to-date to your preferences
+
+    -   `pip install otree`
+
+        -   to install otree lite (aka. Otree 5 -- not dependent on
+            Django)
+
+    -   If you would like to guarantee that you stay on version 3.x, use
+        this command next time you upgrade:
+
+        -   `pip3 install -U "otree\<5"`
+            (<https://groups.google.com/g/otree/c/D5TZseoELN0/m/eLLw1gTFBAAJ>)
+
+4.  You wish to connect heroku through github (instead of using otreehub)
+
+# Otree Side
+
+**How to integrate Prolific IDs in study**
+
+Identifying and storing Prolific IDs are necessary for making sure that participants are paid properly (e.g., making sure an ID isn't seen twice in the study, or being able to confirm whether an ID provided valid responses)
+
+Working with Prolific IDs in oTree is accomplished through configuring a **room** and the **study url**
+
+1.  Go to your `settings.py` and set `ROOMS` with your desired name (used
+    in url) and `display_name`
+
+For example:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
