@@ -56,7 +56,7 @@ One major challenge in data visualization is making plots that are both transpar
 
 <!-- At the end of the day, raincloud plots are not a simple way to vizualize data. I think bar plots have been so ubiquitous because there we have some hard-wired, lizard-brain intuition that understands "more bar is more number."  -->
 
-I've tried using raincloud plots, but I often need to add extra geoms like the mean and confidence intervals. By the end, there is more visual clutter than I'd like. I find that in a raincloud plot, a density distribution and boxplot are a bit redundant; both capture the variable's locality, spread, and skewness. The major difference is that boxplots visualize discrete values and cutoffs, whereas the density distribution provides a more holistic picture of the data. Combining the boxplot and density objects might help improve the plot's efficiency, presenting equivalent information with fewer objects.
+I've tried using raincloud plots, but I often need to add extra elements like the mean and confidence intervals. By the end, there is more visual clutter than I'd like. I find that in a raincloud plot, a density distribution and boxplot are a bit redundant; both capture the variable's locality, spread, and skewness. The major difference is that boxplots visualize discrete values and cutoffs, whereas the density distribution provides a more holistic picture of the data. Combining the boxplot and density objects might help improve the plot's efficiency, presenting equivalent information with fewer objects.
 
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/rain-box-mean-1.png" width="672" />
