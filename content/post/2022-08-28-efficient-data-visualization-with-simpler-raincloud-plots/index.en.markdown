@@ -61,7 +61,7 @@ I've tried using raincloud plots, but I often need to add extra geoms like the m
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/rain-box-mean-1.png" width="672" />
 
-Please note I custom made the raincloud plots in this post for increased comparability, while these versions capture the core features of the raincloud plot, they are generally better-implemented in packages like [{RainCloudPlots}](https://github.com/RainCloudPlots/RainCloudPlots).
+Please note that I made the raincloud plots in this post for increased comparability with other objects. While these custom rainclouds capture the core features of the raincloud plot, the method is generally better-implemented in packages like [{RainCloudPlots}](https://github.com/RainCloudPlots/RainCloudPlots).
 
 <!-- By making existing plot elements more informative -->
 
