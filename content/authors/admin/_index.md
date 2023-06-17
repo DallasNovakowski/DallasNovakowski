@@ -21,7 +21,6 @@ interests:
 organizations:
 - name: University of Calgary, Haskayne School of Business
   url: https://haskayne.ucalgary.ca/
-# role: PhD Candidate in Marketing
 social:
 - icon: envelope
   icon_pack: fas
