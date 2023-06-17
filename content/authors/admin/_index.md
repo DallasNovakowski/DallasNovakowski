@@ -2,13 +2,13 @@
 bio:  I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions.
 education:
   courses:
-  - course: PhD in Management (Marketing)
+  - course: Ph.D. in Management (Marketing)
     institution: University of Calgary, Haskayne School of Business
     year: 2023
-  - course: MA in Experimental and Applied Psychology
+  - course: M.A. in Experimental and Applied Psychology
     institution: University of Regina
     year: 2016
-  - course: BA in Psychology
+  - course: B.A. in Psychology
     institution: University of Regina
     year: 2014
 email: ""
@@ -50,7 +50,7 @@ superuser: true
 title: Dallas Novakowski, Ph.D.
 ---
 
-I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions. 
+I am a behavioral scientist interested in leveraging data science, consumer research, and evolutionary psychology to help people and organizations make better decisions. 
 
 In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
 
