@@ -2,9 +2,9 @@
 bio:  I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions.
 education:
   courses:
-    - course: PhD in Management (Marketing)
+  - course: PhD in Management (Marketing)
     institution: University of Calgary, Haskayne School of Business
-    year: 2016
+    year: 2023
   - course: MA in Experimental and Applied Psychology
     institution: University of Regina
     year: 2016
@@ -18,9 +18,9 @@ interests:
 - Inequality
 - Risk-taking
 - Competition and cooperation
-organizations:
-- name: University of Calgary, Haskayne School of Business
-  url: https://haskayne.ucalgary.ca/
+# organizations:
+# - name: University of Calgary, Haskayne School of Business
+#   url: https://haskayne.ucalgary.ca/
 social:
 - icon: envelope
   icon_pack: fas
@@ -50,7 +50,9 @@ superuser: true
 title: Dallas Novakowski, Ph.D.
 ---
 
-I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions. In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
+I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions. 
+
+In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
 
 My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on distrust and the consumption of security products, and the effects early traumatic events on substance abuse. {{< staticref "uploads/DallasCV_July1_2021.docx" "newtab" >}}CV{{< /staticref >}}
 
