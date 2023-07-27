@@ -104,7 +104,7 @@ Working with Prolific IDs in oTree is accomplished through configuring a **room*
 
 For example:
 
-```{python rooms, eval=FALSE}
+```{python rooms, python.reticulate = FALSE, eval=FALSE}
 ROOMS = [
     dict(
         name='your_study',
@@ -126,7 +126,7 @@ ROOMS = [
     -   Try one page after consent so you don't extract unnecessary info
         
         
-```{python player, eval=FALSE}
+```{python player, python.reticulate = FALSE, eval=FALSE}
 class Player(BasePlayer):
     prolific_id = models.StringField(default=str(" "))
 
@@ -155,7 +155,7 @@ Recommended practice in prolific seems to be  re-directing participants back to 
 
 4.  Update `completionlink` field in `session_configs` with a link to a prolific "completed submission" site with your custom completion code (use a placeholder link, and replace once you have a study created in prolific)
 
-```{python completionlink, eval=FALSE}
+```{python completionlink, python.reticulate = FALSE, eval=FALSE}
 SESSION_CONFIGS = [
 dict(name='your_prolific_study', 
      app_sequence=['consent', 'intro', 'your_experiment',
@@ -171,7 +171,7 @@ For better generality, I'd recommend assigning your `completionlink` variable to
 
 5. In `init` for your last app, configure a completion link for your very last page
 
-```{python payment, eval=FALSE}
+```{python payment, python.reticulate = FALSE, eval=FALSE}
 class PaymentInfo(Page):
     form_model = 'player'
 
@@ -209,7 +209,7 @@ The `is_display` statement in 5 is useful so that only participants who consent 
 <summary> BONUS: CONSENT CONFIGURATION </summary>
 
 
-```{python consent page, eval=FALSE}
+```{python consent page, python.reticulate = FALSE, eval=FALSE}
     @staticmethod       # populates a participant 
 #variable with the respondent's consent status (for use across apps)
     def before_next_page(player: Player, timeout_happened):
@@ -227,7 +227,7 @@ The `is_display` statement in 5 is useful so that only participants who consent 
 
 note: for this consent piping to work, you'll also need to go to `settings.py` and set 
 
-```{python participant consent, eval=FALSE}
+```{python participant consent, python.reticulate = FALSE, eval=FALSE}
 PARTICIPANT_FIELDS =['consent']
 ```
 
@@ -528,7 +528,7 @@ Be careful of adding variables to your study after deploying to Heroku (e.g., as
 {{% /callout %}}
 
 
-<br> **Voila! you should be good to go, please use your new-found computer powers for good.** 
+<br> **Voila! you should be good to go; please use your new-found computer powers for good.** 
 
 This started as a personal guide for my own quality assurance, so likely is missing information. Don't hesitate to reach out or comment with any contributions.
 

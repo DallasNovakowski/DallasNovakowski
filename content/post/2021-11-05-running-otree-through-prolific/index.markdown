@@ -41,7 +41,7 @@ One of the many hurdles I have faced in my oTree journey is getting my project p
 
 This guide is designed for people like me: those just getting into programming, with simple things being harder than they need to be. What follows is a step-by-step instruction to get you from only running your project in localhost to having it be accessible to participants on Prolific. 
 
-Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge and not included here. My hope is to provide updates to this post as I become brainier.
+Some things (like updating participant payoffs based on in-study decisions), are beyond my current knowledge and not included here. My hope is to provide updates to this post as I become more knowledgeable.
 
 {{% callout note %}}
 This guide is made to be followed sequentially. For example, you'll have a rougher time skipping straight to the Heroku section, because some of the referenced objects are built for my example environment.
@@ -51,7 +51,7 @@ This guide is made to be followed sequentially. For example, you'll have a rough
 ## Useful Resources
 
 
-I am one of the least qualified people to give advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [oTree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
+I am far from qualified in giving advice on topics of software. Better resources and smarter people can be found at the [oTree docs]( <https://otree.readthedocs.io/en/latest/index.html>), the [oTree Google groups forum]( <https://groups.google.com/g/otree>), or the [oTree discord channel](<https://discord.com/channels/857869226554818592/857869227066130444>).
 
 Special thanks to Chris Wickens for being active not just in the development of oTree, but in responding to the many questions posed by the community.
 
@@ -139,6 +139,7 @@ class Demographics(Page):
     def before_next_page(self, timeout_happened):
         self.prolific_id = self.participant.label
 pass
+
 ```
 
 
@@ -224,6 +225,7 @@ The `is_display` statement in 5 is useful so that only participants who consent 
     def app_after_this_page(player, upcoming_apps):
         if not player.consent:
             return upcoming_apps[-1]
+
 ```
 
 note: for this consent piping to work, you'll also need to go to `settings.py` and set 
@@ -402,9 +404,14 @@ Heroku charges by the second, so monthly fees will generally be smaller than the
 
 10. Add `postgres`
 
-    -   Standard 0 is often fine, but look at other options (e.g., Standard 2 or premium 0, premium 2 based on your needs -- better safe than sorry)
+    - An open-source relational database management
 
-11. Add `redis`
+    -   Standard 0 is often fine, but look at other options (e.g., Standard 2 or premium 0, premium 2 based on your needs -- better safe than sorry)
+  
+
+11. Add `redis` 
+
+      - Standing for  RE mote DI ctionary S erver: in-memory data structure store, in-memory key–value database
 
 12. Define `dyno`
 
@@ -451,7 +458,7 @@ Your resulting link will look like:
 
 -   If you want to test how the participant label is handled, keep a participant label file, and add some participant labels
 
-    -   Then, you can use a url that specifies a valid participant label using the `?participant_label=`argument
+    -   Then, you can use a url that specifies a valid participant label using the `?participant_label=` argument
 
         -   E.g. `https://your_heroku_app.herokuapp.com/room/your_prolific_study?participant_label=id_prolific_test`
 
@@ -527,7 +534,7 @@ Be careful of adding variables to your study after deploying to Heroku (e.g., as
 {{% /callout %}}
 
 
-<br> **Voila! you should be good to go, please use your new-found computer powers for good.** 
+<br> **Voila! you should be good to go; please use your new-found computer powers for good.** 
 
 This started as a personal guide for my own quality assurance, so likely is missing information. Don't hesitate to reach out or comment with any contributions.
 

@@ -43,6 +43,9 @@ social:
 - icon : orcid
   icon_pack: ai
   link: https://orcid.org/0000-0003-3234-3115 
+# - icon : cv
+#   icon_pack: ai
+#   link: ./uploads/DallasCV_July1_2021.docx
 # - icon: linkedin
 #   icon_pack: fab
 #   link: https://www.linkedin.com/
@@ -54,7 +57,12 @@ I am a behavioral scientist interested in leveraging data science, consumer rese
 
 In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
 
-My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on distrust and the consumption of security products, and the effects early traumatic events on substance abuse. {{< staticref "uploads/DallasCV_July1_2021.docx" "newtab" >}}CV{{< /staticref >}}
+My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on distrust and the consumption of security products, and the effects early traumatic events on substance abuse.
+
+<center> 
+
+#### <i class="fa fa-download" aria-hidden="true" style="color:#035AA6"></i> {{< staticref "uploads/novakowski_cv.pdf" "newtab" >}}Download my CV{{< /staticref >}}
+</center> 
 
 I am also excited to use and share open science practices. My research materials are available through [GitHub](https://github.com/DallasNovakowski) and the [Open Science Framework](https://osf.io/p9vhn/).
 
