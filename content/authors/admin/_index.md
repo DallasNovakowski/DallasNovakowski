@@ -55,9 +55,9 @@ title: Dallas Novakowski, Ph.D.
 
 I am a behavioral scientist interested in leveraging data science, consumer research, and evolutionary psychology to help people and organizations make better decisions. 
 
-In my research, I primarily use a of lens evolutionary psychology to investigate how inequality and risk-taking intersect to influence consumer behaviour. 
+In my research, I primarily investigate how social, cognitive, and emotional forces intersect to influence consumer behaviour. 
 
-My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on distrust and the consumption of security products, and the effects early traumatic events on substance abuse.
+My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, consumption of security products), and the effects early traumatic events on substance abuse.
 
 <center> 
 
