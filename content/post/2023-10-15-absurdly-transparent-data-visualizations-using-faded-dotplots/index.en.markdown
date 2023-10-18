@@ -1,6 +1,6 @@
 ---
-title: Simplify Transparent Data Visualizations Using Faded Dotplots and Shadeplots
-subtitle: 'An Introduction with lots of Usable Code'
+title: Simplifying Transparent Data Visualizations Using Faded Dotplots and Shadeplots
+subtitle: 'An Introduction with lots of Usable R Code'
 author: Dallas Novakowski
 date: '2023-10-15'
 slug: creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots
