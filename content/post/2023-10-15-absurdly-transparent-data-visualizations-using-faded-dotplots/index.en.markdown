@@ -44,9 +44,12 @@ image:
 projects: []
 ---
 
-<details>
-<summary> <b> Click here if you just want some copy/paste-ready code!</b> </summary>
+<br>
 
+<details>
+<summary> <b> Click here if you just want some code that is ready to copy and paste!</b> </summary>
+
+<br>
 
 
 ```r
