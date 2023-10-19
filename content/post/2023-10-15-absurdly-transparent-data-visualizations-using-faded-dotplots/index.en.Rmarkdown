@@ -254,7 +254,7 @@ Depending on your tastes and viewing situation, you might find it is hard to dis
 
 ```{r faded, echo=T}
 # create-15-faded-point-plot 
-less_faded_dotplot_15 <- faded_dotplot_mean_text +
+faded_dotplot_15 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.15, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "15% color")
@@ -270,7 +270,7 @@ faded_dotplot_mean_25 <- faded_dotplot_mean_text +
 
 ```{r less-faded-35}
 # create-35-faded-point-plot
-less_faded_dotplot_35 <- faded_dotplot_mean_text +
+faded_dotplot_35 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.35, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "35% color")
@@ -278,7 +278,7 @@ less_faded_dotplot_35 <- faded_dotplot_mean_text +
 
 ```{r less-faded}
 # create-55-faded-point-plot
-less_faded_dotplot_55 <- faded_dotplot_mean_text +
+faded_dotplot_55 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.55, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "55% color")
@@ -289,8 +289,8 @@ less_faded_dotplot_55 <- faded_dotplot_mean_text +
 
 ```{r arrange-fading, echo = F, fig.height=8}
 # arrange-plots-together
-gridExtra::grid.arrange(less_faded_dotplot_15, faded_dotplot_mean_25,
-                        less_faded_dotplot_35, less_faded_dotplot_55,
+gridExtra::grid.arrange(faded_dotplot_15, faded_dotplot_mean_25,
+                        faded_dotplot_35, faded_dotplot_55,
              ncol = 2,nrow=2, respect = FALSE) 
 ```
 
@@ -633,7 +633,7 @@ splitplot <- canvas +
 ```{r arrange-alternatives, echo = F, fig.height=15}
 # arrange-alterative-plots-together
 gridExtra::grid.arrange(
-  boxplot, barplot, #1
+  barplot, boxplot, #1
   splitplot, viofade, #2
   vipo, vipo_box, #3
   raincloud, fadecloud, #4
@@ -755,8 +755,9 @@ An extra consideration is getting at least some contrast between your darkest do
 ```{r gray-alternatives, echo = F, fig.height=15}
 # arrange-alterative-plots-together
 gridExtra::grid.arrange(
+  barplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")),
   boxplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
-  barplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), #1
+   #1
   splitplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
   viofade + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), #2
   vipo + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 

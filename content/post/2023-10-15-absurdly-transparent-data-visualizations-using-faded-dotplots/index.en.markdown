@@ -261,7 +261,7 @@ Depending on your tastes and viewing situation, you might find it is hard to dis
 
 ```r
 # create-15-faded-point-plot 
-less_faded_dotplot_15 <- faded_dotplot_mean_text +
+faded_dotplot_15 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.15, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "15% color")
@@ -279,7 +279,7 @@ faded_dotplot_mean_25 <- faded_dotplot_mean_text +
 
 ```r
 # create-35-faded-point-plot
-less_faded_dotplot_35 <- faded_dotplot_mean_text +
+faded_dotplot_35 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.35, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "35% color")
@@ -288,7 +288,7 @@ less_faded_dotplot_35 <- faded_dotplot_mean_text +
 
 ```r
 # create-55-faded-point-plot
-less_faded_dotplot_55 <- faded_dotplot_mean_text +
+faded_dotplot_55 <- faded_dotplot_mean_text +
   ## define amount of fading
   ggdist::scale_fill_ramp_discrete(range = c(.55, 1), aesthetics = c("fill_ramp", "colour_ramp")) + 
   labs(title = "55% color")
