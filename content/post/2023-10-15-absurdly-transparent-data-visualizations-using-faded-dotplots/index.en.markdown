@@ -448,7 +448,7 @@ My head-canon: the faded distribution is the looming ghostly "shade" of the stac
 <!-- ![](shade.png "[Fortunately, we all know how to deal with horrors from beyond space and time](https://www.youtube.com/watch?v=MQKX07MlVjg)"){width=30px, height=auto} -->
 
 <figure>
-  <img src="shade.png" alt="A spooky shade" width="50%">
+  <img src="shade.png" alt="A spooky shade" width="80%">
   <figcaption><a href="https://www.youtube.com/watch?v=MQKX07MlVjg">Fortunately, we all know how to deal with horrors from beyond space and time</a></figcaption>
 </figure>
 
