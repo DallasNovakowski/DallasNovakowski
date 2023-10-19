@@ -857,7 +857,7 @@ shadeplot_violin <- canvas +
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/arrange-alternatives-new-1.png" width="672" />
 
 
-The major balance to strike is between making all of the points visible enough, making the quantile cutoff immediately evident, and avoiding visual clutter that might distract your reader.
+The major balance to strike is between making all of the points visible enough, making the quantile cutoff immediately evident, making mean/significance elements easy to read, and avoiding visual clutter that might distract your reader.
 
 # Bonus: View Everything in Grayscale
 
