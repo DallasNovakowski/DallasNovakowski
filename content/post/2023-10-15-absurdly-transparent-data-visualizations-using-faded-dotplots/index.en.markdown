@@ -180,7 +180,7 @@ shadeplot
 
 In a [previous post](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/), I introduced a  novel chart type called a "*fadecloud* plot," a variation of raincloud plots. The primary aim behind the development of the fadecloud was to improve the readability of the highly-transparent raincloud plot by eliminating redundant elements - in particular, the boxplot.
 
-If you're not familiar with raincloud plots and their comparison to other visualization styles, I recommend exploring [Cedric Scherer's insightful guide](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-and-how-to-create-them-with-ggplot2/#rain).
+If you're not familiar with raincloud plots and their comparison to other visualization styles, I recommend exploring [Cedric Scherer's insightful guide](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-and-how-to-create-them-with-ggplot2/#rain). Shilaan Alzahawi also made a [great and brief tutorial for using the r package  {raincloudplots}](https://www.shilaan.com/post/visualizing-data-with-raincloud-plots/).
 
 In my own biased view, the fadecloud is an effective replacement for a raincloud plot. It accomplishes this by leveraging a color-fading mechanism in the r package `{{ggdist}}` to selectively fade the inner versus outer 50% of the density distribution. The overarching idea is to enhance the informativeness of each graphical element while reducing clutter.
 
