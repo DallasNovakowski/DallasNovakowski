@@ -869,7 +869,7 @@ A major issue when creating a plot is to make sure that it will survive any colo
 
 ![](grey_spidey.gif)
 
-An extra consideration is getting at least some contrast between your darkest dot shade and any extra information you choose to include (e.g., summary statistics, hypothesis tests). As an objective measure to accompany intuition and experiment, you can explore palette contrasts ([using this terrific tool](https://colourcontrast.cc/848484/d8d8d8)).
+An extra consideration is getting at least some contrast between your darkest dot shade and any extra information you choose to include (e.g., summary statistics, hypothesis tests). As an objective measure to accompany intuition and experiment, you can explore palette contrasts [using this terrific tool](https://colourcontrast.cc/848484/d8d8d8).
 
 
 
