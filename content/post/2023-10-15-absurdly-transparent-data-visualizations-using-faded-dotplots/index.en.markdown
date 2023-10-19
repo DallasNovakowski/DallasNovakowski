@@ -859,7 +859,7 @@ shadeplot_violin <- canvas +
 
 The major balance to strike is between making all of the points visible enough, making the quantile cutoff immediately evident, and avoiding visual clutter that might distract your reader.
 
-# Bonus: View Everything in grayscale
+# Bonus: View Everything in Grayscale
 
 A major issue when creating a plot is to make sure that it will survive any color adjustments after printing and publication - particularly into grayscale. I have edited the plots above so we can view them.
 
