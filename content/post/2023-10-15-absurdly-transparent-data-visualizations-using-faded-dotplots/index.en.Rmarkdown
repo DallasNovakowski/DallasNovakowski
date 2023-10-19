@@ -168,10 +168,7 @@ shadeplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
   guides(colour_ramp = "none", fill_ramp = "none") + 
 ## regular styling 
   ylim(0, 14) +     ## set max for y-axis
-  cowplot::theme_half_open() + ## publication-ready theme
-  theme(axis.text = element_text(size = rel(.6)), # resize various titles and axis features
-        plot.title = element_text(size = rel(.5)),
-        axis.title = element_text(size = rel(.75)))
+  cowplot::theme_half_open() ## publication-ready theme
 
 # display shadeplot
 shadeplot
