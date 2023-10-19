@@ -44,6 +44,144 @@ image:
 projects: []
 ---
 
+<details>
+<summary> <b> Click here if you just want some copy/paste-ready code!</b> </summary>
+
+
+
+```r
+# load-packages
+library(tidyverse) ## for ggplot
+library(ggdist) ## for stat_dots and stat_slab
+library(ggpp) ## for position_dodge2nudge
+library(cowplot) ## for publication-ready themes
+library(colorspace) ## for darkening/lightening/gray-scaling color palettes
+
+# create-data
+set.seed(1234)
+
+## Set the number of observations
+
+n <- 400
+
+## create dataframe
+df <- data.frame(satisfaction = rgamma(n, 4, 1), 
+                 owner = sample(c("dogs", "cats"), 
+                                n, 
+                                replace = TRUE), 
+                brand = factor(sample(1:2, n, replace = TRUE)))
+
+
+# define-colors
+nova_palette <- c("#4ED0CD","#FFD966") ## my custom palette
+
+# very important to get the right amount of fading for your palette choice
+dark_aqua <- colorspace::darken("#4ED0CD", amount = 0.5, space = "HLS") ## darken colors
+dark_yellow <- colorspace::darken("#FFD966", amount = 0.35, space = "HLS") ## darken colors
+
+contrast_nova_palette <- c(dark_aqua, dark_yellow)
+grayscale_palette <- colorspace::desaturate(contrast_nova_palette) ## grayscale palette
+
+# create-faded-dotplot -------
+faded_dotplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
+  ## add stacked dots
+  ggdist::stat_dots(side = "right", ## set direction of dots
+                    scale = 0.5, ## defines the highest level the dots can be stacked to
+                    show.legend = T, 
+                    dotsize = 1.5, 
+                    position = position_dodge(width = .8),
+                    ## stat- and colour-related properties
+                    .width = c(.50, 1), ## set quantiles for shading
+                    aes(colour_ramp = stat(level), color = owner, ## set stat ramping and assign colour/fill to variable
+                      fill_ramp = stat(level), fill = owner)) +
+  ## add mean 95%CI as dot-whisker
+  stat_summary(aes(fill = owner, color = owner), 
+                        fun.data = "mean_cl_normal", 
+                        show.legend = FALSE, 
+                        linewidth = .7,
+                        size = .2, 
+                        position = position_dodge2nudge(width = .8, x = -.025)) +
+  # add mean text
+  stat_summary(aes(label=round(..y..,1)), 
+                           fun=mean, 
+                           geom="text",  
+                           position = position_dodge2nudge(width = .8, x = -.12), 
+                           size = 2.3) +
+## used for ggdist stat functions  
+  ## delete fading levels from legend
+  guides(colour_ramp = "none", fill_ramp = "none") + 
+  ## define color palette
+  scale_colour_manual(values = contrast_nova_palette, 
+                              aesthetics = c("colour","fill")) +   
+  ## define amount of fading
+  ggdist::scale_fill_ramp_discrete(range = c(0.25, 1),
+                           aesthetics = c("fill_ramp", "colour_ramp")) + 
+## regular styling 
+  ylim(0, 14) +     ## set max for y-axis
+  cowplot::theme_half_open() + ## publication-ready theme
+  theme(axis.text = element_text(size = rel(.6)),
+        plot.title = element_text(size = rel(.5)),
+        axis.title = element_text(size = rel(.75)))
+
+# display faded dotplot
+faded_dotplot
+
+# create-shadeplot -------
+shadeplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
+      ## Add density slab
+    ggdist::stat_slab(alpha = .45, 
+                      side = "right", 
+                      scale = 0.4, 
+                      show.legend = F, 
+                      position = position_dodge(width = .8), 
+                      .width = c(.50, 1), 
+                      aes(colour_ramp = stat(level),
+                          fill_ramp = stat(level), fill = owner)) +
+    ## Add stacked dots
+    ggdist::stat_dots(alpha = 0.35, 
+                      side = "right", 
+                      scale = 0.4, 
+                      show.legend = T,
+                      dotsize = 1.5, 
+                      position = position_dodge(width = .8), 
+                      aes(color = owner, fill = owner)) +
+  ## define amount of fading
+  ggdist::scale_fill_ramp_discrete(range = c(0.1, 1),
+                           aesthetics = c("fill_ramp", "colour_ramp")) + 
+    ## add mean 95%CI as dot-whisker
+  stat_summary(aes(fill = owner, color = owner), 
+                        fun.data = "mean_cl_normal", 
+                        show.legend = FALSE, 
+                        linewidth = .7,
+                        size = .2, 
+                        position = position_dodge2nudge(width = .8, x = -.025)) +
+  # add mean text
+  stat_summary(aes(label=round(..y..,1)), 
+                           fun=mean, 
+                           geom="text",  
+                           position = position_dodge2nudge(width = .8, x = -.12), 
+                           size = 2.3) +
+## used for ggdist stat functions  
+  ## delete fading levels from legend
+  guides(colour_ramp = "none", fill_ramp = "none") + 
+  ## define color palette
+  scale_colour_manual(values = contrast_nova_palette, 
+                              aesthetics = c("colour","fill")) +   
+
+## regular styling 
+  ylim(0, 14) +     ## set max for y-axis
+  cowplot::theme_half_open() + ## publication-ready theme
+  theme(axis.text = element_text(size = rel(.6)), # resize various titles and axis features
+        plot.title = element_text(size = rel(.5)),
+        axis.title = element_text(size = rel(.75)))
+
+# display shadeplot
+shadeplot
+```
+
+
+</details>
+
 In a [previous post](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/), I introduced a  novel chart type called a "*fadecloud*," a variation of raincloud plots. The primary aim behind the development of the fadecloud was to improve the readability of the highly-transparent raincloud plot by eliminating redundant elements - in particular, the boxplot.
 
 If you're not familiar with raincloud plots and their comparison to other visualization styles, I recommend exploring [Cedric Scherer's insightful guide](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-and-how-to-create-them-with-ggplot2/#rain).
