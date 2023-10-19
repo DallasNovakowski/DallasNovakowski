@@ -284,7 +284,6 @@ canvas <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
 ## regular styling 
   ylim(0, 14) +     ## set max for y-axis
   cowplot::theme_half_open() + ## publication-ready theme
-  
   theme(legend.position = "none",  ## default removing theme for use with grid-arrange
         axis.text = element_text(size = rel(.6)),
         plot.title = element_text(size = rel(.5)),
@@ -782,6 +781,7 @@ faded_dotplot_black <- faded_dotplot +
  black_mean  + 
   labs(title = "Faded dotplot with black mean")
   
+
 # Faded-dotplot-with-black-ci---inside the stacked dots
 faded_dotplot_black_inside <- faded_dotplot +
   stat_summary(fun.data = "mean_cl_normal", color="black",
@@ -790,10 +790,12 @@ faded_dotplot_black_inside <- faded_dotplot +
                position = position_dodge2nudge(width = .8, x = .045)) + 
   labs(title = "Faded dotplot with interior black mean")
 
+
 # shadeplot-with-black-ci
 shadeplot_black <- shadeplot +
   black_mean + 
   labs(title = "Shadeplot with black mean")
+
 
 # shadeplot-with-black-ci---inside-the-stacked-dots
 shadeplot_black_inside <- shadeplot +
@@ -818,6 +820,7 @@ faded_viodot <- canvas +
                size = .2,
                position = position_dodge2nudge(width = .8)) + 
   labs(title = "Faded violin dotplot")
+
 
 # shadeplot---but-in-violin-style
 shadeplot_violin <- canvas +
