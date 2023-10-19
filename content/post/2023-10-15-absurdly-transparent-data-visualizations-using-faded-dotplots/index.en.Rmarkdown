@@ -166,7 +166,6 @@ shadeplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
   ## define color palette
   scale_colour_manual(values = contrast_nova_palette, 
                               aesthetics = c("colour","fill")) +   
-
 ## regular styling 
   ylim(0, 14) +     ## set max for y-axis
   cowplot::theme_half_open() + ## publication-ready theme
