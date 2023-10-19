@@ -643,7 +643,7 @@ raincloud  <- canvas +
 fadecloud <- canvas + 
   stat_slab(side = "left",
             alpha = .6,
-            scale = 0.5,
+            scale = 0.4,
             show.legend = F,
             position = position_dodge(width = .8),
             aes(fill_ramp = stat(level)),.width = c(.50, .95,1)) +
