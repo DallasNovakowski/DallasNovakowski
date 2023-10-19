@@ -867,7 +867,7 @@ A major issue when creating a plot is to make sure that it will survive any colo
 <details>
 <summary> <b> I'm interested, show me the grayed-out versions!</b> </summary>
 
-![](gray_spidey.gif)
+![](grey_spidey.gif)
 
 An extra consideration is getting at least some contrast between your darkest dot shade and any extra information you choose to include (e.g., summary statistics, hypothesis tests). As an objective measure to accompany intuition and experiment, the grayscale palette I have used in this post gives a contrast rating of 2.62 ([using this terrific tool](https://colourcontrast.cc/848484/d8d8d8)).
 
