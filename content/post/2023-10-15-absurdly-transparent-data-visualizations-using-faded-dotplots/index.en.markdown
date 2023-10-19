@@ -145,9 +145,6 @@ shadeplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
                       dotsize = 1.5, 
                       position = position_dodge(width = .8), 
                       aes(color = owner, fill = owner)) +
-  ## define amount of fading
-  ggdist::scale_fill_ramp_discrete(range = c(0.1, 1),
-                           aesthetics = c("fill_ramp", "colour_ramp")) + 
     ## add mean 95%CI as dot-whisker
   stat_summary(aes(fill = owner, color = owner), 
                         fun.data = "mean_cl_normal", 
@@ -162,11 +159,14 @@ shadeplot <- ggplot(data = df, aes(y = satisfaction, x = brand, fill = owner)) +
                            position = position_dodge2nudge(width = .8, x = -.12), 
                            size = 2.3) +
 ## used for ggdist stat functions  
-  ## delete fading levels from legend
-  guides(colour_ramp = "none", fill_ramp = "none") + 
+    ## define amount of fading
+  ggdist::scale_fill_ramp_discrete(range = c(0.1, 1),
+                           aesthetics = c("fill_ramp", "colour_ramp")) + 
   ## define color palette
   scale_colour_manual(values = contrast_nova_palette, 
-                              aesthetics = c("colour","fill")) +   
+                              aesthetics = c("colour","fill")) +  
+    ## delete fading levels from legend
+  guides(colour_ramp = "none", fill_ramp = "none") + 
 ## regular styling 
   ylim(0, 14) +     ## set max for y-axis
   cowplot::theme_half_open() + ## publication-ready theme
@@ -181,7 +181,7 @@ shadeplot
 
 </details>
 
-In a [previous post](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/), I introduced a  novel chart type called a "*fadecloud*," a variation of raincloud plots. The primary aim behind the development of the fadecloud was to improve the readability of the highly-transparent raincloud plot by eliminating redundant elements - in particular, the boxplot.
+In a [previous post](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/), I introduced a  novel chart type called a "*fadecloud* plot," a variation of raincloud plots. The primary aim behind the development of the fadecloud was to improve the readability of the highly-transparent raincloud plot by eliminating redundant elements - in particular, the boxplot.
 
 If you're not familiar with raincloud plots and their comparison to other visualization styles, I recommend exploring [Cedric Scherer's insightful guide](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-and-how-to-create-them-with-ggplot2/#rain).
 
@@ -509,7 +509,7 @@ As an added bonus, the shadeplot uses less chart space compared to the fadecloud
 
 # Comparing to Alternatives
 
-Chart selection is a matter of individual taste and need, so it is worthwhile to be able to directly compare the various visualization styles to decide on a preferred visualization style.
+Chart selection is a matter of individual taste and need, so it is worthwhile to be able to directly compare the various visualization styles to decide on a preferred option.
 
 <details>
 <summary> <b> Show me the code!</b> </summary>
@@ -904,16 +904,15 @@ This post is completely reliant on the many people who actually know how to prog
 
 Raincloud plots were originally proposed by [Micah Allen, Davide Poggiali, Kirstie Whitaker, Tom Rhys Marshall, Jordy van Langen, and Rogier A. Kievit](https://wellcomeopenresearch.org/articles/4-63). This post wouldn't exist without their work.
 
-The `{{ggdist}}` package was developed by [**Matthew Kay**](https://www.mjskay.com/)  
+The `{{ggdist}}` package was developed by [**Matthew Kay**](https://www.mjskay.com/).
 
-The `{{ggpp}}` package was developed by [**Pedro Aphalo**](https://blogs.helsinki.fi/senpep-blog/)  
+The `{{ggpp}}` package was developed by [**Pedro Aphalo**](https://blogs.helsinki.fi/senpep-blog/).
 
-The `{{cowplot}}` package was developed by [**Claus O. Wilke**](https://clauswilke.com/)  
+The `{{cowplot}}` package was developed by [**Claus O. Wilke**](https://clauswilke.com/).
 
-The `{{colorspace}}` package was developed by [**Achim Zeileis, Jason C. Fisher, Kurt Hornik, Ross Ihaka, Claire D. McWhite, Paul Murrell, Reto Stauffer, and Claus O. Wilke**](https://colorspace.r-forge.r-project.org/contact.html)  
+The `{{colorspace}}` package was developed by [**Achim Zeileis, Jason C. Fisher, Kurt Hornik, Ross Ihaka, Claire D. McWhite, Paul Murrell, Reto Stauffer, and Claus O. Wilke**](https://colorspace.r-forge.r-project.org/contact.html)  .
 
-The `{{gridExtra}}` package was developed by [**Baptiste Auguie**](https://people.wgtn.ac.nz/baptiste.auguie) and Anton Antonov 
-
+The `{{gridExtra}}` package was developed by [**Baptiste Auguie**](https://people.wgtn.ac.nz/baptiste.auguie) and Anton Antonov. 
 
 
 
