@@ -766,8 +766,8 @@ splitplot <- canvas +
 # arrange-alterative-plots-together
 gridExtra::grid.arrange(
   barplot, boxplot, #1
-  splitplot, viofade, #2
-  vipo, vipo_box, #3
+  splitplot, vipo, #2
+  vipo_box, viofade, #3
   raincloud, fadecloud, #4
   faded_dotplot_mean + labs(title = "Faded dotplot"), shadeplot_mean + labs(title = "Shadeplot"), # 5
   ncol = 2, nrow = 5, respect = FALSE) 
@@ -895,11 +895,11 @@ gridExtra::grid.arrange(
   boxplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
    #1
   splitplot + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
-  viofade + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), #2
   vipo + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
-  vipo_box + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), #3
+  vipo_box + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
+  viofade + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
   raincloud + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
-  fadecloud + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), #4
+  fadecloud + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")),
   faded_dotplot_mean + labs(title = "Faded dotplot") + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), 
   shadeplot_mean + labs(title = "Shadeplot") + scale_colour_manual(values = grayscale_palette, aesthetics = c("colour","fill")), # 5
 
