@@ -46,9 +46,9 @@ social:
 # - icon : cv
 #   icon_pack: ai
 #   link: ./uploads/DallasCV_July1_2021.docx
-# - icon: linkedin
-#   icon_pack: fab
-#   link: https://www.linkedin.com/
+- icon: linkedin
+  icon_pack: fab
+  link: https://www.linkedin.com/in/dallas-novakowski-phd-12b3a6102
 superuser: true
 title: Dallas Novakowski, Ph.D.
 ---
