@@ -1483,6 +1483,7 @@ viofade_text_stats_bracket2 +
 
 <summary> <b>Click Here to see comparisons to alternatives, like the shadeplot, fadecloud, and faded dotplot </b> </summary>
 
+![](smile_and_wave.gif)
 
 
 ```r
