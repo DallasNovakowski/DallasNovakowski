@@ -1,0 +1,1202 @@
+<p>I have been enjoying making some guides for data visualization, namely trying to improve on the raincloud plot via the new <a href="https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/">fadecloud</a> as well as <a href="https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/">faded dotplots and shadeplots</a>. This post is a rundown of a workflow that I use for preparing publication-ready graphs for group comparisons.</p>
+<!-- I believe these methods have their place, but I find when I actually present my data, I don't actually use these methods: there are still a lot of objects visible that make the addition of significance brackets overly noisy.  -->
+<!-- My past posts have tended to dump a lot of code at once.  -->
+<p>In addition to being a personal resource, this post is intended to be more accessible for newcomers to the R and ggplot ecosystems. Although I assume a working understanding of R, this post is sectioned out piece-by-piece to better demonstrate the impacts of each function and argument for ggplot.</p>
+<div id="free-learning-resources" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Free Learning Resources</h1>
+<p>With newcomers in mind, here are some no-cost resources</p>
+<ul>
+<li>R fundamentals
+<ul>
+<li><a href="https://r4ds.hadley.nz/">R for Data Science (2e)</a></li>
+<li><a href="https://kkulma.github.io/2018-03-18-Prime-Hints-for-Running-a-data-project-in-R/">Prime Hints For Running A Data Project In R</a></li>
+<li><a href="https://www.rforecology.com/post/organizing-your-r-studio-projects/">How to organize your analyses with R Studio Projects</a></li>
+<li><a href="https://rstats.wtf/">What They Forgot to Teach You About R</a></li>
+<li><a href="https://style.tidyverse.org/files.html">The tidyverse style guide</a></li>
+<li><a href="http://adv-r.had.co.nz/Functions.html">Functions</a></li>
+<li><a href="https://nceas.github.io/sasap-training/materials/reproducible_research_in_r_fairbanks/">Reproducible Analysis With R</a></li>
+<li><a href="https://www.fharrell.com/post/rflow/">R Workflow blog post</a> and <a href="https://hbiostat.org/rflow/">e-book</a></li>
+<li><a href="https://psyteachr.github.io/reprores-v3/">Data Skills for Reproducible Research</a></li>
+<li><a href="https://waterdata.usgs.gov/blog/intro-best-practices/">Beyond Basic R - Introduction and Best Practices</a></li>
+<li><a href="https://rstudio.github.io/cheatsheets/html/data-visualization.html">Data visualization with ggplot2 :: Cheat Sheet</a>
+<ul>
+<li><a href="https://rstudio.github.io/cheatsheets/data-visualization.pdf">The pdf</a></li>
+<li><a href="https://rstudio.github.io/cheatsheets/">More RStudio/Posit cheat sheets</a></li>
+</ul></li>
+<li><a href="https://rfortherestofus.com/2021/08/rstudio-project-structure/">How I Structure My RStudio Projects</a></li>
+<li><a href="https://www.ucd.ie/ecomodel/Resources/Sheet2b_data_organisation_WebVersion.html">Organising Data in R</a></li>
+</ul></li>
+<li>Stats
+<ul>
+<li><a href="https://bookdown.org/content/c23e1ece-b5d6-4cab-8d8e-978c2e5b7a53/">Statistical rethinking with brms, ggplot2, and the tidyverse</a></li>
+<li><a href="https://www.youtube.com/playlist?list=PLDcUM9US4XdPz-KxHM4XHt7uUVGWWVSus">Statistical Rethinking videos</a></li>
+<li><a href="https://bcdudek.net/anova/index.html">One Way ANOVA with R</a></li>
+<li><a href="https://rpsychologist.com/d3/nhst/">Understanding Statistical Power and Significance Testing: an interactive visualization</a></li>
+<li><a href="https://easystats.github.io/easystats/index.html">easystats package</a></li>
+<li><a href="https://mspeekenbrink.github.io/sdam-book/">Statistics: Data analysis and modelling</a>
+<ul>
+<li><a href="https://mspeekenbrink.github.io/sdam-r-companion/index.html">An R companion to Statistics: data analysis and modelling</a></li>
+</ul></li>
+<li><a href="https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists">Analysis of Factorial Designs foR Psychologists</a></li>
+<li><a href="https://matthewbjane.quarto.pub/effect-size-and-confidence-intervals-guide/">Guide to Effect Sizes and Confidence Intervals</a></li>
+</ul></li>
+</ul>
+<!-- I believe that practices that are easy to pick up are more likely to catch on. My hope is that readers will find it easier to pick up better practices in communicating their data! -->
+</div>
+<div id="notes-on-the-workflow" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Notes on the Workflow</h1>
+<p>After a few projects, I have found that I get my best results by summarizing and analyzing my data before trying to create any publication-ready visualizations. The benefits of this order are threefold:</p>
+<ol style="list-style-type: decimal">
+<li>It automatically creates the graph with the most up-to-date test statistics, all in a reproducible process. Otherwise, you end up creating the visualization, then running the analysis, and having to go back and manually update any revised stats.</li>
+</ol>
+<p><br></p>
+<ol start="2" style="list-style-type: decimal">
+<li>You can easily use this process to visualize estimated marginal means, which are a product of your statistical model. This allows you to match your statistics and visualized data.</li>
+</ol>
+<!-- , instead of reporting statistics on estimated marginal means (controlling for covariates/confounders) that mismatch the visualized raw means (which do not control for those extra variables). -->
+<p><br></p>
+<ol start="3" style="list-style-type: decimal">
+<li>This process naturally creates tables of summary data that can be used for in-text reporting and tables, which are required by most journals. Instead of having to go back to your scripts to get summary statistics, they are readily available as part of your data processing and analysis.</li>
+</ol>
+<p><br></p>
+<p><strong>Please do not take this guide as license to start summarizing and analyzing your data without properly exploring and cleaning it.</strong> This workflow is intended for creating the final product (i.e., after you have screened for influential observations, missingness, etc.).</p>
+</div>
+<div id="loading-packages" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Loading Packages</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(palmerpenguins) <span class="co"># dataset</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(cowplot) <span class="co">#  publication-ready plots</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># ggplot and tidy functions</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggdist) <span class="co"># density slabs</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(EnvStats) <span class="co"># stat_n_text() for inserting sample sizes</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(ggtext) <span class="co"># formatting text elements with markdown syntax</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(afex) <span class="co"># anova functions</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(car) <span class="co"># anova functions</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">library</span>(emmeans) <span class="co"># estimated marginal means and pairwise comparisons</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(effectsize) <span class="co"># effect sizes</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(ggpubr) <span class="co"># significance brackets</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(weights) <span class="co"># rounding values</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co"># Define color palette</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>nova_palette <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;#78AAA9&quot;</span>, <span class="st">&quot;#FFDB6E&quot;</span>)</span></code></pre></div>
+</div>
+<div id="loading-data" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Loading Data</h1>
+<p>We’ll use the palmerpenguins dataset, which is easy to get running right away</p>
+<p>For your own data importing, the function you use depends on the file type you are importing. I usually use the following: <code>readr::read_csv()</code> (csv files), <code>readxl::read_excel()</code> (excel files), or <code>haven::read_sav()</code> (SPSS files).</p>
+<p>You can find tutorials for data importing at:</p>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/how-to-import-data-from-a-file-in-r-programming/">geeksforgeeks</a></li>
+<li><a href="https://www.statology.org/import-csv-into-r/">statology</a></li>
+<li><a href="https://thedatastudent.com/how-to-import-data-in-r-for-beginners/">thedatastudent</a></li>
+<li><a href="https://www.statmethods.net/data-input/importingdata.html">statmethods</a></li>
+<li><a href="https://www.r-tutor.com/r-introduction/data-frame/data-import">intro2r</a></li>
+<li><a href="https://scientifictools.org/courses/entry/5-how-to-import-data-and-datasets-in-r-using-rstudio/">scientifictools</a></li>
+<li><a href="http://sthda.com/english/wiki/importing-data-into-r">sthda</a></li>
+<li><a href="https://r4ds.hadley.nz/import">R for data science</a></li>
+</ul>
+<p>One of the tricky parts of data importing is defining the right paths to your data. Best practice is to use <a href="https://r4ds.hadley.nz/workflow-scripts.html#rstudio-projects">RStudio Projects</a>, and use a consistent subfolder scheme for organizing your data/output/figures/reports/etc.</p>
+<p>For project organization schemes, see:</p>
+<ul>
+<li><a href="https://rfortherestofus.com/2021/08/rstudio-project-structure/">rfortherestofus</a></li>
+<li><a href="https://kdestasio.github.io/post/r_best_practices/">Krista L. DeStasio</a></li>
+<li><a href="https://telethonkids.wordpress.com/2019/07/24/how-do-you-organise-your-r-project-this-is-what-we-do/">Telethonkids</a></li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># assigns data to a dataframe we call &quot;df&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> palmerpenguins<span class="sc">::</span>penguins</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># drop rows with missing values</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> df[<span class="fu">complete.cases</span>(df)<span class="sc">==</span><span class="cn">TRUE</span>, ]</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># peek at the structure of our dataframe </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">str</span>(df)</span></code></pre></div>
+<pre><code>## tibble [333 x 8] (S3: tbl_df/tbl/data.frame)
+##  $ species          : Factor w/ 3 levels &quot;Adelie&quot;,&quot;Chinstrap&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ island           : Factor w/ 3 levels &quot;Biscoe&quot;,&quot;Dream&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
+##  $ bill_length_mm   : num [1:333] 39.1 39.5 40.3 36.7 39.3 38.9 39.2 41.1 38.6 34.6 ...
+##  $ bill_depth_mm    : num [1:333] 18.7 17.4 18 19.3 20.6 17.8 19.6 17.6 21.2 21.1 ...
+##  $ flipper_length_mm: int [1:333] 181 186 195 193 190 181 195 182 191 198 ...
+##  $ body_mass_g      : int [1:333] 3750 3800 3250 3450 3650 3625 4675 3200 3800 4400 ...
+##  $ sex              : Factor w/ 2 levels &quot;female&quot;,&quot;male&quot;: 2 1 1 1 2 1 2 1 2 2 ...
+##  $ year             : int [1:333] 2007 2007 2007 2007 2007 2007 2007 2007 2007 2007 ...</code></pre>
+</div>
+<div id="summarize" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Summarize</h1>
+<p>Defining a function for getting our variable’s major summary statistics in one place.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># This function can handle multiple grouping variables, up to a three-way design</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>make_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(data, dv, grouping1, grouping2, grouping3){</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  data <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="fu">group_by</span>({{grouping1}},{{grouping2}},{{grouping3}}) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>      <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>({{dv}}),<span class="dv">2</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>      <span class="at">min =</span> <span class="fu">round</span>(<span class="fu">min</span>({{dv}}),<span class="dv">2</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>      <span class="at">max =</span> <span class="fu">round</span>(<span class="fu">max</span>({{dv}}),<span class="dv">2</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>      <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>      <span class="at">std_dev =</span> <span class="fu">round</span>(<span class="fu">sd</span>({{dv}}),<span class="dv">2</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>      <span class="at">se =</span> <span class="fu">round</span>(<span class="fu">sd</span>({{dv}}) <span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">n</span>()),<span class="dv">2</span>),</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>      <span class="at">y25 =</span> <span class="fu">round</span>(<span class="fu">quantile</span>({{dv}}, <span class="fl">0.25</span>)),</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>      <span class="at">y50 =</span> <span class="fu">round</span>(<span class="fu">median</span>({{dv}})),</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>      <span class="at">y75 =</span> <span class="fu">round</span>(<span class="fu">quantile</span>({{dv}}, <span class="fl">0.75</span>))</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>      )</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>}</span></code></pre></div>
+<p>Our data</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Apply our custom function to create summary dataframe</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>flipper_summary <span class="ot">&lt;-</span> <span class="fu">make_summary</span>(<span class="at">data =</span> df, <span class="at">dv =</span> flipper_length_mm, <span class="at">grouping1 =</span> species)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># Show summary dataframe in table</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_summary)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">species</th>
+<th align="right">mean</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">n</th>
+<th align="right">std_dev</th>
+<th align="right">se</th>
+<th align="right">y25</th>
+<th align="right">y50</th>
+<th align="right">y75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Adelie</td>
+<td align="right">190.10</td>
+<td align="right">172</td>
+<td align="right">210</td>
+<td align="right">146</td>
+<td align="right">6.52</td>
+<td align="right">0.54</td>
+<td align="right">186</td>
+<td align="right">190</td>
+<td align="right">195</td>
+</tr>
+<tr class="even">
+<td align="left">Chinstrap</td>
+<td align="right">195.82</td>
+<td align="right">178</td>
+<td align="right">212</td>
+<td align="right">68</td>
+<td align="right">7.13</td>
+<td align="right">0.86</td>
+<td align="right">191</td>
+<td align="right">196</td>
+<td align="right">201</td>
+</tr>
+<tr class="odd">
+<td align="left">Gentoo</td>
+<td align="right">217.24</td>
+<td align="right">203</td>
+<td align="right">231</td>
+<td align="right">119</td>
+<td align="right">6.59</td>
+<td align="right">0.60</td>
+<td align="right">212</td>
+<td align="right">216</td>
+<td align="right">222</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="analyze" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Analyze</h1>
+<p>So above you can see a variety of variables in this dataset. We will focus on the variables <code>species</code> (our “x-axis” variable) and <code>flipper_length_mm</code> (our “y-axis” variable) for this exercise.</p>
+<p>One of the major benefits of using R for data visualization is that you can make reproducible workflows where your graphs can incorporate your most up-to-date statistical tests. So, let’s run some basic analyses here.</p>
+<p>Anova with <code>stats::aov()</code> and <code>car::Anova()</code></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Fit data</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>flipper_fit <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">aov</span>(flipper_length_mm <span class="sc">~</span> species, <span class="at">data =</span> df)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># Run anova</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>flipper_anova <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">Anova</span>(flipper_fit, <span class="at">type =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>Calculate effect sizes with <code>effectsize::eta_squared()</code></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Extract effect size (partial eta squared) from anova</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>flipper_anova_pes <span class="ot">&lt;-</span> effectsize<span class="sc">::</span><span class="fu">eta_squared</span>(flipper_anova,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                                             <span class="at">alternative=</span><span class="st">&quot;two.sided&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                                             <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                                             <span class="at">generalized=</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co"># Convert anova table into dataframe</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>flipper_anova <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(flipper_anova)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># import effect size estimates and confidence intervals to anova dataframe</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>flipper_anova<span class="sc">$</span>pes_ci95_lo <span class="ot">&lt;-</span> flipper_anova_pes<span class="sc">$</span>CI_low</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>flipper_anova<span class="sc">$</span>pes_ci95_hi <span class="ot">&lt;-</span> flipper_anova_pes<span class="sc">$</span>CI_high</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>flipper_anova<span class="sc">$</span>pes <span class="ot">&lt;-</span> flipper_anova_pes<span class="sc">$</span>Eta2</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co"># round all numeric columns to 2 decimal places</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>flipper_anova <span class="ot">&lt;-</span> flipper_anova <span class="sc">%&gt;%</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) <span class="fu">round</span>(x, <span class="dv">2</span>))</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co"># display anova dataframe</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_anova)</span></code></pre></div>
+<table style="width:100%;">
+<colgroup>
+<col width="14%" />
+<col width="13%" />
+<col width="5%" />
+<col width="11%" />
+<col width="10%" />
+<col width="17%" />
+<col width="17%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sum.Sq</th>
+<th align="right">Df</th>
+<th align="right">F.value</th>
+<th align="right">Pr..F.</th>
+<th align="right">pes_ci95_lo</th>
+<th align="right">pes_ci95_hi</th>
+<th align="right">pes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="right">50525.88</td>
+<td align="right">2</td>
+<td align="right">567.41</td>
+<td align="right">0</td>
+<td align="right">0.74</td>
+<td align="right">0.8</td>
+<td align="right">0.77</td>
+</tr>
+<tr class="even">
+<td align="left">Residuals</td>
+<td align="right">14692.75</td>
+<td align="right">330</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.74</td>
+<td align="right">0.8</td>
+<td align="right">0.77</td>
+</tr>
+</tbody>
+</table>
+<p>As we do with model-based statistics, we can now extract the estimated marginal means and pairwise comparisons.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Extract estimated marginal means</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>flipper_emmeans <span class="ot">&lt;-</span> emmeans<span class="sc">::</span><span class="fu">emmeans</span>(flipper_fit, <span class="at">specs =</span> pairwise <span class="sc">~</span> species)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># convert estimated marginal mean contrasts to dataframe</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>flipper_emmeans_contrasts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(flipper_emmeans<span class="sc">$</span>contrasts)</span></code></pre></div>
+<p>Now we have our analysis data to work with! From here, we can get the data ready to actually work with. To start, we can make a custom function, <code>report_pval_full()</code>, that helps us convert p-values to our desired formatting.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># rounding or abbreviating p-values</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>report_pval_full <span class="ot">&lt;-</span> <span class="cf">function</span>(pval, <span class="at">italicize =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">ifelse</span>(pval <span class="sc">&lt;</span> .<span class="dv">001</span>, <span class="fu">paste0</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="fu">ifelse</span>(italicize <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="st">&quot;*p*&quot;</span>, <span class="st">&quot;p&quot;</span>), <span class="st">&quot; &lt; .001&quot;</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>         <span class="fu">paste0</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>           <span class="fu">ifelse</span>(italicize <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="st">&quot;*p*&quot;</span>, <span class="st">&quot;p&quot;</span>),<span class="st">&quot; = &quot;</span>, <span class="fu">ifelse</span>(pval <span class="sc">&gt;=</span> .<span class="dv">01</span>,weights<span class="sc">::</span><span class="fu">rd</span>(pval,<span class="dv">2</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                weights<span class="sc">::</span><span class="fu">rd</span>(pval,<span class="dv">3</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>         )</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>         )</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>}</span></code></pre></div>
+<p>Create and prepare dataframe for pairwise comparisons</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># convert p-value to non-italicized version (for significance brackets)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>flipper_emmeans_contrasts<span class="sc">$</span>p_no_it <span class="ot">&lt;-</span>  <span class="fu">report_pval_full</span>(flipper_emmeans_contrasts<span class="sc">$</span>p.value, <span class="at">italicize =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># convert p-value to italicized version (for in-text citations and captioning graph)</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>flipper_emmeans_contrasts<span class="sc">$</span>p.value <span class="ot">&lt;-</span> <span class="fu">report_pval_full</span>(flipper_emmeans_contrasts<span class="sc">$</span>p.value)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>flipper_emmeans_contrasts <span class="ot">&lt;-</span> flipper_emmeans_contrasts <span class="sc">%&gt;%</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) <span class="fu">round</span>(x, <span class="dv">2</span>))</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_emmeans_contrasts)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="13%" />
+<col width="7%" />
+<col width="6%" />
+<col width="12%" />
+<col width="16%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="left">p.value</th>
+<th align="left">p_no_it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Adelie - Chinstrap</td>
+<td align="right">-5.72</td>
+<td align="right">0.98</td>
+<td align="right">330</td>
+<td align="right">-5.84</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie - Gentoo</td>
+<td align="right">-27.13</td>
+<td align="right">0.82</td>
+<td align="right">330</td>
+<td align="right">-32.92</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap - Gentoo</td>
+<td align="right">-21.41</td>
+<td align="right">1.01</td>
+<td align="right">330</td>
+<td align="right">-21.11</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="vizualize" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Vizualize</h1>
+<div id="show-canvas" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Show canvas</h2>
+<p>The metaphor I like to use with ggplot is that it’s like painting. First you buy and setup your canvas, then you can start adding elements that get layered on top of each other - so the order of your ggplot elements matters!</p>
+<p><img src="pingu_paints.gif" /></p>
+<p>We specify <code>cowplot::theme_half_open()</code> at this early stage because we want to override some arguments in this theme with some new elements later on.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>canvas <span class="ot">&lt;-</span>  <span class="fu">ggplot</span>(<span class="at">data =</span> df,</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>                  <span class="fu">aes</span>(<span class="at">y =</span> flipper_length_mm, <span class="co"># our dependent/response/outcome variable </span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>                      <span class="at">x =</span> species  <span class="co"># our grouping/independent/predictor variable</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>                      )) <span class="sc">+</span>  </span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  cowplot<span class="sc">::</span><span class="fu">theme_half_open</span>() <span class="co"># nice theme for publication</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>canvas <span class="co"># display our blank canvas</span></span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<!-- +     ## set max for y-axis --></p>
+</div>
+<div id="most-fundamental---95-ci-and-mean" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> Most fundamental - 95% CI and mean</h2>
+<p>You could always just plot the mean and 95% CI (confidence intervals) and nothing else. However, like barplots, this comes at the cost of omitting the entire range of responses. We can plot the mean and its 95% CI with <code>stat_summary()</code>:</p>
+<!-- This is basically what barplots/dynamite plots accomplish. It also shows one of my biggest issues with barplots: the defaults ignore the rest of the response range. If the means don't appear in a certain value range, these axis values aren't shown. The small range risks misrepresenting the overall data; if the groups have any sort of decent amount of variance, those observations won't even be indirectly represented by blank canvas space. -->
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>canvas <span class="sc">+</span> <span class="co"># this is our previously-defined canvas object, it passes the appropriate variables and theme</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>) <span class="co"># Plot 95% CI and the mean</span></span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="adding-density-slab" class="section level2" number="7.3">
+<h2><span class="header-section-number">7.3</span> Adding Density Slab</h2>
+<!-- These issues of response ranges are made clear when we use density slabs.  -->
+<p>Density and violin plots are based on <a href="https://rkabacoff.github.io/datavis/Univariate.html#Kernel">kernel density</a>, basically, a smoothed histogram of the data. Here, we add a density slab with <code>ggdist::stat_slab()</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>canvas  <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>() <span class="sc">+</span> <span class="co"># add a density slab</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F)</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>You can see the y-axis stretches far higher and lower (170 - 230) than it did previously (190 - ~210). The major strength of this density slab method is that it visualizes the spread and skew of the data, which by default forces us to visualize the entire range of observations.</p>
+<!-- This can be especially important if we have meaningful thresholds and cutoffs for our response variable (example: in our data - is there a certain length of flipper where penguins start to become noticeably worse swimmers?). -->
+<!-- Overall, I'm an advocate for the practice of showing our data over just trying to show group differences. -->
+<p>Perusing twitter conversations, some people do not like the aesthetic of a ‘lopsided’ density slab. On a more practical side, it becomes a bit more tricky to add elements like text for the mean in a legible way. To add some symmetry, we can change the density slab to violin using <code>ggdist::stat_slab(side = "both")</code>:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>canvas <span class="sc">+</span>  </span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>    <span class="at">side =</span> <span class="st">&quot;both&quot;</span>) <span class="sc">+</span> <span class="co"># change the density slab to violin</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F) </span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Many of us want to pick nice colors for our plots, in R, colors are defined with HEX codes (in this case, <code>nova_palette[1]</code> is <code>#78AAA9</code>).</p>
+<p>You can find a <a href="https://venngage.com/tools/accessible-color-palette-generator">generator for colorblind-accessible color palettes here</a>, a useful tool for exploring <a href="https://www.colorhexa.com/78aaa9">HEX colors here, complete with colorblindness simulator at the bottom of the page</a>, and a <a href="https://davidmathlogic.com/colorblind/">brief education primer, complete with colorblindness palette simulator, here</a>.</p>
+<p>Now we can color the violin geom with our desired Hex using <code>fill</code>. Notably, this only works when the <code>fill argument</code> is not inside of <code>aes()</code>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>canvas <span class="sc">+</span>  </span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>, </span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>                    <span class="at">fill =</span> nova_palette[<span class="dv">1</span>]) <span class="sc">+</span> <span class="co"># color the violin geom with desired color</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F) </span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>Instead of using boxplots, I like to fade my violins according to their quantile grouping. I find it makes the violin more informative, and has less visual clutter compared to the boxplot. We add the fading by modifying <code>ggdist::stat_slab()</code> with the argument, <code>fill_ramp = stat(level)</code>:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>canvas <span class="sc">+</span>  </span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>, </span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>                    <span class="at">fill =</span> nova_palette[<span class="dv">1</span>],  </span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>                    <span class="fu">aes</span>(<span class="at">fill_ramp =</span> <span class="fu">stat</span>(level))) <span class="sc">+</span>  <span class="co"># fade violins according to their quantile grouping</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F) </span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>You can see by the legend that the fading matches to the inner 66% of the data, then the inner 95%, with no fading at the outer 5%. The inner 66% of the data holds no special meaning to me. I find that the inner/outer 50% is more intuitive .</p>
+<ul>
+<li>Alternative: change from 66% to 68%, reflecting +/-1 standard deviation, giving a more direct parallel to a critical descriptive statistic (as well as cohen’s d).</li>
+</ul>
+<p>We can change the shaded quantiles from the inner 66% to 50% (and eliminate the 95% shading) using <code>ggdist::stat_slab(..., .width = c(.50, 1))</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>canvas <span class="sc">+</span>  </span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>,  </span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>                    <span class="fu">aes</span>(<span class="at">fill_ramp =</span> <span class="fu">stat</span>(level)), </span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>                    <span class="at">fill =</span> nova_palette[<span class="dv">1</span>],</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>                    <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">50</span>, <span class="dv">1</span>)) <span class="sc">+</span>  <span class="co"># change quantiles for shading from 66% to 50% (and eliminate the 95% shading) </span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F) </span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>The violins are quite wide, let’s adjust their widths using <code>scale = .4</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>canvas <span class="sc">+</span>  </span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>,  </span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>                    <span class="fu">aes</span>(<span class="at">fill_ramp =</span> <span class="fu">stat</span>(level)), </span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>                    <span class="at">fill =</span> nova_palette[<span class="dv">1</span>],</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>                    <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">50</span>, <span class="dv">1</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>                    <span class="at">scale =</span> .<span class="dv">4</span>) <span class="sc">+</span>  <span class="co"># adjust slab width</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F) </span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>The fading quantiles are probably better discussed orally or as a figure note, not being directly relevant to any statistical tests. We can get rid of the legend element for fading quantiles with <code>guides(fill_ramp = "none")</code>. Here, we also assign this ggplot to a new object, <code>viofade</code>, so we can see new code additions in the chunks more easily:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>viofade <span class="ot">&lt;-</span> canvas <span class="sc">+</span>  </span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="co"># density slab</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>,  </span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>                    <span class="fu">aes</span>(<span class="at">fill_ramp =</span> <span class="fu">stat</span>(level)), </span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>                    <span class="at">fill =</span> nova_palette[<span class="dv">1</span>],</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>                    <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">50</span>, <span class="dv">1</span>),</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>                    <span class="at">scale =</span> .<span class="dv">4</span>) <span class="sc">+</span> </span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, <span class="at">show.legend =</span> F)  <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill_ramp =</span> <span class="st">&quot;none&quot;</span>) <span class="co"># get rid of legend element for fading quantiles</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>viofade</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>This is a satisfactory version of the complete viofade, but there are more elements and styling we can do to effectively present the chart.</p>
+</div>
+<div id="adding-extra-elements" class="section level2" number="7.4">
+<h2><span class="header-section-number">7.4</span> Adding Extra Elements</h2>
+<p>I find that having the written values of the different means makes the comparisons a bit more concrete. We can add this mean text using <code>stat_summary()</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>viofade <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>   <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(..y..,<span class="dv">1</span>)), </span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>                           <span class="at">fun =</span> mean, </span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>                           <span class="at">geom =</span> <span class="st">&quot;text&quot;</span>,<span class="at">vjust =</span> <span class="dv">5</span>)</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>Our <code>viofade</code> object does not include raw data. This is intentional because objects such as rainclouds, fadeclouds, and shadeplots tend to look very noisy after I add significance brackets. However, I still want people to see the sample size for our groups, which we can do using <code>EnvStats::stat_n_text()</code></p>
+<p>If you want your sample sizes under your axis values, <a href="https://stackoverflow.com/questions/40102613/ggplot2-adding-sample-size-information-to-x-axis-tick-labels">check out this discussion</a></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>viofade_text <span class="ot">&lt;-</span> viofade <span class="sc">+</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>   <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(..y..,<span class="dv">1</span>)), </span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>                           <span class="at">fun =</span> mean, </span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>                           <span class="at">geom =</span> <span class="st">&quot;text&quot;</span>,<span class="at">vjust =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a> EnvStats<span class="sc">::</span><span class="fu">stat_n_text</span>(<span class="at">color =</span> <span class="st">&quot;grey60&quot;</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>viofade_text</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+</div>
+<div id="adding-test-statistics" class="section level2" number="7.5">
+<h2><span class="header-section-number">7.5</span> Adding Test Statistics</h2>
+<p>Especially for presentations and posters, it can be useful to have significance tests embedded directly in the plot. This is where we really benefit from having run some analyses beforehand</p>
+<div id="create-reporting-functions" class="section level3" number="7.5.1">
+<h3><span class="header-section-number">7.5.1</span> Create Reporting Functions</h3>
+<p>Create custom function, <code>report_tidy_anova_etaci()</code> that facilitate reporting of stats.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>report_tidy_anova_etaci <span class="ot">&lt;-</span> <span class="cf">function</span>(tidy_frame, <span class="co"># your tidy anova dataframe</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>                                    term, <span class="co"># the predictor in your tidy anova dataframe</span></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>                                    <span class="at">effsize =</span> <span class="cn">TRUE</span>, <span class="co"># display the effect size</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>                                    <span class="at">ci95 =</span> <span class="cn">TRUE</span>, <span class="co"># display the 95% CI</span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>                                    <span class="at">ci.lab =</span> <span class="cn">TRUE</span>, <span class="co"># display the &quot;95% CI&quot; label</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>                                    <span class="at">teststat =</span> <span class="cn">TRUE</span>, <span class="co"># display the F-score and degrees of freedom</span></span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>                                    <span class="at">pval =</span> <span class="cn">TRUE</span> <span class="co"># display the p-value</span></span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a>                                    ){</span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a>  text <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a>    <span class="fu">ifelse</span>(effsize <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="fu">paste0</span>(</span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a>    <span class="st">&quot;\u03b7^2^ = &quot;</span>, <span class="co">#unicode for eta square</span></span>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">as.numeric</span>(tidy_frame[term,<span class="st">&quot;pes&quot;</span>]),<span class="dv">2</span>)), </span>
+<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a>    <span class="st">&quot;&quot;</span>),</span>
+<span id="cb22-14"><a href="#cb22-14" tabindex="-1"></a>    <span class="fu">ifelse</span>(ci95 <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="fu">paste0</span>(</span>
+<span id="cb22-15"><a href="#cb22-15" tabindex="-1"></a>                 <span class="fu">ifelse</span>(ci.lab <span class="sc">==</span> <span class="cn">TRUE</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" tabindex="-1"></a>                        <span class="fu">paste0</span>(<span class="st">&quot;, 95% CI [&quot;</span>), <span class="st">&quot; [&quot;</span>),   </span>
+<span id="cb22-17"><a href="#cb22-17" tabindex="-1"></a>                 <span class="fu">round</span>(<span class="fu">as.numeric</span>(tidy_frame[term,<span class="st">&quot;pes_ci95_lo&quot;</span>]),<span class="dv">2</span>), <span class="st">&quot;, &quot;</span>, </span>
+<span id="cb22-18"><a href="#cb22-18" tabindex="-1"></a>                 <span class="fu">round</span>(<span class="fu">as.numeric</span>(tidy_frame[term,<span class="st">&quot;pes_ci95_hi&quot;</span>]),<span class="dv">2</span>),<span class="st">&quot;]&quot;</span>),</span>
+<span id="cb22-19"><a href="#cb22-19" tabindex="-1"></a>           <span class="st">&quot;&quot;</span>),</span>
+<span id="cb22-20"><a href="#cb22-20" tabindex="-1"></a>    <span class="fu">ifelse</span>(teststat <span class="sc">==</span> <span class="cn">TRUE</span>, </span>
+<span id="cb22-21"><a href="#cb22-21" tabindex="-1"></a>           <span class="fu">paste0</span>(<span class="st">&quot;, *F*(&quot;</span>, tidy_frame[term,<span class="st">&quot;Df&quot;</span>],</span>
+<span id="cb22-22"><a href="#cb22-22" tabindex="-1"></a>                  <span class="st">&quot;, &quot;</span>, tidy_frame[<span class="st">&quot;Residuals&quot;</span>,<span class="st">&quot;Df&quot;</span>], <span class="st">&quot;) = &quot;</span>,</span>
+<span id="cb22-23"><a href="#cb22-23" tabindex="-1"></a>                  <span class="fu">round</span>(<span class="fu">as.numeric</span>(tidy_frame[term,<span class="st">&quot;F.value&quot;</span>]), <span class="dv">2</span>)), </span>
+<span id="cb22-24"><a href="#cb22-24" tabindex="-1"></a>           <span class="st">&quot;&quot;</span>),</span>
+<span id="cb22-25"><a href="#cb22-25" tabindex="-1"></a>    <span class="fu">ifelse</span>(pval <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="fu">paste0</span>(</span>
+<span id="cb22-26"><a href="#cb22-26" tabindex="-1"></a>                 <span class="st">&quot;, &quot;</span>,  <span class="fu">report_pval_full</span>(tidy_frame[term,<span class="st">&quot;Pr..F.&quot;</span>])),</span>
+<span id="cb22-27"><a href="#cb22-27" tabindex="-1"></a>           <span class="st">&quot;&quot;</span>)</span>
+<span id="cb22-28"><a href="#cb22-28" tabindex="-1"></a>    )</span>
+<span id="cb22-29"><a href="#cb22-29" tabindex="-1"></a>  </span>
+<span id="cb22-30"><a href="#cb22-30" tabindex="-1"></a>  <span class="fu">return</span>(text)</span>
+<span id="cb22-31"><a href="#cb22-31" tabindex="-1"></a>}</span></code></pre></div>
+<p>We can add our omnibus ANOVA test by embedding our custom function in the <code>labs</code> element, <code>labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>viofade_text <span class="sc">+</span> </span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="fu">report_tidy_anova_etaci</span>(flipper_anova,<span class="st">&quot;species&quot;</span>))</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>By default, ggplot doesn’t allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle Using <code>theme(plot.subtitle = ggtext::element_markdown())</code></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>viofade_text_stats <span class="ot">&lt;-</span> viofade_text <span class="sc">+</span> </span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="fu">report_tidy_anova_etaci</span>(flipper_anova,<span class="st">&quot;species&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.subtitle =</span> ggtext<span class="sc">::</span><span class="fu">element_markdown</span>())</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>viofade_text_stats</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>We can also customize our anova extraction function, <code>report_tidy_anova_etaci()</code> to show less information in the subtitle.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>viofade_text <span class="sc">+</span> </span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="fu">report_tidy_anova_etaci</span>(flipper_anova, </span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>                                          <span class="st">&quot;species&quot;</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>                                          <span class="at">teststat =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>                                          <span class="at">pval =</span> <span class="cn">FALSE</span>)) <span class="sc">+</span> </span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.subtitle =</span> ggtext<span class="sc">::</span><span class="fu">element_markdown</span>())</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+</div>
+</div>
+<div id="add-significance-brackets" class="section level2" number="7.6">
+<h2><span class="header-section-number">7.6</span> Add Significance Brackets</h2>
+<p>Adding significance brackets using the function <code>ggpubr::geom_bracket()</code>, and our previously-defined object <code>flipper_emmeans_contrasts</code>. You’ll have to manually select and place the appropriate contrast.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>viofade_text_stats_bracket1 <span class="ot">&lt;-</span> viofade_text_stats <span class="sc">+</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  ggpubr<span class="sc">::</span><span class="fu">geom_bracket</span>(<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>                       <span class="at">tip.length =</span> <span class="fl">0.02</span>, </span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>                       <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>                       <span class="at">xmin =</span> <span class="dv">1</span>, </span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>                       <span class="at">xmax =</span> <span class="dv">2</span>, </span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>                       <span class="at">y.position =</span> <span class="dv">220</span> ,</span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>                       <span class="at">label.size =</span> <span class="fl">2.5</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>                       <span class="at">label =</span> <span class="fu">paste0</span>(flipper_emmeans_contrasts[flipper_emmeans_contrasts<span class="sc">$</span>contrast <span class="sc">==</span> </span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a>                                                                  <span class="st">&#39;Adelie - Chinstrap&#39;</span>, <span class="st">&quot;p_no_it&quot;</span>])</span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a>  )</span>
+<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" tabindex="-1"></a>viofade_text_stats_bracket1</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p>You can also add some additional text to the labels for your significance brackets using <code>ggpubr::geom_bracket(..., label = paste0(...))</code></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>viofade_text_stats_bracket2 <span class="ot">&lt;-</span> viofade_text_stats_bracket1 <span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>    ggpubr<span class="sc">::</span><span class="fu">geom_bracket</span>(<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>                       <span class="at">tip.length =</span> <span class="fl">0.02</span>, </span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>                       <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>                       <span class="at">xmin =</span> <span class="dv">2</span>, </span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a>                       <span class="at">xmax =</span> <span class="dv">3</span>, </span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a>                       <span class="at">y.position =</span> <span class="dv">227</span> ,</span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a>                       <span class="at">label.size =</span> <span class="fl">2.5</span>,</span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a>                       <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">&quot;My hypothesis, &quot;</span>, </span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a>                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts<span class="sc">$</span>contrast <span class="sc">==</span> </span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a>                                                                  <span class="st">&#39;Chinstrap - Gentoo&#39;</span>, <span class="st">&quot;p_no_it&quot;</span>]))</span></code></pre></div>
+<p>Style on the axis titles with <code>theme()</code>, <code>ylab()</code>, and <code>xlab()</code></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>viofade_text_stats_bracket2 <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">face=</span><span class="st">&quot;bold&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Flipper length (mm)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Species&quot;</span>)</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+</div>
+</div>
+<div id="factorial-design" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Factorial design</h1>
+<div id="summarize-1" class="section level2" number="8.1">
+<h2><span class="header-section-number">8.1</span> Summarize</h2>
+<p>Our data</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a>flipper_fact_summary <span class="ot">&lt;-</span> <span class="fu">make_summary</span>(<span class="at">data =</span> df, <span class="at">dv =</span> flipper_length_mm, <span class="at">grouping1 =</span> species, <span class="at">grouping2 =</span> sex)</span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_fact_summary)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">species</th>
+<th align="left">sex</th>
+<th align="right">mean</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">n</th>
+<th align="right">std_dev</th>
+<th align="right">se</th>
+<th align="right">y25</th>
+<th align="right">y50</th>
+<th align="right">y75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Adelie</td>
+<td align="left">female</td>
+<td align="right">187.79</td>
+<td align="right">172</td>
+<td align="right">202</td>
+<td align="right">73</td>
+<td align="right">5.60</td>
+<td align="right">0.65</td>
+<td align="right">185</td>
+<td align="right">188</td>
+<td align="right">191</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie</td>
+<td align="left">male</td>
+<td align="right">192.41</td>
+<td align="right">178</td>
+<td align="right">210</td>
+<td align="right">73</td>
+<td align="right">6.60</td>
+<td align="right">0.77</td>
+<td align="right">189</td>
+<td align="right">193</td>
+<td align="right">197</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap</td>
+<td align="left">female</td>
+<td align="right">191.74</td>
+<td align="right">178</td>
+<td align="right">202</td>
+<td align="right">34</td>
+<td align="right">5.75</td>
+<td align="right">0.99</td>
+<td align="right">187</td>
+<td align="right">192</td>
+<td align="right">196</td>
+</tr>
+<tr class="even">
+<td align="left">Chinstrap</td>
+<td align="left">male</td>
+<td align="right">199.91</td>
+<td align="right">187</td>
+<td align="right">212</td>
+<td align="right">34</td>
+<td align="right">5.98</td>
+<td align="right">1.02</td>
+<td align="right">196</td>
+<td align="right">200</td>
+<td align="right">203</td>
+</tr>
+<tr class="odd">
+<td align="left">Gentoo</td>
+<td align="left">female</td>
+<td align="right">212.71</td>
+<td align="right">203</td>
+<td align="right">222</td>
+<td align="right">58</td>
+<td align="right">3.90</td>
+<td align="right">0.51</td>
+<td align="right">210</td>
+<td align="right">212</td>
+<td align="right">215</td>
+</tr>
+<tr class="even">
+<td align="left">Gentoo</td>
+<td align="left">male</td>
+<td align="right">221.54</td>
+<td align="right">208</td>
+<td align="right">231</td>
+<td align="right">61</td>
+<td align="right">5.67</td>
+<td align="right">0.73</td>
+<td align="right">218</td>
+<td align="right">221</td>
+<td align="right">225</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="analyze-1" class="section level2" number="8.2">
+<h2><span class="header-section-number">8.2</span> Analyze</h2>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># Fit data</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>flipper_fact_fit <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">aov</span>(flipper_length_mm <span class="sc">~</span> species<span class="sc">*</span>sex, <span class="at">data =</span> df)</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="co"># Run anova</span></span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>flipper_fact_anova <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">Anova</span>(flipper_fact_fit, <span class="at">type =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>Make a custom function, <code>merge_emmeans_summary()</code>, to merge summary and emmeans. Particularly useful for multivariate analyses.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="co">#merging regular summary stats with emmeans</span></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>merge_emmeans_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(summary_data,emmeans_tidy){</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  summary_data<span class="sc">$</span>emmean <span class="ot">&lt;-</span> emmeans_tidy<span class="sc">$</span>emmean</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>  summary_data<span class="sc">$</span>emmean_se <span class="ot">&lt;-</span> emmeans_tidy<span class="sc">$</span>SE</span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  summary_data<span class="sc">$</span>emmean_loci <span class="ot">&lt;-</span> emmeans_tidy<span class="sc">$</span>lower.CL</span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>  summary_data<span class="sc">$</span>emmean_upci <span class="ot">&lt;-</span> emmeans_tidy<span class="sc">$</span>upper.CL</span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>  summary_data</span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a>}</span></code></pre></div>
+<p>Extract estimated marginal means with <code>emmeans::emmeans()</code> and merge with basic summary dataframe with our custom <code>merge_emmeans_summary()</code> function.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># Extract estimated marginal means</span></span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>flipper_fact_emmeans <span class="ot">&lt;-</span> emmeans<span class="sc">::</span><span class="fu">emmeans</span>(flipper_fact_fit, <span class="at">specs =</span> pairwise <span class="sc">~</span> species<span class="sc">:</span>sex)</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co"># Convert estimated marginal means to dataframe</span></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>flipper_fact_emmeans_tidy <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(flipper_fact_emmeans<span class="sc">$</span>emmeans)</span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>flipper_fact_summary <span class="ot">&lt;-</span> flipper_fact_summary[<span class="fu">order</span>(flipper_fact_summary<span class="sc">$</span>species, </span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a>                                                   flipper_fact_summary<span class="sc">$</span>sex), ]</span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a>flipper_fact_emmeans_tidy <span class="ot">&lt;-</span> flipper_fact_emmeans_tidy[<span class="fu">order</span>(flipper_fact_emmeans_tidy<span class="sc">$</span>species,</span>
+<span id="cb32-13"><a href="#cb32-13" tabindex="-1"></a>                                                             flipper_fact_emmeans_tidy<span class="sc">$</span>sex), ]</span>
+<span id="cb32-14"><a href="#cb32-14" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" tabindex="-1"></a></span>
+<span id="cb32-16"><a href="#cb32-16" tabindex="-1"></a>flipper_fact_summary <span class="ot">&lt;-</span> <span class="fu">merge_emmeans_summary</span>(<span class="at">summary_data =</span> flipper_fact_summary,</span>
+<span id="cb32-17"><a href="#cb32-17" tabindex="-1"></a>                                                  <span class="at">emmeans_tidy =</span> flipper_fact_emmeans_tidy)</span>
+<span id="cb32-18"><a href="#cb32-18" tabindex="-1"></a></span>
+<span id="cb32-19"><a href="#cb32-19" tabindex="-1"></a>flipper_fact_summary <span class="ot">&lt;-</span> flipper_fact_summary <span class="sc">%&gt;%</span></span>
+<span id="cb32-20"><a href="#cb32-20" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) <span class="fu">round</span>(x, <span class="dv">2</span>))</span>
+<span id="cb32-21"><a href="#cb32-21" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_fact_summary)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="9%" />
+<col width="6%" />
+<col width="6%" />
+<col width="3%" />
+<col width="3%" />
+<col width="2%" />
+<col width="7%" />
+<col width="4%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="6%" />
+<col width="9%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">species</th>
+<th align="left">sex</th>
+<th align="right">mean</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">n</th>
+<th align="right">std_dev</th>
+<th align="right">se</th>
+<th align="right">y25</th>
+<th align="right">y50</th>
+<th align="right">y75</th>
+<th align="right">emmean</th>
+<th align="right">emmean_se</th>
+<th align="right">emmean_loci</th>
+<th align="right">emmean_upci</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Adelie</td>
+<td align="left">female</td>
+<td align="right">187.79</td>
+<td align="right">172</td>
+<td align="right">202</td>
+<td align="right">73</td>
+<td align="right">5.60</td>
+<td align="right">0.65</td>
+<td align="right">185</td>
+<td align="right">188</td>
+<td align="right">191</td>
+<td align="right">187.79</td>
+<td align="right">0.66</td>
+<td align="right">186.49</td>
+<td align="right">189.10</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie</td>
+<td align="left">male</td>
+<td align="right">192.41</td>
+<td align="right">178</td>
+<td align="right">210</td>
+<td align="right">73</td>
+<td align="right">6.60</td>
+<td align="right">0.77</td>
+<td align="right">189</td>
+<td align="right">193</td>
+<td align="right">197</td>
+<td align="right">192.41</td>
+<td align="right">0.66</td>
+<td align="right">191.11</td>
+<td align="right">193.71</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap</td>
+<td align="left">female</td>
+<td align="right">191.74</td>
+<td align="right">178</td>
+<td align="right">202</td>
+<td align="right">34</td>
+<td align="right">5.75</td>
+<td align="right">0.99</td>
+<td align="right">187</td>
+<td align="right">192</td>
+<td align="right">196</td>
+<td align="right">191.74</td>
+<td align="right">0.97</td>
+<td align="right">189.83</td>
+<td align="right">193.64</td>
+</tr>
+<tr class="even">
+<td align="left">Chinstrap</td>
+<td align="left">male</td>
+<td align="right">199.91</td>
+<td align="right">187</td>
+<td align="right">212</td>
+<td align="right">34</td>
+<td align="right">5.98</td>
+<td align="right">1.02</td>
+<td align="right">196</td>
+<td align="right">200</td>
+<td align="right">203</td>
+<td align="right">199.91</td>
+<td align="right">0.97</td>
+<td align="right">198.00</td>
+<td align="right">201.82</td>
+</tr>
+<tr class="odd">
+<td align="left">Gentoo</td>
+<td align="left">female</td>
+<td align="right">212.71</td>
+<td align="right">203</td>
+<td align="right">222</td>
+<td align="right">58</td>
+<td align="right">3.90</td>
+<td align="right">0.51</td>
+<td align="right">210</td>
+<td align="right">212</td>
+<td align="right">215</td>
+<td align="right">212.71</td>
+<td align="right">0.74</td>
+<td align="right">211.25</td>
+<td align="right">214.17</td>
+</tr>
+<tr class="even">
+<td align="left">Gentoo</td>
+<td align="left">male</td>
+<td align="right">221.54</td>
+<td align="right">208</td>
+<td align="right">231</td>
+<td align="right">61</td>
+<td align="right">5.67</td>
+<td align="right">0.73</td>
+<td align="right">218</td>
+<td align="right">221</td>
+<td align="right">225</td>
+<td align="right">221.54</td>
+<td align="right">0.72</td>
+<td align="right">220.12</td>
+<td align="right">222.97</td>
+</tr>
+</tbody>
+</table>
+<p>Calculate effect sizes with <code>effectsize::eta_squared()</code></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>flipper_fact_anova_pes <span class="ot">&lt;-</span> effectsize<span class="sc">::</span><span class="fu">eta_squared</span>(flipper_fact_anova,</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>                                             <span class="at">alternative=</span><span class="st">&quot;two.sided&quot;</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>                                             <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>                                             <span class="at">generalized=</span> <span class="cn">FALSE</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a>flipper_fact_anova <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(flipper_fact_anova)</span>
+<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a>flipper_fact_anova[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,<span class="st">&quot;pes_ci95_lo&quot;</span>] <span class="ot">&lt;-</span> flipper_fact_anova_pes<span class="sc">$</span>CI_low</span>
+<span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a>flipper_fact_anova[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,<span class="st">&quot;pes_ci95_hi&quot;</span>] <span class="ot">&lt;-</span> flipper_fact_anova_pes<span class="sc">$</span>CI_high</span>
+<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a>flipper_fact_anova[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,<span class="st">&quot;pes&quot;</span>] <span class="ot">&lt;-</span> flipper_fact_anova_pes<span class="sc">$</span>Eta2</span>
+<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" tabindex="-1"></a>flipper_fact_anova <span class="ot">&lt;-</span> flipper_fact_anova <span class="sc">%&gt;%</span></span>
+<span id="cb33-14"><a href="#cb33-14" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) <span class="fu">round</span>(x, <span class="dv">3</span>))</span>
+<span id="cb33-15"><a href="#cb33-15" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_fact_anova)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="5%" />
+<col width="11%" />
+<col width="9%" />
+<col width="16%" />
+<col width="16%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sum.Sq</th>
+<th align="right">Df</th>
+<th align="right">F.value</th>
+<th align="right">Pr..F.</th>
+<th align="right">pes_ci95_lo</th>
+<th align="right">pes_ci95_hi</th>
+<th align="right">pes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="right">50185.027</td>
+<td align="right">2</td>
+<td align="right">784.583</td>
+<td align="right">0.000</td>
+<td align="right">0.798</td>
+<td align="right">0.851</td>
+<td align="right">0.828</td>
+</tr>
+<tr class="even">
+<td align="left">sex</td>
+<td align="right">3905.604</td>
+<td align="right">1</td>
+<td align="right">122.119</td>
+<td align="right">0.000</td>
+<td align="right">0.195</td>
+<td align="right">0.347</td>
+<td align="right">0.272</td>
+</tr>
+<tr class="odd">
+<td align="left">species:sex</td>
+<td align="right">329.042</td>
+<td align="right">2</td>
+<td align="right">5.144</td>
+<td align="right">0.006</td>
+<td align="right">0.003</td>
+<td align="right">0.073</td>
+<td align="right">0.031</td>
+</tr>
+<tr class="even">
+<td align="left">Residuals</td>
+<td align="right">10458.107</td>
+<td align="right">327</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="vizualize-1" class="section level2" number="8.3">
+<h2><span class="header-section-number">8.3</span> Vizualize</h2>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>viofade_fact <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> df,</span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">y =</span> flipper_length_mm, <span class="co"># our dependent/response/outcome variable </span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a>           <span class="at">x =</span> species,  <span class="co"># our grouping/independent/predictor variable</span></span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a>           <span class="at">fill =</span> sex)) <span class="sc">+</span>  <span class="co"># our third grouping/independent/interaction variable</span></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a>  </span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_slab</span>(<span class="at">side =</span> <span class="st">&quot;both&quot;</span>,  </span>
+<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a>                    <span class="fu">aes</span>(<span class="at">fill_ramp =</span> <span class="fu">stat</span>(level)),</span>
+<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a>                    <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">50</span>, <span class="dv">1</span>),</span>
+<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a>                    <span class="at">scale =</span> .<span class="dv">4</span>,</span>
+<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a>                    <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">7</span>)) <span class="sc">+</span></span>
+<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> nova_palette) <span class="sc">+</span></span>
+<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> <span class="st">&quot;mean_cl_normal&quot;</span>, </span>
+<span id="cb34-13"><a href="#cb34-13" tabindex="-1"></a>               <span class="at">show.legend =</span> F, </span>
+<span id="cb34-14"><a href="#cb34-14" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, </span>
+<span id="cb34-15"><a href="#cb34-15" tabindex="-1"></a>               <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">7</span>))  <span class="sc">+</span> </span>
+<span id="cb34-16"><a href="#cb34-16" tabindex="-1"></a> </span>
+<span id="cb34-17"><a href="#cb34-17" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">round</span>(..y..,<span class="dv">0</span>)), </span>
+<span id="cb34-18"><a href="#cb34-18" tabindex="-1"></a>               <span class="at">fun=</span>mean, <span class="at">geom=</span><span class="st">&quot;text&quot;</span>,  </span>
+<span id="cb34-19"><a href="#cb34-19" tabindex="-1"></a>               <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">7</span>), </span>
+<span id="cb34-20"><a href="#cb34-20" tabindex="-1"></a>               <span class="at">size=</span><span class="fl">2.5</span>, </span>
+<span id="cb34-21"><a href="#cb34-21" tabindex="-1"></a>               <span class="at">vjust =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb34-22"><a href="#cb34-22" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> flipper_fact_summary, </span>
+<span id="cb34-23"><a href="#cb34-23" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste</span>(<span class="st">&quot;n =&quot;</span>, n), </span>
+<span id="cb34-24"><a href="#cb34-24" tabindex="-1"></a>                <span class="at">y =</span> flipper_fact_summary[<span class="fu">which.min</span>(flipper_fact_summary<span class="sc">$</span>min),]<span class="sc">$</span>mean <span class="sc">-</span></span>
+<span id="cb34-25"><a href="#cb34-25" tabindex="-1"></a>                  <span class="dv">3</span><span class="sc">*</span>flipper_fact_summary[<span class="fu">which.min</span>(flipper_fact_summary<span class="sc">$</span>min),]<span class="sc">$</span>std_dev), <span class="co">#  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)</span></span>
+<span id="cb34-26"><a href="#cb34-26" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">2</span>, </span>
+<span id="cb34-27"><a href="#cb34-27" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;grey60&quot;</span>, </span>
+<span id="cb34-28"><a href="#cb34-28" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">7</span>)) <span class="sc">+</span></span>
+<span id="cb34-29"><a href="#cb34-29" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill_ramp =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb34-30"><a href="#cb34-30" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.03</span>, <span class="dv">0</span>))) <span class="sc">+</span></span>
+<span id="cb34-31"><a href="#cb34-31" tabindex="-1"></a>  cowplot<span class="sc">::</span><span class="fu">theme_half_open</span>() <span class="sc">+</span>  </span>
+<span id="cb34-32"><a href="#cb34-32" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">face=</span><span class="st">&quot;bold&quot;</span>), </span>
+<span id="cb34-33"><a href="#cb34-33" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face=</span><span class="st">&quot;bold&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb34-34"><a href="#cb34-34" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Species&quot;</span>, </span>
+<span id="cb34-35"><a href="#cb34-35" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Flipper length (mm)&quot;</span>, </span>
+<span id="cb34-36"><a href="#cb34-36" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">&quot;Sex&quot;</span>)</span>
+<span id="cb34-37"><a href="#cb34-37" tabindex="-1"></a></span>
+<span id="cb34-38"><a href="#cb34-38" tabindex="-1"></a></span>
+<span id="cb34-39"><a href="#cb34-39" tabindex="-1"></a>viofade_fact</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="co"># convert estimated marginal mean contrasts to dataframe</span></span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>flipper_fact_emmeans_contrasts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(flipper_fact_emmeans<span class="sc">$</span>contrasts)</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="co"># convert p-value to non-italicized version (for significance brackets)</span></span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>flipper_fact_emmeans_contrasts<span class="sc">$</span>p_no_it <span class="ot">&lt;-</span>  <span class="fu">report_pval_full</span>(flipper_fact_emmeans_contrasts<span class="sc">$</span>p.value, <span class="at">italicize =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a><span class="co"># convert p-value to italicized version (for in-text citations and captioning graph)</span></span>
+<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a>flipper_fact_emmeans_contrasts<span class="sc">$</span>p.value <span class="ot">&lt;-</span> <span class="fu">report_pval_full</span>(flipper_fact_emmeans_contrasts<span class="sc">$</span>p.value)</span>
+<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a>flipper_fact_emmeans_contrasts <span class="ot">&lt;-</span> flipper_fact_emmeans_contrasts <span class="sc">%&gt;%</span></span>
+<span id="cb35-12"><a href="#cb35-12" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) <span class="fu">round</span>(x, <span class="dv">2</span>))</span>
+<span id="cb35-13"><a href="#cb35-13" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(flipper_fact_emmeans_contrasts)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="42%" />
+<col width="11%" />
+<col width="6%" />
+<col width="5%" />
+<col width="10%" />
+<col width="13%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="left">p.value</th>
+<th align="left">p_no_it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Adelie female - Chinstrap female</td>
+<td align="right">-3.94</td>
+<td align="right">1.17</td>
+<td align="right">327</td>
+<td align="right">-3.36</td>
+<td align="left"><em>p</em> = .01</td>
+<td align="left">p = .01</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie female - Gentoo female</td>
+<td align="right">-24.91</td>
+<td align="right">0.99</td>
+<td align="right">327</td>
+<td align="right">-25.04</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Adelie female - Adelie male</td>
+<td align="right">-4.62</td>
+<td align="right">0.94</td>
+<td align="right">327</td>
+<td align="right">-4.93</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie female - Chinstrap male</td>
+<td align="right">-12.12</td>
+<td align="right">1.17</td>
+<td align="right">327</td>
+<td align="right">-10.32</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Adelie female - Gentoo male</td>
+<td align="right">-33.75</td>
+<td align="right">0.98</td>
+<td align="right">327</td>
+<td align="right">-34.40</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Chinstrap female - Gentoo female</td>
+<td align="right">-20.97</td>
+<td align="right">1.22</td>
+<td align="right">327</td>
+<td align="right">-17.17</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap female - Adelie male</td>
+<td align="right">-0.68</td>
+<td align="right">1.17</td>
+<td align="right">327</td>
+<td align="right">-0.58</td>
+<td align="left"><em>p</em> = .99</td>
+<td align="left">p = .99</td>
+</tr>
+<tr class="even">
+<td align="left">Chinstrap female - Chinstrap male</td>
+<td align="right">-8.18</td>
+<td align="right">1.37</td>
+<td align="right">327</td>
+<td align="right">-5.96</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap female - Gentoo male</td>
+<td align="right">-29.81</td>
+<td align="right">1.21</td>
+<td align="right">327</td>
+<td align="right">-24.63</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Gentoo female - Adelie male</td>
+<td align="right">20.30</td>
+<td align="right">0.99</td>
+<td align="right">327</td>
+<td align="right">20.40</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Gentoo female - Chinstrap male</td>
+<td align="right">12.80</td>
+<td align="right">1.22</td>
+<td align="right">327</td>
+<td align="right">10.47</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Gentoo female - Gentoo male</td>
+<td align="right">-8.83</td>
+<td align="right">1.04</td>
+<td align="right">327</td>
+<td align="right">-8.52</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Adelie male - Chinstrap male</td>
+<td align="right">-7.50</td>
+<td align="right">1.17</td>
+<td align="right">327</td>
+<td align="right">-6.39</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="even">
+<td align="left">Adelie male - Gentoo male</td>
+<td align="right">-29.13</td>
+<td align="right">0.98</td>
+<td align="right">327</td>
+<td align="right">-29.69</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+<tr class="odd">
+<td align="left">Chinstrap male - Gentoo male</td>
+<td align="right">-21.63</td>
+<td align="right">1.21</td>
+<td align="right">327</td>
+<td align="right">-17.87</td>
+<td align="left"><em>p</em> &lt; .001</td>
+<td align="left">p &lt; .001</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>viofade_fact_bracket <span class="ot">&lt;-</span> viofade_fact <span class="sc">+</span> </span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>ggpubr<span class="sc">::</span><span class="fu">geom_bracket</span>(<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>                       <span class="at">tip.length =</span> <span class="fl">0.02</span>, </span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>                       <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a>                       <span class="at">xmin =</span> <span class="fl">1.175</span>, </span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a>                       <span class="at">xmax =</span> <span class="fl">1.825</span>, </span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a>                       <span class="at">y.position =</span> <span class="dv">210</span> ,</span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a>                       <span class="at">label.size =</span> <span class="fl">2.1</span>,</span>
+<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a>                       <span class="at">label =</span> <span class="fu">paste0</span>(flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts<span class="sc">$</span>contrast <span class="sc">==</span> </span>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a>                                                                  <span class="st">&#39;Chinstrap female - Adelie male&#39;</span>, <span class="st">&quot;p_no_it&quot;</span>])</span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a>ggpubr<span class="sc">::</span><span class="fu">geom_bracket</span>(<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a>                       <span class="at">tip.length =</span> <span class="fl">0.02</span>, </span>
+<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a>                       <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" tabindex="-1"></a>                       <span class="at">xmin =</span> .<span class="dv">825</span>, </span>
+<span id="cb36-17"><a href="#cb36-17" tabindex="-1"></a>                       <span class="at">xmax =</span> <span class="fl">1.175</span>, </span>
+<span id="cb36-18"><a href="#cb36-18" tabindex="-1"></a>                       <span class="at">y.position =</span> <span class="dv">217</span> ,</span>
+<span id="cb36-19"><a href="#cb36-19" tabindex="-1"></a>                       <span class="at">label.size =</span> <span class="fl">2.1</span>,</span>
+<span id="cb36-20"><a href="#cb36-20" tabindex="-1"></a>                       <span class="at">label =</span> <span class="fu">paste0</span>(flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts<span class="sc">$</span>contrast <span class="sc">==</span> </span>
+<span id="cb36-21"><a href="#cb36-21" tabindex="-1"></a>                                                                  <span class="st">&#39;Adelie female - Adelie male&#39;</span>, <span class="st">&quot;p_no_it&quot;</span>])</span>
+<span id="cb36-22"><a href="#cb36-22" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-23"><a href="#cb36-23" tabindex="-1"></a>  ggpubr<span class="sc">::</span><span class="fu">geom_bracket</span>(<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb36-24"><a href="#cb36-24" tabindex="-1"></a>                       <span class="at">tip.length =</span> <span class="fl">0.02</span>, </span>
+<span id="cb36-25"><a href="#cb36-25" tabindex="-1"></a>                       <span class="at">vjust =</span> <span class="dv">0</span>,</span>
+<span id="cb36-26"><a href="#cb36-26" tabindex="-1"></a>                       <span class="at">xmin =</span> .<span class="dv">825</span>, </span>
+<span id="cb36-27"><a href="#cb36-27" tabindex="-1"></a>                       <span class="at">xmax =</span> <span class="fl">2.175</span>, </span>
+<span id="cb36-28"><a href="#cb36-28" tabindex="-1"></a>                       <span class="at">y.position =</span> <span class="dv">225</span> ,</span>
+<span id="cb36-29"><a href="#cb36-29" tabindex="-1"></a>                       <span class="at">label.size =</span> <span class="fl">2.1</span>,</span>
+<span id="cb36-30"><a href="#cb36-30" tabindex="-1"></a>                       <span class="at">label =</span> <span class="fu">paste0</span>(flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts<span class="sc">$</span>contrast <span class="sc">==</span> </span>
+<span id="cb36-31"><a href="#cb36-31" tabindex="-1"></a>                                                                  <span class="st">&#39;Adelie female - Chinstrap male&#39;</span>, <span class="st">&quot;p_no_it&quot;</span>])</span>
+<span id="cb36-32"><a href="#cb36-32" tabindex="-1"></a>  )</span>
+<span id="cb36-33"><a href="#cb36-33" tabindex="-1"></a>  </span>
+<span id="cb36-34"><a href="#cb36-34" tabindex="-1"></a>  </span>
+<span id="cb36-35"><a href="#cb36-35" tabindex="-1"></a>viofade_fact_bracket</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p>Not exactly the amount of information I would put in the graph, but you can really get your analysis fully integrated with the plot, just by using the same subtitle function as before:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a> viofade_fact_bracket <span class="sc">+</span></span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">&quot;**species**: &quot;</span>, <span class="fu">report_tidy_anova_etaci</span>(flipper_fact_anova,<span class="st">&quot;species&quot;</span>), <span class="st">&quot;&lt;br&gt;&quot;</span>,</span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a>                           <span class="st">&quot;**sex**: &quot;</span>, <span class="fu">report_tidy_anova_etaci</span>(flipper_fact_anova,<span class="st">&quot;sex&quot;</span>), <span class="st">&quot;&lt;br&gt;&quot;</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>                           <span class="st">&quot;**species*sex**: &quot;</span>,<span class="fu">report_tidy_anova_etaci</span>(flipper_fact_anova,<span class="st">&quot;species:sex&quot;</span>))</span>
+<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>         )  <span class="sc">+</span> </span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.subtitle =</span> ggtext<span class="sc">::</span><span class="fu">element_markdown</span>(<span class="at">size =</span> <span class="dv">10</span>))</span></code></pre></div>
+<p><img src="index.en_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
+</div>
+</div>

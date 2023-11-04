@@ -31,6 +31,69 @@ tags:
   - ggdist
   - group comparisons
   - dataviz
+  - how to create a graph
+  - plotting data in R 
+  - plotting data in Excel
+  - plotting data in Python
+  - chart types
+  - types of graphs
+  - graph types
+  - data plotting techniques
+  - graphing data
+  - scatter plot
+  - line chart
+  - bar chart
+  - bar graph
+  - histogram
+  - box plot
+  - box and whisker plot
+  - data plotting tools
+  - data analysis and visualization best practices
+  - data visualization tutorials
+  - data visualization software comparison
+  - data visualization tips
+  - data visualization examples
+  - Data Visualization in R
+  - R Programming
+  - Group Comparison Charts
+  - Report-Ready Charts
+  - Data Analysis in R
+  - Data Visualization Tutorial
+  - Step-By-Step Guide
+  - Data Reporting
+  - Chart Creation in R
+  - R Data Visualization
+  - Group Comparison in Statistics
+  - Graphical Data Analysis
+  - Creating Visual Reports
+  - Data Visualization Techniques
+  - R Data Visualization Tools
+  - Data Presentation
+  - Statistical Analysis in R
+  - R Plotting
+  - Data Visualization Best Practices
+  - Data Analysis Tutorials
+  - Statistical Graphics in R
+  - Data Visualization for Reports
+  - Comparative Analysis in R
+  - Data Visualization Tips
+  - R Data Visualization Examples
+  - Data Visualization for Research
+  - Creating Publication-Quality Charts
+  - Group Comparison Techniques
+  - R Data Visualization Walkthrough
+  - Visual Data Analysis
+  - R Plotting Libraries
+  - Data Presentation in R
+  - Visualizing Group Differences
+  - Effective Data Visualization
+  - R Graphics
+  - Group Comparison Plots
+  - R Data Visualization Guide
+  - Reporting and Visualization
+  - Data Visualization for Presentations
+  - R Data Visualization Step-By-Step
+  
   
 summary: "Building off of raincloud and fadecloud plots, I introduce two new styles for plotting data transparently: (1) the faded dotplot and (2) the shadeplot. Both leverage the r package ggdist to present stacked raw data, overall distribution, and summary stats while minimizing visual clutter."
 
