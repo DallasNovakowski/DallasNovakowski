@@ -45,6 +45,17 @@
 }
 
 
+// Initially show the navbar
+.navbar {
+  transition: all 0.5s ease-in-out;
+}
+
+// Hide the navbar after scrolling
+.navbar.hidden {
+  transform: translateY(-100%);
+}
+
+
 // Navbar brand
 //
 // Used for brand, project, or site names.

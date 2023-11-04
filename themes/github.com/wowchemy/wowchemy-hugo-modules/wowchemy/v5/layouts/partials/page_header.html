@@ -1,3 +1,22 @@
+<script>
+    var prevScrollpos = window.pageYOffset;
+
+    window.onscroll = function() {
+        var currentScrollPos = window.pageYOffset;
+
+        if (prevScrollpos > currentScrollPos) {
+            // Show the navbar when scrolling up
+            document.querySelector(".navbar").classList.remove("hidden");
+        } else {
+            // Hide the navbar when scrolling down
+            document.querySelector(".navbar").classList.add("hidden");
+        }
+
+        prevScrollpos = currentScrollPos;
+    }
+</script>
+
+
 {{ $page := . }}
 {{ $featured := (.Resources.ByType "image").GetMatch "*featured*" }}
 {{ $anchor := $page.Params.image.focal_point | default "Smart" }}
