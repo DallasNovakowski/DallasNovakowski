@@ -1073,7 +1073,11 @@ canvas <- ggplot(data = df, # specify the dataframe that we want to pull variabl
                   aes(y = flipper, # our dependent/response/outcome variable 
                       x = species  # our grouping/independent/predictor variable
                       ))
+
+canvas 
 ```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-13-1.png" width="672" />
 
 We specify `cowplot::theme_half_open()` at this early stage because we want to override some arguments in this theme with some new elements later on.
 
