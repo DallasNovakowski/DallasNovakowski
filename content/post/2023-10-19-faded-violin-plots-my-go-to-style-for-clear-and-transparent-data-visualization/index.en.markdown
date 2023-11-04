@@ -1741,7 +1741,7 @@ viofade_dotplot <- fresh_canvas +
                        label = paste0("My hypothesis, ", 
                                       flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
                                                                   'Chinstrap - Gentoo', "p_no_it"])) +
-  labs(title = "Faded dotplot")
+  labs(title = "Faded Violin dotplot")
 
 viofade_dotplot
 ```
@@ -1796,7 +1796,7 @@ flipper_fact_anova <- car::Anova(flipper_fact_fit, type = 2)
 ```
 
 
-Extract estimated marginal means with `emmeans::emmeans()` and merge with basic summary dataframe with our custom `merge_emmeans_summary()` function.
+Extract estimated marginal means with `emmeans::emmeans()` and merge with basic summary dataframe with our custom `merge_emmeans_summary()` function:
 
 
 ```r
