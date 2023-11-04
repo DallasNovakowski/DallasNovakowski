@@ -190,7 +190,7 @@ toc_depth: 2
 
 
 ```r
-# Load-packages ----
+# Load-packages ------------------------------------------------------------------
 
 library(palmerpenguins) # dataset
 library(cowplot) #  publication-ready plots
@@ -211,7 +211,7 @@ library(janitor) #for cleaning variable names
 nova_palette <- c("#78AAA9", "#FFDB6E")
 
 
-# load-data ----
+# load-data ------------------------------------------------------------------
 
 # assigns data to a dataframe we call "df"
 df <- palmerpenguins::penguins
@@ -244,7 +244,7 @@ make_summary <- function(data, dv, grouping1, grouping2, grouping3){
   
 }
 
-
+# Analyze-data ------------------------
 
 # Fit data
 flipper_fit <- stats::aov(flipper ~ species, data = df)
@@ -274,7 +274,8 @@ knitr::kable(flipper_anova)
 
 
 
-# Extract estimated marginal means
+# Extract estimated marginal means ----------------
+
 flipper_emmeans <- emmeans::emmeans(flipper_fit, specs = pairwise ~ species)
 
 # convert estimated marginal mean contrasts to dataframe
@@ -326,7 +327,7 @@ report_pval_full <- function(pval, italicize = TRUE) {
   )
 }
 
-#Create and prepare dataframe for pairwise comparisons
+#Create and prepare dataframe for pairwise comparisons ----------
 
 # convert p-value to non-italicized version (for significance brackets)
 flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p.value, italicize = FALSE)
@@ -376,7 +377,7 @@ report_tidy_anova_etaci <- function(tidy_frame, # your tidy anova dataframe
   return(text)
 }
 
-# visualize the thing!
+# visualize the thing! ------------------------------------------------------------------
 
 ggplot(data = df, # specify the dataframe that we want to pull variables from
        aes(y = flipper, # our dependent/response/outcome variable 
@@ -437,7 +438,10 @@ ggplot(data = df, # specify the dataframe that we want to pull variables from
 
 
 
-# Now Try a Factorial Design
+
+
+# Now Try a Factorial Design ------------------------------------------------------------------
+
 ## Summarize the Data
 
 flipper_fact_summary <- make_summary(data = df, dv = flipper, grouping1 = species, grouping2 = sex)
@@ -513,7 +517,9 @@ flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%
 
 knitr::kable(flipper_fact_emmeans_contrasts)
 
-## Vizualize the Data
+
+
+## Vizualize the Data -----------
 
 
 viofade_fact <- ggplot(data = df,
@@ -607,7 +613,7 @@ viofade_fact_bracket
 
 
 
-# Now Compare Just Two Groups
+# Now Compare Just Two Groups ------------------------------------------------------------------
 
 #Use our workhorse `make_summary()`:
 
