@@ -787,6 +787,7 @@ library(ggpubr) # significance brackets
 library(weights) # rounding values
 library(report) # for citing packages
 library(janitor) #for cleaning variable names
+library(ggpp) # for position_dodge2nudge
 
 # Define color palette
 nova_palette <- c("#78AAA9", "#FFDB6E")
@@ -1079,7 +1080,7 @@ canvas
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-13-1.png" width="672" />
 
-We specify `cowplot::theme_half_open()` at this early stage because we want to override some arguments in this theme with some new elements later on.
+We specify `cowplot::theme_half_open()` at this early stage because we want to override some arguments in this theme with some new elements later on:
 
 
 ```r
@@ -1211,7 +1212,7 @@ You can see by the legend that the fading matches to the inner 66% of the data, 
 
 - Alternative: change from 66% to 68%, reflecting +/-1 standard deviation, giving a more direct parallel to a critical descriptive statistic (as well as cohen's d).
 
-We can change the shaded quantiles from the inner 66% to 50% (and eliminate the 95% shading) using `ggdist::stat_slab(..., .width = c(.50, 1))`.  
+We can change the shaded quantiles from the inner 66% to 50% (and eliminate the 95% shading) using `ggdist::stat_slab(..., .width = c(.50, 1))`:
 
 
 
@@ -1474,6 +1475,284 @@ viofade_text_stats_bracket2 +
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 
+<br>
+
+
+
+<details>
+
+<summary> <b>Click Here to see comparisons to alternatives, like the shadeplot, fadecloud, and faded dotplot </b> </summary>
+
+
+
+```r
+dark_aqua <- "#1E716F"
+
+
+
+fresh_canvas <- canvas + 
+  theme(axis.title = element_text(face="bold")) + 
+  ylab("Flipper length (mm)") +
+  xlab("Species") +
+  geom_text(data = flipper_summary, 
+            aes(label = paste("n =", n), 
+                y = flipper_summary[which.min(flipper_summary$min),]$mean -
+                  3.2*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 2, 
+            color = "grey60")
+
+  
+dotwhisker <-     geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  fatten = 2,
+                  size = .3,
+                  position = ggpp::position_dodge2nudge(x = -.1),
+                  color = "black", 
+                  show.legend = FALSE)
+  # add mean text
+meantext <-  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = -.25))
+
+offset_bracket1 <- ggpubr::geom_bracket( 
+                       tip.length = 0.02, # the downard "tips" of the bracket
+                       vjust = 0, # moves your text label (in this case, the p-value)
+                       xmin = .9, #starting point for the bracket
+                       xmax = 1.9, # ending point for the bracket
+                       y.position = 220, # vertical location of the bracket
+                       label.size = 2.5, # size of your bracket text
+                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+  ) 
+
+offset_bracket2 <-  ggpubr::geom_bracket( 
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = 1.9, 
+                       xmax = 2.9, 
+                       y.position = 227 ,
+                       label.size = 2.5,
+                       label = paste0("My hypothesis, ", 
+                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Chinstrap - Gentoo', "p_no_it"]))
+  
+shadeplot <- fresh_canvas +
+## Add density slab
+  ggdist::stat_slab( alpha = 0.5,
+                    adjust = 2,
+                    side = "right", 
+                    scale = 0.4, 
+                    show.legend = F, 
+                    position = position_dodge(width = .8), 
+                    .width = c(.50, 1),
+                    fill = dark_aqua,
+                    aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.5,
+                    side = "right", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+    ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) + 
+  dotwhisker +
+  meantext +
+  offset_bracket1 +
+  offset_bracket2 +
+    labs(title = "Shadeplot") 
+  
+ 
+shadeplot
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+
+```r
+faded_dotplot <- fresh_canvas +
+    ggdist::stat_dots(side = "right", ## set direction of dots
+                    scale = 0.5, ## defines the highest level the dots can be stacked to
+                    show.legend = F, 
+                    dotsize = 1.5, 
+                    position = position_dodge(width = .8),
+                    ## stat- and colour-related properties
+                    .width = c(.50, 1), ## set quantiles for shading
+                    aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
+                      fill_ramp = stat(level)), 
+                    color = dark_aqua,
+                    fill = dark_aqua)  + 
+  dotwhisker +
+  meantext +
+   offset_bracket1 +
+  offset_bracket2  +
+  labs(title = "Faded dotplot")
+
+faded_dotplot
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-2.png" width="672" />
+
+```r
+fadecloud <- fresh_canvas + 
+  ggdist::stat_slab( alpha = 0.5,
+                    adjust = 2,
+                    side = "left", 
+                    scale = 0.4, 
+                    show.legend = F, 
+                    position = position_dodge(width = .8), 
+                    .width = c(.50, 1),
+                    fill = dark_aqua,
+                    aes(fill_ramp = stat(level))) +
+  ## dots
+ggdist::stat_dots(alpha = 0.5,
+                    side = "right", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  dotwhisker +
+  meantext +
+  offset_bracket1 +
+  offset_bracket2 +
+  labs(title = "Fadecloud")
+
+fadecloud
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-3.png" width="672" />
+
+```r
+vioshadeplot <- fresh_canvas +
+ggdist::stat_slab( alpha = 1,
+                    adjust = 2,
+                    side = "both", 
+                    scale = 0.4, 
+                    show.legend = F, 
+                    position = position_dodge(width = .8), 
+                    .width = c(.50, 1),
+                    fill = nova_palette[1],
+                    aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.5,
+                    side = "both", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+    ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) +
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  fatten = 4,
+                  size = .5,
+                  color = "black", 
+                  show.legend = FALSE) +
+  # add mean text
+ geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = -.4)) +
+  ggpubr::geom_bracket( 
+                       tip.length = 0.02, # the downard "tips" of the bracket
+                       vjust = 0, # moves your text label (in this case, the p-value)
+                       xmin = 1, #starting point for the bracket
+                       xmax = 2, # ending point for the bracket
+                       y.position = 220, # vertical location of the bracket
+                       label.size = 2.5, # size of your bracket text
+                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+  ) +     ggpubr::geom_bracket( 
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = 2, 
+                       xmax = 3, 
+                       y.position = 227 ,
+                       label.size = 2.5,
+                       label = paste0("My hypothesis, ", 
+                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Chinstrap - Gentoo', "p_no_it"])) +
+  labs(title = "Violin shadeplot")
+
+
+vioshadeplot
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-4.png" width="672" />
+
+```r
+viofade_dotplot <- fresh_canvas +
+    ggdist::stat_dots(side = "both", ## set direction of dots
+                    scale = 0.5, ## defines the highest level the dots can be stacked to
+                    show.legend = F, 
+                    dotsize = 1.5, 
+                    position = position_dodge(width = .8),
+                    ## stat- and colour-related properties
+                    .width = c(.50, 1), ## set quantiles for shading
+                    aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
+                      fill_ramp = stat(level)), 
+                    color = nova_palette[1],
+                    fill = nova_palette[1])  + 
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  fatten = 4,
+                  size = .5,
+                  color = "black", 
+                  show.legend = FALSE) +
+  # add mean text
+ geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = -.4)) +   
+ ggpubr::geom_bracket( 
+                       tip.length = 0.02, # the downard "tips" of the bracket
+                       vjust = 0, # moves your text label (in this case, the p-value)
+                       xmin = 1, #starting point for the bracket
+                       xmax = 2, # ending point for the bracket
+                       y.position = 220, # vertical location of the bracket
+                       label.size = 2.5, # size of your bracket text
+                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+  ) +     ggpubr::geom_bracket( 
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = 2, 
+                       xmax = 3, 
+                       y.position = 227 ,
+                       label.size = 2.5,
+                       label = paste0("My hypothesis, ", 
+                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                                                  'Chinstrap - Gentoo', "p_no_it"])) +
+  labs(title = "Faded dotplot")
+
+viofade_dotplot
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-5.png" width="672" />
+
+
+</details>
+
+<br>
+
 
 
 # Now Try a Factorial Design
@@ -1643,7 +1922,7 @@ viofade_fact <- ggplot(data = df,
 viofade_fact
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
 
@@ -1731,7 +2010,7 @@ ggpubr::geom_bracket(inherit.aes = FALSE, # necessary for factorial design
 viofade_fact_bracket
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-38-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-39-1.png" width="672" />
 
 
 <details>
@@ -1751,7 +2030,7 @@ Not exactly the amount of information I would put in the graph, but you can real
   theme(plot.subtitle = ggtext::element_markdown(size = 10))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-39-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-40-1.png" width="672" />
 
 
 </details>
@@ -1869,13 +2148,13 @@ ggplot(data = df, # specify the dataframe that we want to pull variables from
   xlab("Sex") # change x-axis label
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-43-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-44-1.png" width="672" />
 
 
 
 # Conclusion
 
-There are lots of ways and functions to analyze and visualize your data. The aim of this post is to guide readers (my future self included) through a single, seamless workflow to bring data products together in a way that you can readily publish in reports, journal articles, theses, posters, presentations, and anything else. See [my post on faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/#comparing-to-alternatives) to see a variety of plotting alternatives.
+One of the major strengths of R is also one of its most daunting aspects for newcomers: there are lots of ways to analyze and visualize your data. The aim of this post is to guide readers (my future self included) through a single, seamless workflow to bring data products together in a way that you can readily publish in reports, journal articles, theses, posters, presentations, and anything else. See [my post on faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/#comparing-to-alternatives) to see a variety of plotting alternatives.
 
 Thanks for reading. I know we all have things to do and places to be.
 
@@ -1886,6 +2165,8 @@ Thanks for reading. I know we all have things to do and places to be.
 
 
 
+Aphalo P (2023). _ggpp: Grammar Extensions to 'ggplot2'_. R package version 0.5.2, <URL: https://CRAN.R-project.org/package=ggpp>.
+ 
 Bates D, Mächler M, Bolker B, Walker S (2015). "Fitting Linear Mixed-Effects Models Using lme4." _Journal of Statistical Software_, *67*(1), 1-48. doi: 10.18637/jss.v067.i01 (URL: https://doi.org/10.18637/jss.v067.i01).
  
 Bates D, Maechler M, Jagan M (2023). _Matrix: Sparse and Dense Matrix Classes and Methods_. R package version 1.5-4, <URL: https://CRAN.R-project.org/package=Matrix>.
