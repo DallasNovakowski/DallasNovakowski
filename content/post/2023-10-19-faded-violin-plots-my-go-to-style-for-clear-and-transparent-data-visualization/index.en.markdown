@@ -1392,7 +1392,7 @@ viofade_text +
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-26-1.png" width="672" />
 
-By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle Using `theme(plot.subtitle = ggtext::element_markdown())`
+By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle by using `theme(plot.subtitle = ggtext::element_markdown())`:
 
 
 ```r

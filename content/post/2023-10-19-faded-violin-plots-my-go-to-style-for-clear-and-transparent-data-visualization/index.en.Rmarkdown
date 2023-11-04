@@ -1298,7 +1298,7 @@ viofade_text +
   labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))
 ```
 
-By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle Using `theme(plot.subtitle = ggtext::element_markdown())`
+By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle by using `theme(plot.subtitle = ggtext::element_markdown())`:
 
 ```{r}
 viofade_text_stats <- viofade_text + 
