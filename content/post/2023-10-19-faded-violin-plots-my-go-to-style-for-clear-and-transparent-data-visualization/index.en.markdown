@@ -1813,7 +1813,7 @@ internal_shadeplot
 Nicely-designed code and workflows can often break down in even slightly new use cases. For my purposes, I often run factorial designs (plotting multiple independent variables at once). Now we can show how this workflow incorporates this type of analysis:
 
 
-## Summarize the Data
+## Summarize the Factorial Data
 
 Our data
 
@@ -1837,7 +1837,7 @@ knitr::kable(flipper_fact_summary)
 
 
 
-## Analyze the Data
+## Analyze the Factorial Data
 
 
 
@@ -1920,7 +1920,7 @@ knitr::kable(flipper_fact_anova)
 |Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
 
 
-## Vizualize the Data
+## Vizualize the Factorial Data
 
 
 ```r
