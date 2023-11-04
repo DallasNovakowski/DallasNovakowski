@@ -1502,58 +1502,58 @@ fresh_canvas <- canvas +
             size = 2, 
             color = "grey60")
 
-  
-dotwhisker <-     geom_pointrange(data = flipper_summary,
-                  aes(x = species, 
-                      mean,
-                      ymin = loci, 
-                      ymax = upci),
-                  fatten = 2,
-                  size = .3,
-                  position = ggpp::position_dodge2nudge(x = -.1),
-                  color = "black", 
-                  show.legend = FALSE)
-  # add mean text
+
+dotwhisker <- geom_pointrange(data = flipper_summary,
+                                  aes(x = species, 
+                                      mean,
+                                      ymin = loci, 
+                                      ymax = upci),
+                                  fatten = 2,
+                                  size = .3,
+                                  position = ggpp::position_dodge2nudge(x = -.1),
+                                  color = "black", 
+                                  show.legend = FALSE)
+# add mean text
 meantext <-  geom_text(data = flipper_summary, 
-            aes(x = species, 
-                y = mean, 
-                label = round(mean,1)),
-            color="black", size = 3.2, 
-            position = ggpp::position_dodge2nudge(x = -.25))
+                       aes(x = species, 
+                           y = mean, 
+                           label = round(mean,1)),
+                       color="black", size = 3.2, 
+                       position = ggpp::position_dodge2nudge(x = -.25))
 
 offset_bracket1 <- ggpubr::geom_bracket( 
-                       tip.length = 0.02, # the downard "tips" of the bracket
-                       vjust = 0, # moves your text label (in this case, the p-value)
-                       xmin = .9, #starting point for the bracket
-                       xmax = 1.9, # ending point for the bracket
-                       y.position = 220, # vertical location of the bracket
-                       label.size = 2.5, # size of your bracket text
-                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
-  ) 
+  tip.length = 0.02, # the downard "tips" of the bracket
+  vjust = 0, # moves your text label (in this case, the p-value)
+  xmin = .9, #starting point for the bracket
+  xmax = 1.9, # ending point for the bracket
+  y.position = 220, # vertical location of the bracket
+  label.size = 2.5, # size of your bracket text
+  label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                             'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+) 
 
 offset_bracket2 <-  ggpubr::geom_bracket( 
-                       tip.length = 0.02, 
-                       vjust = 0,
-                       xmin = 1.9, 
-                       xmax = 2.9, 
-                       y.position = 227 ,
-                       label.size = 2.5,
-                       label = paste0("My hypothesis, ", 
-                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Chinstrap - Gentoo', "p_no_it"]))
-  
+  tip.length = 0.02, 
+  vjust = 0,
+  xmin = 1.9, 
+  xmax = 2.9, 
+  y.position = 227 ,
+  label.size = 2.5,
+  label = paste0("My hypothesis, ", 
+                 flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                             'Chinstrap - Gentoo', "p_no_it"]))
+
 shadeplot <- fresh_canvas +
-## Add density slab
+  ## Add density slab
   ggdist::stat_slab( alpha = 0.5,
-                    adjust = 2,
-                    side = "right", 
-                    scale = 0.4, 
-                    show.legend = F, 
-                    position = position_dodge(width = .8), 
-                    .width = c(.50, 1),
-                    fill = dark_aqua,
-                    aes(fill_ramp = stat(level))) +
+                     adjust = 2,
+                     side = "right", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = dark_aqua,
+                     aes(fill_ramp = stat(level))) +
   ## Add stacked dots
   ggdist::stat_dots(alpha = 0.5,
                     side = "right", 
@@ -1562,15 +1562,15 @@ shadeplot <- fresh_canvas +
                     fill = dark_aqua,
                     # dotsize = 1.5, 
                     position = position_dodge(width = .8)) +
-    ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
                                    aesthetics = c("fill_ramp")) + 
   dotwhisker +
   meantext +
   offset_bracket1 +
   offset_bracket2 +
-    labs(title = "Shadeplot") 
-  
- 
+  labs(title = "Shadeplot") 
+
+
 shadeplot
 ```
 
@@ -1578,7 +1578,7 @@ shadeplot
 
 ```r
 faded_dotplot <- fresh_canvas +
-    ggdist::stat_dots(side = "right", ## set direction of dots
+  ggdist::stat_dots(side = "right", ## set direction of dots
                     scale = 0.5, ## defines the highest level the dots can be stacked to
                     show.legend = F, 
                     dotsize = 1.5, 
@@ -1586,12 +1586,12 @@ faded_dotplot <- fresh_canvas +
                     ## stat- and colour-related properties
                     .width = c(.50, 1), ## set quantiles for shading
                     aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
-                      fill_ramp = stat(level)), 
+                        fill_ramp = stat(level)), 
                     color = dark_aqua,
                     fill = dark_aqua)  + 
   dotwhisker +
   meantext +
-   offset_bracket1 +
+  offset_bracket1 +
   offset_bracket2  +
   labs(title = "Faded dotplot")
 
@@ -1603,16 +1603,16 @@ faded_dotplot
 ```r
 fadecloud <- fresh_canvas + 
   ggdist::stat_slab( alpha = 0.5,
-                    adjust = 2,
-                    side = "left", 
-                    scale = 0.4, 
-                    show.legend = F, 
-                    position = position_dodge(width = .8), 
-                    .width = c(.50, 1),
-                    fill = dark_aqua,
-                    aes(fill_ramp = stat(level))) +
+                     adjust = 2,
+                     side = "left", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = dark_aqua,
+                     aes(fill_ramp = stat(level))) +
   ## dots
-ggdist::stat_dots(alpha = 0.5,
+  ggdist::stat_dots(alpha = 0.5,
                     side = "right", 
                     scale = 0.4, 
                     color = dark_aqua,
@@ -1632,15 +1632,15 @@ fadecloud
 
 ```r
 vioshadeplot <- fresh_canvas +
-ggdist::stat_slab( alpha = 1,
-                    adjust = 2,
-                    side = "both", 
-                    scale = 0.4, 
-                    show.legend = F, 
-                    position = position_dodge(width = .8), 
-                    .width = c(.50, 1),
-                    fill = nova_palette[1],
-                    aes(fill_ramp = stat(level))) +
+  ggdist::stat_slab( alpha = 1,
+                     adjust = 2,
+                     side = "both", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = nova_palette[1],
+                     aes(fill_ramp = stat(level))) +
   ## Add stacked dots
   ggdist::stat_dots(alpha = 0.5,
                     side = "both", 
@@ -1649,7 +1649,7 @@ ggdist::stat_slab( alpha = 1,
                     fill = dark_aqua,
                     # dotsize = 1.5, 
                     position = position_dodge(width = .8)) +
-    ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
                                    aesthetics = c("fill_ramp")) +
   geom_pointrange(data = flipper_summary,
                   aes(x = species, 
@@ -1661,31 +1661,32 @@ ggdist::stat_slab( alpha = 1,
                   color = "black", 
                   show.legend = FALSE) +
   # add mean text
- geom_text(data = flipper_summary, 
+  geom_text(data = flipper_summary, 
             aes(x = species, 
                 y = mean, 
                 label = round(mean,1)),
             color="black", size = 3.2, 
             position = ggpp::position_dodge2nudge(x = -.4)) +
   ggpubr::geom_bracket( 
-                       tip.length = 0.02, # the downard "tips" of the bracket
-                       vjust = 0, # moves your text label (in this case, the p-value)
-                       xmin = 1, #starting point for the bracket
-                       xmax = 2, # ending point for the bracket
-                       y.position = 220, # vertical location of the bracket
-                       label.size = 2.5, # size of your bracket text
-                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
-  ) +     ggpubr::geom_bracket( 
-                       tip.length = 0.02, 
-                       vjust = 0,
-                       xmin = 2, 
-                       xmax = 3, 
-                       y.position = 227 ,
-                       label.size = 2.5,
-                       label = paste0("My hypothesis, ", 
-                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Chinstrap - Gentoo', "p_no_it"])) +
+    tip.length = 0.02, # the downard "tips" of the bracket
+    vjust = 0, # moves your text label (in this case, the p-value)
+    xmin = 1, #starting point for the bracket
+    xmax = 2, # ending point for the bracket
+    y.position = 220, # vertical location of the bracket
+    label.size = 2.5, # size of your bracket text
+    label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                               'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+  ) +     
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                               'Chinstrap - Gentoo', "p_no_it"])) +
   labs(title = "Violin shadeplot")
 
 
@@ -1696,7 +1697,7 @@ vioshadeplot
 
 ```r
 viofade_dotplot <- fresh_canvas +
-    ggdist::stat_dots(side = "both", ## set direction of dots
+  ggdist::stat_dots(side = "both", ## set direction of dots
                     scale = 0.5, ## defines the highest level the dots can be stacked to
                     show.legend = F, 
                     dotsize = 1.5, 
@@ -1704,7 +1705,7 @@ viofade_dotplot <- fresh_canvas +
                     ## stat- and colour-related properties
                     .width = c(.50, 1), ## set quantiles for shading
                     aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
-                      fill_ramp = stat(level)), 
+                        fill_ramp = stat(level)), 
                     color = nova_palette[1],
                     fill = nova_palette[1])  + 
   geom_pointrange(data = flipper_summary,
@@ -1717,31 +1718,32 @@ viofade_dotplot <- fresh_canvas +
                   color = "black", 
                   show.legend = FALSE) +
   # add mean text
- geom_text(data = flipper_summary, 
+  geom_text(data = flipper_summary, 
             aes(x = species, 
                 y = mean, 
                 label = round(mean,1)),
             color="black", size = 3.2, 
             position = ggpp::position_dodge2nudge(x = -.4)) +   
- ggpubr::geom_bracket( 
-                       tip.length = 0.02, # the downard "tips" of the bracket
-                       vjust = 0, # moves your text label (in this case, the p-value)
-                       xmin = 1, #starting point for the bracket
-                       xmax = 2, # ending point for the bracket
-                       y.position = 220, # vertical location of the bracket
-                       label.size = 2.5, # size of your bracket text
-                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
-  ) +     ggpubr::geom_bracket( 
-                       tip.length = 0.02, 
-                       vjust = 0,
-                       xmin = 2, 
-                       xmax = 3, 
-                       y.position = 227 ,
-                       label.size = 2.5,
-                       label = paste0("My hypothesis, ", 
-                                      flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Chinstrap - Gentoo', "p_no_it"])) +
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, # the downard "tips" of the bracket
+    vjust = 0, # moves your text label (in this case, the p-value)
+    xmin = 1, #starting point for the bracket
+    xmax = 2, # ending point for the bracket
+    y.position = 220, # vertical location of the bracket
+    label.size = 2.5, # size of your bracket text
+    label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                               'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+  ) + 
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+                                               'Chinstrap - Gentoo', "p_no_it"])) +
   labs(title = "Faded Violin dotplot")
 
 viofade_dotplot
