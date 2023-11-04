@@ -4,6 +4,8 @@ subtitle: 'Featuring: The faded violin plot (*viofade*)'
 author: Dallas Novakowski
 date: '2023-10-19'
 slug: faded-violin-plots-my-go-to-style-for-clear-and-transparent-data-visualization
+summary: "This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report. This post is sectioned out piece-by-piece to better demonstrate the impacts of each function and argument for ggplot, and also incorporates statistical hypothesis tests."
+
 categories: []
 tags: 
   - raincloud
@@ -166,8 +168,6 @@ tags:
   - Combining Charts with Statistical Tests
   - Statistical Data Visualization Best Practices
   - Visualization for Inferential Statistics
-  
-summary: ''
 authors: []
 lastmod: '2023-10-19T17:15:21-07:00'
 featured: no
