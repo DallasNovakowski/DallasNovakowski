@@ -1490,7 +1490,6 @@ viofade_text_stats_bracket2 +
 dark_aqua <- "#1E716F"
 
 
-
 fresh_canvas <- canvas + 
   theme(axis.title = element_text(face="bold")) + 
   ylab("Flipper length (mm)") +
@@ -1499,7 +1498,7 @@ fresh_canvas <- canvas +
             aes(label = paste("n =", n), 
                 y = flipper_summary[which.min(flipper_summary$min),]$mean -
                   3.2*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
-            size = 2, 
+            size = 2.5, 
             color = "grey60")
 
 
@@ -1508,9 +1507,9 @@ dotwhisker <- geom_pointrange(data = flipper_summary,
                                       mean,
                                       ymin = loci, 
                                       ymax = upci),
-                                  fatten = 2,
-                                  size = .3,
-                                  position = ggpp::position_dodge2nudge(x = -.1),
+                                  # fatten = 2,
+                                  size = .5,
+                                  position = ggpp::position_dodge2nudge(x = -.07),
                                   color = "black", 
                                   show.legend = FALSE)
 # add mean text
@@ -1524,8 +1523,8 @@ meantext <-  geom_text(data = flipper_summary,
 offset_bracket1 <- ggpubr::geom_bracket( 
   tip.length = 0.02, # the downard "tips" of the bracket
   vjust = 0, # moves your text label (in this case, the p-value)
-  xmin = .9, #starting point for the bracket
-  xmax = 1.9, # ending point for the bracket
+  xmin = .93, #starting point for the bracket
+  xmax = 1.93, # ending point for the bracket
   y.position = 220, # vertical location of the bracket
   label.size = 2.5, # size of your bracket text
   label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
@@ -1535,8 +1534,8 @@ offset_bracket1 <- ggpubr::geom_bracket(
 offset_bracket2 <-  ggpubr::geom_bracket( 
   tip.length = 0.02, 
   vjust = 0,
-  xmin = 1.9, 
-  xmax = 2.9, 
+  xmin = 1.93, 
+  xmax = 2.93, 
   y.position = 227 ,
   label.size = 2.5,
   label = paste0("My hypothesis, ", 
@@ -1632,7 +1631,7 @@ fadecloud
 
 ```r
 vioshadeplot <- fresh_canvas +
-  ggdist::stat_slab( alpha = 1,
+  ggdist::stat_slab( alpha = .5,
                      adjust = 2,
                      side = "both", 
                      scale = 0.4, 
@@ -1642,7 +1641,7 @@ vioshadeplot <- fresh_canvas +
                      fill = nova_palette[1],
                      aes(fill_ramp = stat(level))) +
   ## Add stacked dots
-  ggdist::stat_dots(alpha = 0.5,
+  ggdist::stat_dots(alpha = 0.2,
                     side = "both", 
                     scale = 0.4, 
                     color = dark_aqua,
@@ -1656,9 +1655,8 @@ vioshadeplot <- fresh_canvas +
                       mean,
                       ymin = loci, 
                       ymax = upci),
-                  fatten = 4,
                   size = .5,
-                  color = "black", 
+                  color = "black",
                   show.legend = FALSE) +
   # add mean text
   geom_text(data = flipper_summary, 
@@ -1698,7 +1696,8 @@ vioshadeplot
 ```r
 viofade_dotplot <- fresh_canvas +
   ggdist::stat_dots(side = "both", ## set direction of dots
-                    scale = 0.5, ## defines the highest level the dots can be stacked to
+                    scale = 0.4, ## defines the highest level the dots can be stacked to
+                    alpha = .4,
                     show.legend = F, 
                     dotsize = 1.5, 
                     position = position_dodge(width = .8),
@@ -1708,12 +1707,13 @@ viofade_dotplot <- fresh_canvas +
                         fill_ramp = stat(level)), 
                     color = nova_palette[1],
                     fill = nova_palette[1])  + 
+    ggdist::scale_fill_ramp_discrete(range = c(0.5, 1),
+                                   aesthetics = c("fill_ramp")) +
   geom_pointrange(data = flipper_summary,
                   aes(x = species, 
                       mean,
                       ymin = loci, 
                       ymax = upci),
-                  fatten = 4,
                   size = .5,
                   color = "black", 
                   show.legend = FALSE) +
@@ -1722,7 +1722,8 @@ viofade_dotplot <- fresh_canvas +
             aes(x = species, 
                 y = mean, 
                 label = round(mean,1)),
-            color="black", size = 3.2, 
+            color="black", 
+            size = 3.2, 
             position = ggpp::position_dodge2nudge(x = -.4)) +   
   ggpubr::geom_bracket( 
     tip.length = 0.02, # the downard "tips" of the bracket
@@ -1750,6 +1751,55 @@ viofade_dotplot
 ```
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-5.png" width="672" />
+
+```r
+internal_shadeplot <- fresh_canvas +
+  ## Add density slab
+  ggdist::stat_slab( alpha = .5,
+                     adjust = 2,
+                     side = "left", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = nova_palette[1],
+                     aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.2,
+                    side = "left", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) + 
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  size = .5,
+                  color = "black",
+                  position = ggpp::position_dodge2nudge(x = -.07),
+                  show.legend = FALSE) +
+  # add mean text
+  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = .2)) + 
+  
+  offset_bracket1 +
+  offset_bracket2 +
+  labs(title = "Shadeplot with Embedded Dot-Whisker") 
+
+
+internal_shadeplot
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-6.png" width="672" />
 
 
 </details>
