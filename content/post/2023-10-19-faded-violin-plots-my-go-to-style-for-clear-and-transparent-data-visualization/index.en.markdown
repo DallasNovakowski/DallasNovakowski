@@ -330,10 +330,10 @@ report_pval_full <- function(pval, italicize = TRUE) {
 #Create and prepare dataframe for pairwise comparisons ----------
 
 # convert p-value to non-italicized version (for significance brackets)
-flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p.value, italicize = FALSE)
+flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p, italicize = FALSE)
 
 # convert p-value to italicized version (for in-text citations and captioning graph)
-flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p.value)
+flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p)
 
 
 flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
@@ -507,10 +507,10 @@ knitr::kable(flipper_fact_anova)
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
 # convert p-value to non-italicized version (for significance brackets)
-flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p.value, italicize = FALSE)
+flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p, italicize = FALSE)
 
 # convert p-value to italicized version (for in-text citations and captioning graph)
-flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p.value)
+flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p)
 
 
 flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%
@@ -1107,10 +1107,10 @@ Create and prepare dataframe for pairwise comparisons
 
 ```r
 # convert p-value to non-italicized version (for significance brackets)
-flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p.value, italicize = FALSE)
+flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p, italicize = FALSE)
 
 # convert p-value to italicized version (for in-text citations and captioning graph)
-flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p.value)
+flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p)
 
 
 flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
@@ -2107,10 +2107,10 @@ flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_
 
 
 # convert p-value to non-italicized version (for significance brackets)
-flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p.value, italicize = FALSE)
+flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p, italicize = FALSE)
 
 # convert p-value to italicized version (for in-text citations and captioning graph)
-flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p.value)
+flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p)
 
 
 flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%
