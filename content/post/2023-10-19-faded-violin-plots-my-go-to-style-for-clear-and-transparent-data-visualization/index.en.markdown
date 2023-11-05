@@ -1564,7 +1564,9 @@ viofade_text_stats_bracket1 <- viofade_text_stats +
                        label.size = 2.5, # size of your bracket text
                        label = paste0(
                          report_tidy_t(
-                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE)) # content of your bracket text
+                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
   )
 
 viofade_text_stats_bracket1
@@ -1587,7 +1589,11 @@ viofade_text_stats_bracket2 <- viofade_text_stats_bracket1 +
     y.position = 227 ,
     label.size = 2.5,
     label = paste0("My hypothesis, ", 
-                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE))
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
   )
 ```
 
@@ -1657,7 +1663,11 @@ offset_bracket1 <- ggpubr::geom_bracket(
   y.position = 220, # vertical location of the bracket
   label.size = 2.5, # size of your bracket text
   label = paste0("My hypothesis, ", 
-                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE)) # content of your bracket text
+                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                               italicize = FALSE, 
+                               ci = FALSE, 
+                               point = FALSE, 
+                               pval_comma= FALSE)) # content of your bracket text
 ) 
 
 offset_bracket2 <-  ggpubr::geom_bracket( 
@@ -1668,7 +1678,11 @@ offset_bracket2 <-  ggpubr::geom_bracket(
   y.position = 227 ,
   label.size = 2.5,
   label = paste0("My hypothesis, ", 
-                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == "Chinstrap - Gentoo",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE)))
+                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == "Chinstrap - Gentoo",], 
+                               italicize = FALSE, 
+                               ci = FALSE, 
+                               point = FALSE, 
+                               pval_comma= FALSE)))
 
 shadeplot <- fresh_canvas +
   ## Add density slab
@@ -1801,7 +1815,11 @@ vioshadeplot <- fresh_canvas +
     y.position = 220, # vertical location of the bracket
     label.size = 2.5, # size of your bracket text
     label = paste0("My hypothesis, ", 
-                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE))  
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))  
   ) +     
   ggpubr::geom_bracket( 
     tip.length = 0.02, 
@@ -1811,7 +1829,11 @@ vioshadeplot <- fresh_canvas +
     y.position = 227 ,
     label.size = 2.5,
     label = paste0("My hypothesis, ", 
-                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE))
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
   ) +
   labs(title = "Violin shadeplot")
 
@@ -1861,7 +1883,11 @@ viofade_dotplot <- fresh_canvas +
     y.position = 220, # vertical location of the bracket
     label.size = 2.5, # size of your bracket text
     label = paste0("My hypothesis, ", 
-                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE)) # content of your bracket text
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE)) # content of your bracket text
   ) + 
   ggpubr::geom_bracket( 
     tip.length = 0.02, 
@@ -1871,7 +1897,11 @@ viofade_dotplot <- fresh_canvas +
     y.position = 227 ,
     label.size = 2.5,
     label = paste0("My hypothesis, ", 
-                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], italicize = FALSE, ci = FALSE, point = FALSE, pval_comma= FALSE))
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
   ) +
   labs(title = "Faded Violin dotplot")
 
@@ -2173,7 +2203,9 @@ viofade_fact_bracket <- viofade_fact +
                        label.size = 2.1,
                        label = paste0(
                          report_tidy_t(
-                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap female - Adelie male",], italicize = FALSE, ci = FALSE)) # content of your bracket text
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap female - Adelie male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
                        
                        
   ) +
@@ -2186,7 +2218,9 @@ viofade_fact_bracket <- viofade_fact +
                        label.size = 2.1,
                        label = paste0(
                          report_tidy_t(
-                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Adelie male",], italicize = FALSE, ci = FALSE)) # content of your bracket text
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Adelie male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
   ) +
   ggpubr::geom_bracket(inherit.aes = FALSE, 
                        tip.length = 0.02, 
@@ -2198,7 +2232,9 @@ viofade_fact_bracket <- viofade_fact +
                        
                        label = paste0(
                          report_tidy_t(
-                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Chinstrap male",], italicize = FALSE, ci = FALSE)) # content of your bracket text
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Chinstrap male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
   ) +
   ggpubr::geom_bracket(inherit.aes = FALSE, 
                        tip.length = -0.02, 
@@ -2209,7 +2245,9 @@ viofade_fact_bracket <- viofade_fact +
                        label.size = 2.1,
                        label = paste0(
                          report_tidy_t(
-                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap male - Gentoo male",], italicize = FALSE, ci = FALSE)) # content of your bracket text
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap male - Gentoo male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
   )
 
 
