@@ -168,6 +168,17 @@ tags:
   - Combining Charts with Statistical Tests
   - Statistical Data Visualization Best Practices
   - Visualization for Inferential Statistics
+  - Significance brackets
+  - Signifiance testing
+  - Plotting significance tests
+  - Plotting anova
+  - Plotting t-test
+  - Graphing significance tests
+  - Graphing anova
+  - Graphing t-test
+  - Visualizing significance tests
+  - Visualizing anova
+  - Visualizing t-test
 authors: []
 lastmod: '2023-10-19T17:15:21-07:00'
 featured: no
@@ -656,6 +667,7 @@ With newcomers in mind, here are some no-cost resources
     - [An R companion to Statistics: data analysis and modelling](https://mspeekenbrink.github.io/sdam-r-companion/index.html)
   - [Analysis of Factorial Designs foR Psychologists](https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists)
   - [Guide to Effect Sizes and Confidence Intervals](https://matthewbjane.quarto.pub/effect-size-and-confidence-intervals-guide/)
+  - [ggstatsplot package](https://indrajeetpatil.github.io/ggstatsplot/)
 
 
 <!-- I believe that practices that are easy to pick up are more likely to catch on. My hope is that readers will find it easier to pick up better practices in communicating their data! -->
