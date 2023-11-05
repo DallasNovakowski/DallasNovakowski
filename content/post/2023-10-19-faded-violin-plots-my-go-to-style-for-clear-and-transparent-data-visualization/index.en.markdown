@@ -363,18 +363,21 @@ report_tidy_t <- function(tidy_frame,
   if (pval == TRUE) {
     text <- paste0(text,
       ifelse(pval_comma == TRUE,
-        ifelse(italicize == TRUE, ", *p* ", ", p "), # Italicized or not
-        ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
-          ifelse(tidy_frame$p > .01, paste("=", tidy_frame$p %>% round(2)), paste("=", tidy_frame$p %>% round(3)))
+        ifelse(italicize == TRUE, ", *p* ", ", p "), 
+        ifelse(italicize == TRUE, "*p* ", "p ")  # Italicized or not
+      ),
+      ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, 
+                 paste("=", tidy_frame$p %>% round(2)), 
+                 paste("=", tidy_frame$p %>% round(3))
+                 )
         )
-      )
     )
   }
   
   # Return the generated text summary
   return(text)
 }
-
 
 
 # This function formats a p-value and optionally italicizes it for reporting.
@@ -1148,11 +1151,15 @@ report_tidy_t <- function(tidy_frame,
   if (pval == TRUE) {
     text <- paste0(text,
       ifelse(pval_comma == TRUE,
-        ifelse(italicize == TRUE, ", *p* ", ", p "), # Italicized or not
-        ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
-          ifelse(tidy_frame$p > .01, paste("=", tidy_frame$p %>% round(2)), paste("=", tidy_frame$p %>% round(3)))
+        ifelse(italicize == TRUE, ", *p* ", ", p "), 
+        ifelse(italicize == TRUE, "*p* ", "p ")  # Italicized or not
+      ),
+      ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, 
+                 paste("=", tidy_frame$p %>% round(2)), 
+                 paste("=", tidy_frame$p %>% round(3))
+                 )
         )
-      )
     )
   }
   
