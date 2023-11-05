@@ -212,191 +212,234 @@ library(ggpp) # for position_dodge2nudge
 nova_palette <- c("#78AAA9", "#FFDB6E")
 
 
-
-
 # define functions -----------------------------------------------------------
 
-# This function can handle multiple grouping variables, up to a three-way design
+# This function generates a summary table with various statistics for the specified grouping variables and dependent variable.
 make_summary <- function(data, dv, grouping1, grouping2, grouping3){
-  data %>%
-    group_by({{grouping1}},{{grouping2}},{{grouping3}}) %>%
-    dplyr::summarise(
-      mean = round(mean({{dv}}),2),
-      min = round(min({{dv}}),2),
-      max = round(max({{dv}}),2),
-      n = n(),
-      std_dev = round(sd({{dv}}),2),
-      se = round(sd({{dv}}) /sqrt(n()),2),
-      y25 = round(quantile({{dv}}, 0.25)),
-      y50 = round(median({{dv}})),
-      y75 = round(quantile({{dv}}, 0.75)),
-      loci = round(mean({{dv}}),1) - 1.96*se,
-      upci = round(mean({{dv}}),1) + 1.96*se
-    )
+  # Use dplyr to group the data by the specified grouping variables and calculate summary statistics
   
+  data %>%
+    group_by({{grouping1}}, {{grouping2}}, {{grouping3}}) %>% # Group by the specified variables
+    dplyr::summarise(
+      mean = round(mean({{dv}}), 2), # Calculate and round the mean of the dependent variable
+      min = round(min({{dv}}), 2),   # Calculate and round the minimum
+      max = round(max({{dv}}), 2),   # Calculate and round the maximum
+      n = n(),                       # Count the number of observations
+      std_dev = round(sd({{dv}}), 2), # Calculate and round the standard deviation
+      se = round(sd({{dv}}) / sqrt(n()), 2), # Calculate and round the standard error
+      y25 = round(quantile({{dv}}, 0.25)),  # Calculate and round the 25th percentile
+      y50 = round(median({{dv}})),         # Calculate and round the median (50th percentile)
+      y75 = round(quantile({{dv}}, 0.75)),  # Calculate and round the 75th percentile
+      loci = round(mean({{dv}}), 1) - 1.96 * se, # Calculate and round the lower confidence interval
+      upci = round(mean({{dv}}), 1) + 1.96 * se  # Calculate and round the upper confidence interval
+    )
 }
 
 
 #We can make a custom function calculate_and_merge_effect_sizes() to loop across our rows and compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
-
+# This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
 calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create empty lists to store the results
+    # Create an empty list to store effect sizes for each row
     effect_sizes_list <- vector("list", nrow(dataframe))
     
+    # Loop through each row in the dataframe
     for (i in 1:nrow(dataframe)) {
+        # Extract the t-value and degrees of freedom from the dataframe
         t_value <- dataframe[[t_col]][i]
         df <- dataframe[[df_col]][i]
         
+        # Check if t-value, degrees of freedom are not missing and t-value is not zero
         if (!is.na(t_value) && !is.na(df) && t_value != 0) {
+            # Calculate Cohen's d effect size using the t-value and degrees of freedom
             result <- t_to_d(t = t_value, df = df)
         } else {
+            # If any of the required values are missing or t-value is zero, set the result to NULL
             result <- NULL
         }
         
+        # Store the result in the effect_sizes_list
         effect_sizes_list[[i]] <- result
     }
     
-    # Convert the results into a data frame and add column names
+    # Convert the list of effect sizes into a data frame and add column names with the given prefix
     effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
     colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
     
-    # Combine the original dataframe with the effect size results
+    # Combine the original dataframe with the effect size results by column binding (adding new columns)
     combined_dataframe <- cbind(dataframe, effect_sizes_df)
     
+    # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
       rename(d = effect_size_d,
             d_ci_low = effect_size_CI_low,
-              d_ci_high = effect_size_CI_high,
+            d_ci_high = effect_size_CI_high,
             df_error = df,
             p = p.value)
+
     
+    # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
-
 
 
 # Make a custom function, merge_emmeans_summary(), to merge summary and emmeans. Particularly useful for multivariate analyses:
 
 #merging regular summary stats with emmeans
-merge_emmeans_summary <- function(summary_data,emmeans_tidy){
-  summary_data$emmean <- emmeans_tidy$emmean
-  summary_data$emmean_se <- emmeans_tidy$SE
-  summary_data$emmean_loci <- emmeans_tidy$lower.CL
-  summary_data$emmean_upci <- emmeans_tidy$upper.CL
-
-  summary_data
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
 }
 
-# Use merge_emmeans_summary() to combine with our basic flipper_summary into a single model-enhanced dataframe:
 
-# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
-flipper_summary <- flipper_summary[order(flipper_summary$species), ]
-flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
-
-# merge dataframes
-flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
-                                                  emmeans_tidy = flipper_emmeans_tidy)
-# Round numeric values
-flipper_summary <- flipper_summary %>%
-  mutate_if(is.numeric, function(x) round(x, 2))
-
-flipper_summary
-
-
-
-
+# This function generates a text summary based on user-specified options using a tidy t-test dataframe.
 report_tidy_t <- function(tidy_frame, 
-                          italicize = TRUE,
-                          ci = TRUE,
+                          italicize = TRUE, 
+                          ci = TRUE, 
                           ci.lab = TRUE, 
                           test.stat = FALSE, 
-                          point = TRUE,
-                          pval=TRUE,
+                          point = TRUE, 
+                          pval = TRUE, 
                           pval_comma = TRUE
 ){
+  # Initialize an empty string to store the result text
+  text <- ""
   
-  text <- paste0(
-    ifelse(point==TRUE,paste0(
-      ifelse(italicize == TRUE, 
-             "*d* = ", 
-             "d = "),
-      round(tidy_frame$d,2)),
-      ""), 
-    ifelse(ci == TRUE, 
-           ifelse(ci.lab == TRUE,
-                  paste0(", 95% CI [", 
-                         round(tidy_frame$d_ci_low  ,2), ", ", 
-                         round(tidy_frame$d_ci_high  ,2),
-                         "]"),
-                  paste0(" [", 
-                         round(tidy_frame$d_ci_low  ,2), 
-                         ", ", 
-                         round(tidy_frame$d_ci_high  ,2),
-                         "]")), 
-           ""),
-    
-    ifelse(test.stat == TRUE,paste0(", *t*","(", 
-                                    round(tidy_frame$df_error, 2) 
-                                    ,")"," = ", round(tidy_frame$t,2)),""),
-    
-    ifelse(pval == TRUE,   
-            paste0
-           (ifelse(pval_comma == TRUE,   
-                   ifelse(italicize == TRUE, ", *p* ", ", p "),
-                   ifelse(italicize == TRUE, "*p* ", "p ")),
-           ifelse(tidy_frame$p < .001, "< .001",
-                  ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
-                         paste("=", tidy_frame$p %>% round(3)))
-           )
-             ), 
-           "")
-    
-  ) 
-  return(text)
-}
-
-
-report_pval_full <- function(pval, italicize = TRUE) {
-  ifelse(pval < .001, paste0(
-    ifelse(italicize == TRUE, "*p*", "p"), " < .001"),
-         paste0(ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
-                weights::rd(pval,3))
-         )
-         )
-}
-
-report_tidy_anova_etaci <- function(tidy_frame, # your tidy anova dataframe
-                                    term, # the predictor in your tidy anova dataframe
-                                    effsize = TRUE, # display the effect size
-                                    ci95 = TRUE, # display the 95% CI
-                                    ci.lab = TRUE, # display the "95% CI" label
-                                    teststat = TRUE, # display the F-score and degrees of freedom
-                                    pval = TRUE # display the p-value
-                                    ){
-  text <- paste0(
-    ifelse(effsize == TRUE, paste0(
-    "\u03b7^2^ = ", #unicode for eta square
-    round(as.numeric(tidy_frame[term,"pes"]),2)), 
-    ""),
-    ifelse(ci95 == TRUE, paste0(
-                 ifelse(ci.lab == TRUE,
-                        paste0(", 95% CI ["), " ["),   
-                 round(as.numeric(tidy_frame[term,"pes_ci95_lo"]),2), ", ", 
-                 round(as.numeric(tidy_frame[term,"pes_ci95_hi"]),2),"]"),
-           ""),
-    ifelse(teststat == TRUE, 
-           paste0(", *F*(", tidy_frame[term,"Df"],
-                  ", ", tidy_frame["Residuals","Df"], ") = ",
-                  round(as.numeric(tidy_frame[term,"F.value"]), 2)), 
-           ""),
-    ifelse(pval == TRUE, paste0(
-                 ", ",  report_pval_full(tidy_frame[term,"Pr..F."])),
-           "")
+  # Conditionally add effect size (d) to the result text
+  if (point == TRUE) {
+    text <- paste0(text,
+      ifelse(italicize == TRUE, "*d* = ", "d = "), # Italicized or not
+      round(tidy_frame$d, 2) # Rounded d value
     )
+  }
   
+  # Conditionally add 95% CI to the result text
+  if (ci == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]"), # Label and rounded CI values
+        paste0(" [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]") # Only rounded CI values
+      )
+    )
+  }
+  
+  # Conditionally add t-statistic and degrees of freedom to the result text
+  if (test.stat == TRUE) {
+    text <- paste0(text,
+      ", *t* (", round(tidy_frame$df_error, 2), ") = ", round(tidy_frame$t, 2) # t-statistic and df
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ifelse(pval_comma == TRUE,
+        ifelse(italicize == TRUE, ", *p* ", ", p "), # Italicized or not
+        ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, paste("=", tidy_frame$p %>% round(2)), paste("=", tidy_frame$p %>% round(3)))
+        )
+      )
+    )
+  }
+  
+  # Return the generated text summary
   return(text)
 }
 
+
+
+# This function formats a p-value and optionally italicizes it for reporting.
+report_pval_full <- function(pval, italicize = TRUE) {
+  # Check if the p-value is less than .001
+  if (pval < .001) {
+    # If p-value is very small, format it as "*p* < .001" (with or without italics)
+    result <- ifelse(italicize == TRUE, "*p* < .001", "p < .001")
+  } else {
+    # If p-value is not very small, format it as "*p* = " with either 2 or 3 decimal places
+    if (pval >= .01) {
+      # Use 2 decimal places for p-values >= .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 2)) # Append the formatted p-value
+    } else {
+      # Use 3 decimal places for p-values less than .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 3)) # Append the formatted p-value
+    }
+  }
+  
+  # Return the formatted p-value
+  return(result)
+}
+
+
+
+# This function generates a text summary of ANOVA results based on user-specified options.
+report_tidy_anova_etaci <- function(tidy_frame, # Your tidy ANOVA dataframe
+                                    term, # The predictor in your tidy ANOVA dataframe
+                                    effsize = TRUE, # Display the effect size
+                                    ci95 = TRUE, # Display the 95% CI
+                                    ci.lab = TRUE, # Display the "95% CI" label
+                                    teststat = TRUE, # Display the F-score and degrees of freedom
+                                    pval = TRUE # Display the p-value
+                                    ){
+  # Initialize an empty string to store the result text
+  text <- ""
+  
+  # Conditionally add effect size (eta square) to the result text
+  if (effsize == TRUE) {
+    text <- paste0(text,
+      "\u03b7^2^ = ", # Unicode for eta square
+      round(as.numeric(tidy_frame[term, "pes"]), 2)
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci95 == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI ["), " ["),   
+      round(as.numeric(tidy_frame[term, "pes_ci95_lo"]), 2), ", ", 
+      round(as.numeric(tidy_frame[term, "pes_ci95_hi"]), 2), "]"
+    )
+  }
+  
+  # Conditionally add F-score and degrees of freedom to the result text
+  if (teststat == TRUE) {
+    text <- paste0(text,
+      ", *F*(", tidy_frame[term, "Df"],
+      ", ", tidy_frame["Residuals", "Df"], ") = ",
+      round(as.numeric(tidy_frame[term, "F.value"], 2))
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ", ",  report_pval_full(tidy_frame[term, "Pr..F."])
+    )
+  }
+  
+  # Return the generated text summary
+  return(text)
+}
 
 
 
@@ -467,10 +510,31 @@ flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 
 
+
+# Use merge_emmeans_summary() to combine with our basic flipper_summary into a single model-enhanced dataframe:
+
+# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
+flipper_summary <- flipper_summary[order(flipper_summary$species), ]
+flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
+
+# merge dataframes
+flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
+                                                  emmeans_tidy = flipper_emmeans_tidy)
+# Round numeric values
+flipper_summary <- flipper_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+flipper_summary
+
+
+
+
 #merge estimated marginal mean contrasts with their effect sizes:
 flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
 
 flipper_emmeans_contrasts
+
+
 
 
 # visualize data -------------------
@@ -553,7 +617,7 @@ ggsave(here::here("figures", "fadecloud.png"),
 
 </details>
 
-I have been enjoying making some guides for data visualization, namely trying to improve on the raincloud plot via the new [fadecloud](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/) as well as [faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/). However, I worry that many users aren't sure how to actually use all of the many great tools in ggplot to create figures that are ready for publication. This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report.
+I have been enjoying making some guides for data visualization, namely trying to improve on the raincloud plot via the new [fadecloud](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/) as well as [faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/). However, I want to make sure that all users have the chance to easily begin using all of the many great tools in ggplot to create figures that are ready for publication. This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report.
 
 <!-- I believe these methods have their place, but I find when I actually present my data, I don't actually use these methods: there are still a lot of objects visible that make the addition of significance brackets overly noisy.  -->
 
@@ -707,24 +771,25 @@ For project organization schemes, see:
 
 
 ```r
-# This function can handle multiple grouping variables, up to a three-way design
+# This function generates a summary table with various statistics for the specified grouping variables and dependent variable.
 make_summary <- function(data, dv, grouping1, grouping2, grouping3){
+  # Use dplyr to group the data by the specified grouping variables and calculate summary statistics
+  
   data %>%
-    group_by({{grouping1}},{{grouping2}},{{grouping3}}) %>%
+    group_by({{grouping1}}, {{grouping2}}, {{grouping3}}) %>% # Group by the specified variables
     dplyr::summarise(
-      mean = round(mean({{dv}}),2),
-      min = round(min({{dv}}),2),
-      max = round(max({{dv}}),2),
-      n = n(),
-      std_dev = round(sd({{dv}}),2),
-      se = round(sd({{dv}}) /sqrt(n()),2),
-      y25 = round(quantile({{dv}}, 0.25)),
-      y50 = round(median({{dv}})),
-      y75 = round(quantile({{dv}}, 0.75)),
-      loci = round(mean({{dv}}),1) - 1.96*se,
-      upci = round(mean({{dv}}),1) + 1.96*se
-      )
-      
+      mean = round(mean({{dv}}), 2), # Calculate and round the mean of the dependent variable
+      min = round(min({{dv}}), 2),   # Calculate and round the minimum
+      max = round(max({{dv}}), 2),   # Calculate and round the maximum
+      n = n(),                       # Count the number of observations
+      std_dev = round(sd({{dv}}), 2), # Calculate and round the standard deviation
+      se = round(sd({{dv}}) / sqrt(n()), 2), # Calculate and round the standard error
+      y25 = round(quantile({{dv}}, 0.25)),  # Calculate and round the 25th percentile
+      y50 = round(median({{dv}})),         # Calculate and round the median (50th percentile)
+      y75 = round(quantile({{dv}}, 0.75)),  # Calculate and round the 75th percentile
+      loci = round(mean({{dv}}), 1) - 1.96 * se, # Calculate and round the lower confidence interval
+      upci = round(mean({{dv}}), 1) + 1.96 * se  # Calculate and round the upper confidence interval
+    )
 }
 ```
 
@@ -824,39 +889,47 @@ We can make a custom function `calculate_and_merge_effect_sizes()` to loop acros
 
 
 ```r
+# This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
 calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create empty lists to store the results
+    # Create an empty list to store effect sizes for each row
     effect_sizes_list <- vector("list", nrow(dataframe))
     
+    # Loop through each row in the dataframe
     for (i in 1:nrow(dataframe)) {
+        # Extract the t-value and degrees of freedom from the dataframe
         t_value <- dataframe[[t_col]][i]
         df <- dataframe[[df_col]][i]
         
+        # Check if t-value, degrees of freedom are not missing and t-value is not zero
         if (!is.na(t_value) && !is.na(df) && t_value != 0) {
+            # Calculate Cohen's d effect size using the t-value and degrees of freedom
             result <- t_to_d(t = t_value, df = df)
         } else {
+            # If any of the required values are missing or t-value is zero, set the result to NULL
             result <- NULL
         }
         
+        # Store the result in the effect_sizes_list
         effect_sizes_list[[i]] <- result
     }
     
-    # Convert the results into a data frame and add column names
+    # Convert the list of effect sizes into a data frame and add column names with the given prefix
     effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
     colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
     
-    # Combine the original dataframe with the effect size results
+    # Combine the original dataframe with the effect size results by column binding (adding new columns)
     combined_dataframe <- cbind(dataframe, effect_sizes_df)
     
+    # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
       rename(d = effect_size_d,
             d_ci_low = effect_size_CI_low,
-              d_ci_high = effect_size_CI_high,
-            df_error = df)
+            d_ci_high = effect_size_CI_high,
+            df_error = df,
+            p = p.value)
+
     
-    combined_dataframe <- combined_dataframe %>% 
-      mutate(p = p.value)
-    
+    # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
 ```
@@ -875,11 +948,11 @@ knitr::kable(flipper_emmeans_contrasts)
 
 
 
-|contrast           |  estimate|        SE| df_error|   t.ratio| p.value|          d| effect_size_CI|   d_ci_low|  d_ci_high|  p|
-|:------------------|---------:|---------:|--------:|---------:|-------:|----------:|--------------:|----------:|----------:|--:|
-|Adelie - Chinstrap |  -5.72079| 0.9796493|      330|  -5.83963|       0| -0.6429221|           0.95| -0.8637432| -0.4211727|  0|
-|Adelie - Gentoo    | -27.13255| 0.8240767|      330| -32.92479|       0| -3.6249003|           0.95| -3.9744565| -3.2730920|  0|
-|Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|       0| -2.3240101|           0.95| -2.6021617| -2.0436213|  0|
+|contrast           |  estimate|        SE| df_error|   t.ratio|  p|          d| effect_size_CI|   d_ci_low|  d_ci_high|
+|:------------------|---------:|---------:|--------:|---------:|--:|----------:|--------------:|----------:|----------:|
+|Adelie - Chinstrap |  -5.72079| 0.9796493|      330|  -5.83963|  0| -0.6429221|           0.95| -0.8637432| -0.4211727|
+|Adelie - Gentoo    | -27.13255| 0.8240767|      330| -32.92479|  0| -3.6249003|           0.95| -3.9744565| -3.2730920|
+|Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|  0| -2.3240101|           0.95| -2.6021617| -2.0436213|
 
 
 Make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
@@ -887,14 +960,24 @@ Make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans.
 
 
 ```r
-#merging regular summary stats with emmeans
-merge_emmeans_summary <- function(summary_data,emmeans_tidy){
-  summary_data$emmean <- emmeans_tidy$emmean
-  summary_data$emmean_se <- emmeans_tidy$SE
-  summary_data$emmean_loci <- emmeans_tidy$lower.CL
-  summary_data$emmean_upci <- emmeans_tidy$upper.CL
-
-  summary_data
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
 }
 ```
 
@@ -931,14 +1014,27 @@ Now we have our analysis data to work with! From here, we can get the data ready
 
 
 ```r
-# rounding or abbreviating p-values
+# This function formats a p-value and optionally italicizes it for reporting.
 report_pval_full <- function(pval, italicize = TRUE) {
-  ifelse(pval < .001, paste0(
-    ifelse(italicize == TRUE, "*p*", "p"), " < .001"),
-         paste0(ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
-                weights::rd(pval,3))
-         )
-         )
+  # Check if the p-value is less than .001
+  if (pval < .001) {
+    # If p-value is very small, format it as "*p* < .001" (with or without italics)
+    result <- ifelse(italicize == TRUE, "*p* < .001", "p < .001")
+  } else {
+    # If p-value is not very small, format it as "*p* = " with either 2 or 3 decimal places
+    if (pval >= .01) {
+      # Use 2 decimal places for p-values >= .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 2)) # Append the formatted p-value
+    } else {
+      # Use 3 decimal places for p-values less than .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 3)) # Append the formatted p-value
+    }
+  }
+  
+  # Return the formatted p-value
+  return(result)
 }
 ```
 
@@ -963,63 +1059,71 @@ knitr::kable(flipper_emmeans_contrasts)
 
 
 
-|contrast           | estimate|   SE| df_error| t.ratio| p.value|     d| effect_size_CI| d_ci_low| d_ci_high|  p|
-|:------------------|--------:|----:|--------:|-------:|-------:|-----:|--------------:|--------:|---------:|--:|
-|Adelie - Chinstrap |    -5.72| 0.98|      330|   -5.84|       0| -0.64|           0.95|    -0.86|     -0.42|  0|
-|Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|       0| -3.62|           0.95|    -3.97|     -3.27|  0|
-|Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|       0| -2.32|           0.95|    -2.60|     -2.04|  0|
+|contrast           | estimate|   SE| df_error| t.ratio|  p|     d| effect_size_CI| d_ci_low| d_ci_high|
+|:------------------|--------:|----:|--------:|-------:|--:|-----:|--------------:|--------:|---------:|
+|Adelie - Chinstrap |    -5.72| 0.98|      330|   -5.84|  0| -0.64|           0.95|    -0.86|     -0.42|
+|Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|  0| -3.62|           0.95|    -3.97|     -3.27|
+|Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|  0| -2.32|           0.95|    -2.60|     -2.04|
 
 `report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
 
 
 ```r
+# This function generates a text summary based on user-specified options using a tidy t-test dataframe.
 report_tidy_t <- function(tidy_frame, 
-                          italicize = TRUE,
-                          ci = TRUE,
+                          italicize = TRUE, 
+                          ci = TRUE, 
                           ci.lab = TRUE, 
                           test.stat = FALSE, 
-                          point = TRUE,
-                          pval=TRUE,
+                          point = TRUE, 
+                          pval = TRUE, 
                           pval_comma = TRUE
 ){
+  # Initialize an empty string to store the result text
+  text <- ""
   
-  text <- paste0(
-    ifelse(point==TRUE,paste0(
-      ifelse(italicize == TRUE, 
-             "*d* = ", 
-             "d = "),
-      round(tidy_frame$d,2)),
-      ""), 
-    ifelse(ci == TRUE, 
-           ifelse(ci.lab == TRUE,
-                  paste0(", 95% CI [", 
-                         round(tidy_frame$d_ci_low  ,2), ", ", 
-                         round(tidy_frame$d_ci_high  ,2),
-                         "]"),
-                  paste0(" [", 
-                         round(tidy_frame$d_ci_low  ,2), 
-                         ", ", 
-                         round(tidy_frame$d_ci_high  ,2),
-                         "]")), 
-           ""),
-    
-    ifelse(test.stat == TRUE,paste0(", *t*","(", 
-                                    round(tidy_frame$df_error, 2) 
-                                    ,")"," = ", round(tidy_frame$t,2)),""),
-    
-    ifelse(pval == TRUE,   
-            paste0
-           (ifelse(pval_comma == TRUE,   
-                   ifelse(italicize == TRUE, ", *p* ", ", p "),
-                   ifelse(italicize == TRUE, "*p* ", "p ")),
-           ifelse(tidy_frame$p < .001, "< .001",
-                  ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
-                         paste("=", tidy_frame$p %>% round(3)))
-           )
-             ), 
-           "")
-    
-  ) 
+  # Conditionally add effect size (d) to the result text
+  if (point == TRUE) {
+    text <- paste0(text,
+      ifelse(italicize == TRUE, "*d* = ", "d = "), # Italicized or not
+      round(tidy_frame$d, 2) # Rounded d value
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]"), # Label and rounded CI values
+        paste0(" [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]") # Only rounded CI values
+      )
+    )
+  }
+  
+  # Conditionally add t-statistic and degrees of freedom to the result text
+  if (test.stat == TRUE) {
+    text <- paste0(text,
+      ", *t* (", round(tidy_frame$df_error, 2), ") = ", round(tidy_frame$t, 2) # t-statistic and df
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ifelse(pval_comma == TRUE,
+        ifelse(italicize == TRUE, ", *p* ", ", p "), # Italicized or not
+        ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, paste("=", tidy_frame$p %>% round(2)), paste("=", tidy_frame$p %>% round(3)))
+        )
+      )
+    )
+  }
+  
+  # Return the generated text summary
   return(text)
 }
 ```
@@ -1141,7 +1245,7 @@ canvas +
 
 Many of us want to pick nice colors for our plots, in R, colors are defined with HEX codes (in this case, `nova_palette[1]` is  `#78AAA9`). 
 
-You can find a [generator for colorblind-accessible color palettes here](https://venngage.com/tools/accessible-color-palette-generator), a useful tool for exploring [HEX colors here, complete with colorblindness simulator at the bottom of the page](https://www.colorhexa.com/78aaa9), and a [brief education primer, complete with colorblindness palette simulator, here](https://davidmathlogic.com/colorblind/).
+You can find a generator for colorblind-accessible color palettes [here](https://venngage.com/tools/accessible-color-palette-generator), a useful tool for exploring HEX colors, complete with colorblindness simulator at the bottom of the page [here](https://www.colorhexa.com/78aaa9), and a brief education primer, complete with colorblindness palette simulator, [here](https://davidmathlogic.com/colorblind/).
 
 Now we can color the violin geom with our desired Hex using `fill`. Notably, this only works when the `fill argument` is not inside of `aes()`:
 
@@ -1317,35 +1421,53 @@ Using our pre-run analyses is made much easier if we write a helper function, so
 
 
 ```r
-report_tidy_anova_etaci <- function(tidy_frame, # your tidy anova dataframe
-                                    term, # the predictor in your tidy anova dataframe
-                                    effsize = TRUE, # display the effect size
-                                    ci95 = TRUE, # display the 95% CI
-                                    ci.lab = TRUE, # display the "95% CI" label
-                                    teststat = TRUE, # display the F-score and degrees of freedom
-                                    pval = TRUE # display the p-value
+# This function generates a text summary of ANOVA results based on user-specified options.
+report_tidy_anova_etaci <- function(tidy_frame, # Your tidy ANOVA dataframe
+                                    term, # The predictor in your tidy ANOVA dataframe
+                                    effsize = TRUE, # Display the effect size
+                                    ci95 = TRUE, # Display the 95% CI
+                                    ci.lab = TRUE, # Display the "95% CI" label
+                                    teststat = TRUE, # Display the F-score and degrees of freedom
+                                    pval = TRUE # Display the p-value
                                     ){
-  text <- paste0(
-    ifelse(effsize == TRUE, paste0(
-    "\u03b7^2^ = ", #unicode for eta square
-    round(as.numeric(tidy_frame[term,"pes"]),2)), 
-    ""),
-    ifelse(ci95 == TRUE, paste0(
-                 ifelse(ci.lab == TRUE,
-                        paste0(", 95% CI ["), " ["),   
-                 round(as.numeric(tidy_frame[term,"pes_ci95_lo"]),2), ", ", 
-                 round(as.numeric(tidy_frame[term,"pes_ci95_hi"]),2),"]"),
-           ""),
-    ifelse(teststat == TRUE, 
-           paste0(", *F*(", tidy_frame[term,"Df"],
-                  ", ", tidy_frame["Residuals","Df"], ") = ",
-                  round(as.numeric(tidy_frame[term,"F.value"]), 2)), 
-           ""),
-    ifelse(pval == TRUE, paste0(
-                 ", ",  report_pval_full(tidy_frame[term,"Pr..F."])),
-           "")
-    )
+  # Initialize an empty string to store the result text
+  text <- ""
   
+  # Conditionally add effect size (eta square) to the result text
+  if (effsize == TRUE) {
+    text <- paste0(text,
+      "\u03b7^2^ = ", # Unicode for eta square
+      round(as.numeric(tidy_frame[term, "pes"]), 2)
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci95 == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI ["), " ["),   
+      round(as.numeric(tidy_frame[term, "pes_ci95_lo"]), 2), ", ", 
+      round(as.numeric(tidy_frame[term, "pes_ci95_hi"]), 2), "]"
+    )
+  }
+  
+  # Conditionally add F-score and degrees of freedom to the result text
+  if (teststat == TRUE) {
+    text <- paste0(text,
+      ", *F*(", tidy_frame[term, "Df"],
+      ", ", tidy_frame["Residuals", "Df"], ") = ",
+      round(as.numeric(tidy_frame[term, "F.value"], 2))
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ", ",  report_pval_full(tidy_frame[term, "Pr..F."])
+    )
+  }
+  
+  # Return the generated text summary
   return(text)
 }
 ```
@@ -1982,23 +2104,23 @@ knitr::kable(flipper_fact_emmeans_contrasts)
 
 
 
-|contrast                          | estimate|   SE| df_error| t.ratio| p.value|     d| effect_size_CI| d_ci_low| d_ci_high|    p|
-|:---------------------------------|--------:|----:|--------:|-------:|-------:|-----:|--------------:|--------:|---------:|----:|
-|Adelie female - Chinstrap female  |    -3.94| 1.17|      327|   -3.36|    0.01| -0.37|           0.95|    -0.59|     -0.15| 0.01|
-|Adelie female - Gentoo female     |   -24.91| 0.99|      327|  -25.04|    0.00| -2.77|           0.95|    -3.07|     -2.47| 0.00|
-|Adelie female - Adelie male       |    -4.62| 0.94|      327|   -4.93|    0.00| -0.55|           0.95|    -0.77|     -0.32| 0.00|
-|Adelie female - Chinstrap male    |   -12.12| 1.17|      327|  -10.32|    0.00| -1.14|           0.95|    -1.37|     -0.91| 0.00|
-|Adelie female - Gentoo male       |   -33.75| 0.98|      327|  -34.40|    0.00| -3.80|           0.95|    -4.16|     -3.44| 0.00|
-|Chinstrap female - Gentoo female  |   -20.97| 1.22|      327|  -17.17|    0.00| -1.90|           0.95|    -2.16|     -1.64| 0.00|
-|Chinstrap female - Adelie male    |    -0.68| 1.17|      327|   -0.58|    0.99| -0.06|           0.95|    -0.28|      0.15| 0.99|
-|Chinstrap female - Chinstrap male |    -8.18| 1.37|      327|   -5.96|    0.00| -0.66|           0.95|    -0.88|     -0.44| 0.00|
-|Chinstrap female - Gentoo male    |   -29.81| 1.21|      327|  -24.63|    0.00| -2.72|           0.95|    -3.02|     -2.42| 0.00|
-|Gentoo female - Adelie male       |    20.30| 0.99|      327|   20.40|    0.00|  2.26|           0.95|     1.98|      2.53| 0.00|
-|Gentoo female - Chinstrap male    |    12.80| 1.22|      327|   10.47|    0.00|  1.16|           0.95|     0.92|      1.39| 0.00|
-|Gentoo female - Gentoo male       |    -8.83| 1.04|      327|   -8.52|    0.00| -0.94|           0.95|    -1.17|     -0.71| 0.00|
-|Adelie male - Chinstrap male      |    -7.50| 1.17|      327|   -6.39|    0.00| -0.71|           0.95|    -0.93|     -0.48| 0.00|
-|Adelie male - Gentoo male         |   -29.13| 0.98|      327|  -29.69|    0.00| -3.28|           0.95|    -3.62|     -2.95| 0.00|
-|Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87|    0.00| -1.98|           0.95|    -2.24|     -1.71| 0.00|
+|contrast                          | estimate|   SE| df_error| t.ratio|    p|     d| effect_size_CI| d_ci_low| d_ci_high|
+|:---------------------------------|--------:|----:|--------:|-------:|----:|-----:|--------------:|--------:|---------:|
+|Adelie female - Chinstrap female  |    -3.94| 1.17|      327|   -3.36| 0.01| -0.37|           0.95|    -0.59|     -0.15|
+|Adelie female - Gentoo female     |   -24.91| 0.99|      327|  -25.04| 0.00| -2.77|           0.95|    -3.07|     -2.47|
+|Adelie female - Adelie male       |    -4.62| 0.94|      327|   -4.93| 0.00| -0.55|           0.95|    -0.77|     -0.32|
+|Adelie female - Chinstrap male    |   -12.12| 1.17|      327|  -10.32| 0.00| -1.14|           0.95|    -1.37|     -0.91|
+|Adelie female - Gentoo male       |   -33.75| 0.98|      327|  -34.40| 0.00| -3.80|           0.95|    -4.16|     -3.44|
+|Chinstrap female - Gentoo female  |   -20.97| 1.22|      327|  -17.17| 0.00| -1.90|           0.95|    -2.16|     -1.64|
+|Chinstrap female - Adelie male    |    -0.68| 1.17|      327|   -0.58| 0.99| -0.06|           0.95|    -0.28|      0.15|
+|Chinstrap female - Chinstrap male |    -8.18| 1.37|      327|   -5.96| 0.00| -0.66|           0.95|    -0.88|     -0.44|
+|Chinstrap female - Gentoo male    |   -29.81| 1.21|      327|  -24.63| 0.00| -2.72|           0.95|    -3.02|     -2.42|
+|Gentoo female - Adelie male       |    20.30| 0.99|      327|   20.40| 0.00|  2.26|           0.95|     1.98|      2.53|
+|Gentoo female - Chinstrap male    |    12.80| 1.22|      327|   10.47| 0.00|  1.16|           0.95|     0.92|      1.39|
+|Gentoo female - Gentoo male       |    -8.83| 1.04|      327|   -8.52| 0.00| -0.94|           0.95|    -1.17|     -0.71|
+|Adelie male - Chinstrap male      |    -7.50| 1.17|      327|   -6.39| 0.00| -0.71|           0.95|    -0.93|     -0.48|
+|Adelie male - Gentoo male         |   -29.13| 0.98|      327|  -29.69| 0.00| -3.28|           0.95|    -3.62|     -2.95|
+|Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87| 0.00| -1.98|           0.95|    -2.24|     -1.71|
 
 
 
