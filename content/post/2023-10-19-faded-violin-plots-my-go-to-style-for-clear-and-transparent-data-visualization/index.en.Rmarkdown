@@ -1692,10 +1692,11 @@ internal_shadeplot
 
 <br>
 
-# Saving your plot
+# Saving Your Plot
 
 A final step in the reproducible pipeline is to automate the saving of your up-to-date graph. You can do this with `ggsave()` for your most recently-created plot.
 
+Also, see a basic guide [here](https://www.statology.org/ggsave-r/), the tidyverse guide [here](https://tidyverse.github.io/ggplot2-docs/reference/ggsave.html), a guide hilighting more saving options [here](https://www.tutorialgateway.org/save-r-ggplot-using-ggsave/), a detailed guide [here](https://sscc.wisc.edu/sscc/pubs/using-r-plots/saving-plots.html), and a video [here](https://www.youtube.com/watch?v=bEWCE9FR7Ho)
 ```{r eval = F}
 # save your most recently-displayed plot in a folder called "figures"
 ggsave(here::here("figures", "dallas_fadecloud.png"),
