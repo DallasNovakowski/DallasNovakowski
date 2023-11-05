@@ -888,6 +888,11 @@ Just note that there is disagreement on how cohen's d should be calculated (e.g.
 We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
 
 
+
+<details>
+<summary> <b> Click here if you want to see the script for `calculate_and_merge_effect_sizes()`!</b> </summary>
+
+
 ```r
 # This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
 calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
@@ -934,10 +939,11 @@ calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_co
 }
 ```
 
+</details>
 
 
 
-Now we can run it:
+Now we can run `calculate_and_merge_effect_sizes()`:
 
 
 ```r
@@ -955,7 +961,12 @@ knitr::kable(flipper_emmeans_contrasts)
 |Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|  0| -2.3240101|           0.95| -2.6021617| -2.0436213|
 
 
-Make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+
+
+<details>
+<summary> <b> Click here if you want to see the script for `merge_emmeans_summary()`!</b> </summary>
+
 
 
 
@@ -981,7 +992,9 @@ merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
 }
 ```
 
-Use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
+</details>
+
+We can then use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
 
 
 ```r
@@ -1012,6 +1025,10 @@ knitr::kable(flipper_summary)
 
 Now we have our analysis data to work with! From here, we can get the data ready to actually work with. To start, we can make a custom function, `report_pval_full()`, that helps us convert p-values to our desired formatting.
 
+<details>
+<summary> <b> Click here if you want to see the script for `report_pval_full()`!</b> </summary>
+
+
 
 ```r
 # This function formats a p-value and optionally italicizes it for reporting.
@@ -1038,7 +1055,7 @@ report_pval_full <- function(pval, italicize = TRUE) {
 }
 ```
 
-
+</details>
 
 Create and prepare dataframe for pairwise comparisons
 
@@ -1065,7 +1082,11 @@ knitr::kable(flipper_emmeans_contrasts)
 |Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|  0| -3.62|           0.95|    -3.97|     -3.27|
 |Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|  0| -2.32|           0.95|    -2.60|     -2.04|
 
-`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
+`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements from there. Now we create the `report_tidy_t()` function:
+
+<details>
+<summary> <b> Click here if you want to see the script for `report_tidy_t()`!</b> </summary>
+
 
 
 ```r
@@ -1128,8 +1149,7 @@ report_tidy_t <- function(tidy_frame,
 }
 ```
 
-
-
+</details>
 
 <!-- effectsize::t_to_d() -->
 
@@ -1419,6 +1439,9 @@ Especially for presentations and posters, it can be useful to have significance 
 
 Using our pre-run analyses is made much easier if we write a helper function, so here we create a custom function, `report_tidy_anova_etaci()` that facilitate reporting of significance and effect size statistics for our ANOVA (for eta squared).
 
+<details>
+<summary> <b> Click here if you want to see the script `report_tidy_anova_etaci()`!</b> </summary>
+
 
 ```r
 # This function generates a text summary of ANOVA results based on user-specified options.
@@ -1471,6 +1494,8 @@ report_tidy_anova_etaci <- function(tidy_frame, # Your tidy ANOVA dataframe
   return(text)
 }
 ```
+
+</details>
 
 We can add our omnibus ANOVA test by embedding our custom function in the `labs` element, `labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))`:
 
