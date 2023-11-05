@@ -923,6 +923,8 @@ flipper_anova <- flipper_anova %>%
 knitr::kable(flipper_anova)
 ```
 
+## Pairwise Comparisons, With Effect Sizes
+
 Since we have a model now, we can extract the pairwise comparisons with `emmeans::emmeans()`:
 
 The particular strength of using estimated marginal means is that it lets us compare levels of our dependent variable, while accounting for the influence of other covariates in the model. Not particularly relevant for a one-way design, but this method is pre-built to visualize the results of an ANCOVA.
@@ -939,7 +941,65 @@ flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 ```
 
 
+As a tangential note, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
+
+Just note that there is disagreement on how cohen's d should be calculated (e.g., as mentioned [here](https://psychbruce.github.io/bruceR/reference/EMMEANS.html))
+
+We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
+
+```{r}
+calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
+    # Create empty lists to store the results
+    effect_sizes_list <- vector("list", nrow(dataframe))
+    
+    for (i in 1:nrow(dataframe)) {
+        t_value <- dataframe[[t_col]][i]
+        df <- dataframe[[df_col]][i]
+        
+        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
+            result <- t_to_d(t = t_value, df = df)
+        } else {
+            result <- NULL
+        }
+        
+        effect_sizes_list[[i]] <- result
+    }
+    
+    # Convert the results into a data frame and add column names
+    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
+    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
+    
+    # Combine the original dataframe with the effect size results
+    combined_dataframe <- cbind(dataframe, effect_sizes_df)
+    
+    combined_dataframe <- combined_dataframe %>%
+      rename(d = effect_size_d,
+            d_ci_low = effect_size_CI_low,
+              d_ci_high = effect_size_CI_high,
+            df_error = df)
+    
+    combined_dataframe <- combined_dataframe %>% 
+      mutate(p = p.value)
+    
+    return(combined_dataframe)
+}
+
+```
+
+
+
+
+Now we can run it:
+
+```{r}
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+
+knitr::kable(flipper_emmeans_contrasts)
+```
+
+
 Make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+
 
 ```{r}
 #merging regular summary stats with emmeans
@@ -980,8 +1040,7 @@ Now we have our analysis data to work with! From here, we can get the data ready
 report_pval_full <- function(pval, italicize = TRUE) {
   ifelse(pval < .001, paste0(
     ifelse(italicize == TRUE, "*p*", "p"), " < .001"),
-         paste0(
-           ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
+         paste0(ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
                 weights::rd(pval,3))
          )
          )
@@ -1006,9 +1065,44 @@ flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
 knitr::kable(flipper_emmeans_contrasts)
 ```
 
+`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
+
+```{r}
+report_tidy_t <- function(tidy_frame, 
+                          ci = TRUE,
+                          ci.lab = TRUE, 
+                          test.stat = FALSE, 
+                          point = TRUE,
+                          italicize = TRUE){
+  
+  text <- paste0(ifelse(point==TRUE,paste0(
+    ifelse(italicize == TRUE, "*d* = ", "d = "),
+    round(tidy_frame$d,2)),""
+                        ), 
+    ifelse(ci == TRUE, ifelse(ci.lab == TRUE,
+                        paste0(", 95% CI [", round(tidy_frame$d_ci_low  ,2), ", ", 
+                               round(tidy_frame$d_ci_high  ,2),"]"),
+                        paste0(" [", round(tidy_frame$d_ci_low  ,2), ", ", 
+                               round(tidy_frame$d_ci_high  ,2),"]")), ""),
+                 
+                 ifelse(test.stat == TRUE,paste0(", *t*","(", 
+                                                 round(tidy_frame$df_error, 2) 
+                                                 ,")"," = ", round(tidy_frame$t,2)),""),
+    ifelse(italicize == TRUE, ", *p* ", ", p "),
+                 
+                 ifelse(tidy_frame$p < .001, "< .001",
+                        ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
+                               paste("=", tidy_frame$p %>% round(3)))
+                        )
+                 ) 
+  return(text)
+}
+```
 
 
 
+
+<!-- effectsize::t_to_d() -->
 
 # Vizualize the Data
 
@@ -1257,12 +1351,7 @@ viofade_text
 
 Especially for presentations and posters, it can be useful to have significance tests embedded directly in the plot. This is where we really benefit from having run some analyses beforehand.
 
-
-### Create Reporting Functions
-
 Using our pre-run analyses is made much easier if we write a helper function, so here we create a custom function, `report_tidy_anova_etaci()` that facilitate reporting of significance and effect size statistics for our ANOVA (for eta squared).
-
-
 
 ```{r}
 report_tidy_anova_etaci <- function(tidy_frame, # your tidy anova dataframe
@@ -1341,14 +1430,16 @@ viofade_text_stats_bracket1 <- viofade_text_stats +
                        xmax = 2, # ending point for the bracket
                        y.position = 220, # vertical location of the bracket
                        label.size = 2.5, # size of your bracket text
-                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE)) # content of your bracket text
   )
 
 viofade_text_stats_bracket1
 ```
 
 You can also add some additional text to the labels for your significance brackets using `ggpubr::geom_bracket(..., label = paste0(...))`
+
 
 
 ```{r}
@@ -1841,6 +1932,10 @@ viofade_fact
 # convert estimated marginal mean contrasts to dataframe
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
+flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans_contrasts, "t.ratio", "df", "effect_size")
+
+
+
 # convert p-value to non-italicized version (for significance brackets)
 flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p.value, italicize = FALSE)
 
@@ -1942,36 +2037,8 @@ flipper_sex_ttest <- t.test(flipper ~ sex, data=df) %>%
 knitr::kable(flipper_sex_ttest)
 ```
 
-`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
 
-```{r}
-report_tidy_t <- function(tidy_frame, 
-                          ci.lab = TRUE, 
-                          test.stat = FALSE, 
-                          point = TRUE){
-  
-  text <- paste0(ifelse(point==TRUE,paste0("*d* = ",
-                                           round(tidy_frame$d,2)),""
-                        ), 
-                 ifelse(ci.lab == TRUE,
-                        paste0(", 95% CI [", round(tidy_frame$d_ci_low  ,2), ", ", 
-                               round(tidy_frame$d_ci_high  ,2),"]"),
-                        paste0(" [", round(tidy_frame$d_ci_low  ,2), ", ", 
-                               round(tidy_frame$d_ci_high  ,2),"]")),
-                 
-                 ifelse(test.stat == TRUE,paste0(", *t*","(", 
-                                                 round(tidy_frame$df_error, 2) 
-                                                 ,")"," = ", round(tidy_frame$t,2)),""),
-                 ", *p* ", 
-                 
-                 ifelse(tidy_frame$p < .001, "< .001",
-                        ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
-                               paste("=", tidy_frame$p %>% round(3)))
-                        )
-                 ) 
-  return(text)
-}
-```
+
 
 Now we can specify the whole plot, using everything we've learned:
 

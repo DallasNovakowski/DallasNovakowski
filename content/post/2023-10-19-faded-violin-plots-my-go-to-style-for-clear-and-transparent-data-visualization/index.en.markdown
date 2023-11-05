@@ -955,6 +955,8 @@ knitr::kable(flipper_anova)
 |species   | 50525.88|   2|  567.41|      0|        0.74|         0.8| 0.77|
 |Residuals | 14692.75| 330|      NA|     NA|        0.74|         0.8| 0.77|
 
+## Pairwise Comparisons, With Effect Sizes
+
 Since we have a model now, we can extract the pairwise comparisons with `emmeans::emmeans()`:
 
 The particular strength of using estimated marginal means is that it lets us compare levels of our dependent variable, while accounting for the influence of other covariates in the model. Not particularly relevant for a one-way design, but this method is pre-built to visualize the results of an ANCOVA.
@@ -972,7 +974,74 @@ flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 ```
 
 
+As a tangential note, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
+
+Just note that there is disagreement on how cohen's d should be calculated (e.g., as mentioned [here](https://psychbruce.github.io/bruceR/reference/EMMEANS.html))
+
+We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
+
+
+```r
+calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
+    # Create empty lists to store the results
+    effect_sizes_list <- vector("list", nrow(dataframe))
+    
+    for (i in 1:nrow(dataframe)) {
+        t_value <- dataframe[[t_col]][i]
+        df <- dataframe[[df_col]][i]
+        
+        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
+            result <- t_to_d(t = t_value, df = df)
+        } else {
+            result <- NULL
+        }
+        
+        effect_sizes_list[[i]] <- result
+    }
+    
+    # Convert the results into a data frame and add column names
+    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
+    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
+    
+    # Combine the original dataframe with the effect size results
+    combined_dataframe <- cbind(dataframe, effect_sizes_df)
+    
+    combined_dataframe <- combined_dataframe %>%
+      rename(d = effect_size_d,
+            d_ci_low = effect_size_CI_low,
+              d_ci_high = effect_size_CI_high,
+            df_error = df)
+    
+    combined_dataframe <- combined_dataframe %>% 
+      mutate(p = p.value)
+    
+    return(combined_dataframe)
+}
+```
+
+
+
+
+Now we can run it:
+
+
+```r
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+
+knitr::kable(flipper_emmeans_contrasts)
+```
+
+
+
+|contrast           |  estimate|        SE| df_error|   t.ratio| p.value|          d| effect_size_CI|   d_ci_low|  d_ci_high|  p|
+|:------------------|---------:|---------:|--------:|---------:|-------:|----------:|--------------:|----------:|----------:|--:|
+|Adelie - Chinstrap |  -5.72079| 0.9796493|      330|  -5.83963|       0| -0.6429221|           0.95| -0.8637432| -0.4211727|  0|
+|Adelie - Gentoo    | -27.13255| 0.8240767|      330| -32.92479|       0| -3.6249003|           0.95| -3.9744565| -3.2730920|  0|
+|Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|       0| -2.3240101|           0.95| -2.6021617| -2.0436213|  0|
+
+
 Make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+
 
 
 ```r
@@ -1024,8 +1093,7 @@ Now we have our analysis data to work with! From here, we can get the data ready
 report_pval_full <- function(pval, italicize = TRUE) {
   ifelse(pval < .001, paste0(
     ifelse(italicize == TRUE, "*p*", "p"), " < .001"),
-         paste0(
-           ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
+         paste0(ifelse(italicize == TRUE, "*p*", "p")," = ", ifelse(pval >= .01,weights::rd(pval,2),
                 weights::rd(pval,3))
          )
          )
@@ -1053,15 +1121,51 @@ knitr::kable(flipper_emmeans_contrasts)
 
 
 
-|contrast           | estimate|   SE|  df| t.ratio|p.value    |p_no_it  |
-|:------------------|--------:|----:|---:|-------:|:----------|:--------|
-|Adelie - Chinstrap |    -5.72| 0.98| 330|   -5.84|*p* < .001 |p < .001 |
-|Adelie - Gentoo    |   -27.13| 0.82| 330|  -32.92|*p* < .001 |p < .001 |
-|Chinstrap - Gentoo |   -21.41| 1.01| 330|  -21.11|*p* < .001 |p < .001 |
+|contrast           | estimate|   SE| df_error| t.ratio|p.value    |     d| effect_size_CI| d_ci_low| d_ci_high|  p|p_no_it  |
+|:------------------|--------:|----:|--------:|-------:|:----------|-----:|--------------:|--------:|---------:|--:|:--------|
+|Adelie - Chinstrap |    -5.72| 0.98|      330|   -5.84|*p* < .001 | -0.64|           0.95|    -0.86|     -0.42|  0|p < .001 |
+|Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|*p* < .001 | -3.62|           0.95|    -3.97|     -3.27|  0|p < .001 |
+|Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|*p* < .001 | -2.32|           0.95|    -2.60|     -2.04|  0|p < .001 |
+
+`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
+
+
+```r
+report_tidy_t <- function(tidy_frame, 
+                          ci = TRUE,
+                          ci.lab = TRUE, 
+                          test.stat = FALSE, 
+                          point = TRUE,
+                          italicize = TRUE){
+  
+  text <- paste0(ifelse(point==TRUE,paste0(
+    ifelse(italicize == TRUE, "*d* = ", "d = "),
+    round(tidy_frame$d,2)),""
+                        ), 
+    ifelse(ci == TRUE, ifelse(ci.lab == TRUE,
+                        paste0(", 95% CI [", round(tidy_frame$d_ci_low  ,2), ", ", 
+                               round(tidy_frame$d_ci_high  ,2),"]"),
+                        paste0(" [", round(tidy_frame$d_ci_low  ,2), ", ", 
+                               round(tidy_frame$d_ci_high  ,2),"]")), ""),
+                 
+                 ifelse(test.stat == TRUE,paste0(", *t*","(", 
+                                                 round(tidy_frame$df_error, 2) 
+                                                 ,")"," = ", round(tidy_frame$t,2)),""),
+    ifelse(italicize == TRUE, ", *p* ", ", p "),
+                 
+                 ifelse(tidy_frame$p < .001, "< .001",
+                        ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
+                               paste("=", tidy_frame$p %>% round(3)))
+                        )
+                 ) 
+  return(text)
+}
+```
 
 
 
 
+<!-- effectsize::t_to_d() -->
 
 # Vizualize the Data
 
@@ -1085,7 +1189,7 @@ canvas <- ggplot(data = df, # specify the dataframe that we want to pull variabl
 canvas 
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-16-1.png" width="672" />
 
 We specify `cowplot::theme_half_open()` at this early stage because we want to override some arguments in this theme with some new elements later on:
 
@@ -1097,7 +1201,7 @@ canvas <-  canvas +
 canvas # display our blank canvas
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-17-1.png" width="672" />
  <!-- +     ## set max for y-axis -->
 
 ## Add Mean and 95% CI
@@ -1122,7 +1226,7 @@ canvas + # this is our previously-defined canvas object, it passes the appropria
                       ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 
 ## Adding Density Slab
@@ -1144,7 +1248,7 @@ canvas  +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
 You can see the y-axis stretches far higher and lower (170 - 230) than it did previously (190 - ~210). The major strength of this density slab method is that it visualizes the spread and skew of the data, which by default forces us to visualize the entire range of observations. 
 
@@ -1168,7 +1272,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 ## Fade and Style the Violin Plot
 
@@ -1193,7 +1297,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="672" />
 
 
 Instead of using boxplots, I like to fade my violins according to their quantile grouping. I find it makes the violin more informative, and has less visual clutter compared to the boxplot. We add the fading by modifying `ggdist::stat_slab()` with the argument, `fill_ramp = stat(level)`:
@@ -1213,7 +1317,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 You can see by the legend that the fading matches to the inner 66% of the data, then the inner 95%, with no fading at the outer 5%. The inner 66% of the data holds no special meaning to me. I find that the inner/outer 50% is more intuitive, and directly translates to the commonly-used boxplot. 
 
@@ -1238,7 +1342,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 
 The violins are quite wide, let's adjust their widths using `scale = .4`.
 
@@ -1259,7 +1363,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
 The fading quantiles are probably better discussed orally or as a figure note, not being directly relevant to any statistical tests. We can get rid of the legend element for fading quantiles with `guides(fill_ramp = "none")`. Here, we also assign this ggplot to a new object, `viofade`, so we can see new code additions in the chunks more easily:
 
@@ -1283,7 +1387,7 @@ viofade <- canvas +
 viofade
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 This is a satisfactory version of the complete viofade, but like any makeover, there is more styling we can do.
 
@@ -1305,7 +1409,7 @@ viofade +
             vjust = 5)
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-26-1.png" width="672" />
 
 ```r
 # You could use this function if you want:
@@ -1341,18 +1445,13 @@ viofade_text <- viofade +
 viofade_text
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 ## Adding Test Statistics
 
 Especially for presentations and posters, it can be useful to have significance tests embedded directly in the plot. This is where we really benefit from having run some analyses beforehand.
 
-
-### Create Reporting Functions
-
 Using our pre-run analyses is made much easier if we write a helper function, so here we create a custom function, `report_tidy_anova_etaci()` that facilitate reporting of significance and effect size statistics for our ANOVA (for eta squared).
-
-
 
 
 ```r
@@ -1397,7 +1496,7 @@ viofade_text +
   labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-29-1.png" width="672" />
 
 By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle by using `theme(plot.subtitle = ggtext::element_markdown())`:
 
@@ -1410,7 +1509,7 @@ viofade_text_stats <- viofade_text +
 viofade_text_stats
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 We can also customize our anova extraction function, `report_tidy_anova_etaci()` to show less information in the subtitle.
 
@@ -1424,7 +1523,7 @@ viofade_text +
   theme(plot.subtitle = ggtext::element_markdown())
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 ## Add Significance Brackets
 
@@ -1442,16 +1541,18 @@ viofade_text_stats_bracket1 <- viofade_text_stats +
                        xmax = 2, # ending point for the bracket
                        y.position = 220, # vertical location of the bracket
                        label.size = 2.5, # size of your bracket text
-                       label = paste0(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
-                                                                  'Adelie - Chinstrap', "p_no_it"]) # content of your bracket text
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], italicize = FALSE, ci = FALSE)) # content of your bracket text
   )
 
 viofade_text_stats_bracket1
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 You can also add some additional text to the labels for your significance brackets using `ggpubr::geom_bracket(..., label = paste0(...))`
+
 
 
 
@@ -1479,7 +1580,7 @@ viofade_text_stats_bracket2 +
   xlab("Species")
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 
 <br>
@@ -1580,7 +1681,7 @@ shadeplot <- fresh_canvas +
 shadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 ```r
 faded_dotplot <- fresh_canvas +
@@ -1604,7 +1705,7 @@ faded_dotplot <- fresh_canvas +
 faded_dotplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-2.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-2.png" width="672" />
 
 ```r
 fadecloud <- fresh_canvas + 
@@ -1634,7 +1735,7 @@ fadecloud <- fresh_canvas +
 fadecloud
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-3.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-3.png" width="672" />
 
 ```r
 vioshadeplot <- fresh_canvas +
@@ -1698,7 +1799,7 @@ vioshadeplot <- fresh_canvas +
 vioshadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-4.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-4.png" width="672" />
 
 ```r
 viofade_dotplot <- fresh_canvas +
@@ -1757,7 +1858,7 @@ viofade_dotplot <- fresh_canvas +
 viofade_dotplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-5.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-5.png" width="672" />
 
 ```r
 internal_shadeplot <- fresh_canvas +
@@ -1806,7 +1907,7 @@ internal_shadeplot <- fresh_canvas +
 internal_shadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-6.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-6.png" width="672" />
 
 
 </details>
@@ -1993,13 +2094,17 @@ viofade_fact <- ggplot(data = df,
 viofade_fact
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-38-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-41-1.png" width="672" />
 
 
 
 ```r
 # convert estimated marginal mean contrasts to dataframe
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
+
+flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans_contrasts, "t.ratio", "df", "effect_size")
+
+
 
 # convert p-value to non-italicized version (for significance brackets)
 flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p.value, italicize = FALSE)
@@ -2016,23 +2121,23 @@ knitr::kable(flipper_fact_emmeans_contrasts)
 
 
 
-|contrast                          | estimate|   SE|  df| t.ratio|p.value    |p_no_it  |
-|:---------------------------------|--------:|----:|---:|-------:|:----------|:--------|
-|Adelie female - Chinstrap female  |    -3.94| 1.17| 327|   -3.36|*p* = .01  |p = .01  |
-|Adelie female - Gentoo female     |   -24.91| 0.99| 327|  -25.04|*p* < .001 |p < .001 |
-|Adelie female - Adelie male       |    -4.62| 0.94| 327|   -4.93|*p* < .001 |p < .001 |
-|Adelie female - Chinstrap male    |   -12.12| 1.17| 327|  -10.32|*p* < .001 |p < .001 |
-|Adelie female - Gentoo male       |   -33.75| 0.98| 327|  -34.40|*p* < .001 |p < .001 |
-|Chinstrap female - Gentoo female  |   -20.97| 1.22| 327|  -17.17|*p* < .001 |p < .001 |
-|Chinstrap female - Adelie male    |    -0.68| 1.17| 327|   -0.58|*p* = .99  |p = .99  |
-|Chinstrap female - Chinstrap male |    -8.18| 1.37| 327|   -5.96|*p* < .001 |p < .001 |
-|Chinstrap female - Gentoo male    |   -29.81| 1.21| 327|  -24.63|*p* < .001 |p < .001 |
-|Gentoo female - Adelie male       |    20.30| 0.99| 327|   20.40|*p* < .001 |p < .001 |
-|Gentoo female - Chinstrap male    |    12.80| 1.22| 327|   10.47|*p* < .001 |p < .001 |
-|Gentoo female - Gentoo male       |    -8.83| 1.04| 327|   -8.52|*p* < .001 |p < .001 |
-|Adelie male - Chinstrap male      |    -7.50| 1.17| 327|   -6.39|*p* < .001 |p < .001 |
-|Adelie male - Gentoo male         |   -29.13| 0.98| 327|  -29.69|*p* < .001 |p < .001 |
-|Chinstrap male - Gentoo male      |   -21.63| 1.21| 327|  -17.87|*p* < .001 |p < .001 |
+|contrast                          | estimate|   SE| df_error| t.ratio|p.value    |     d| effect_size_CI| d_ci_low| d_ci_high|    p|p_no_it  |
+|:---------------------------------|--------:|----:|--------:|-------:|:----------|-----:|--------------:|--------:|---------:|----:|:--------|
+|Adelie female - Chinstrap female  |    -3.94| 1.17|      327|   -3.36|*p* = .01  | -0.37|           0.95|    -0.59|     -0.15| 0.01|p = .01  |
+|Adelie female - Gentoo female     |   -24.91| 0.99|      327|  -25.04|*p* < .001 | -2.77|           0.95|    -3.07|     -2.47| 0.00|p < .001 |
+|Adelie female - Adelie male       |    -4.62| 0.94|      327|   -4.93|*p* < .001 | -0.55|           0.95|    -0.77|     -0.32| 0.00|p < .001 |
+|Adelie female - Chinstrap male    |   -12.12| 1.17|      327|  -10.32|*p* < .001 | -1.14|           0.95|    -1.37|     -0.91| 0.00|p < .001 |
+|Adelie female - Gentoo male       |   -33.75| 0.98|      327|  -34.40|*p* < .001 | -3.80|           0.95|    -4.16|     -3.44| 0.00|p < .001 |
+|Chinstrap female - Gentoo female  |   -20.97| 1.22|      327|  -17.17|*p* < .001 | -1.90|           0.95|    -2.16|     -1.64| 0.00|p < .001 |
+|Chinstrap female - Adelie male    |    -0.68| 1.17|      327|   -0.58|*p* = .99  | -0.06|           0.95|    -0.28|      0.15| 0.99|p = .99  |
+|Chinstrap female - Chinstrap male |    -8.18| 1.37|      327|   -5.96|*p* < .001 | -0.66|           0.95|    -0.88|     -0.44| 0.00|p < .001 |
+|Chinstrap female - Gentoo male    |   -29.81| 1.21|      327|  -24.63|*p* < .001 | -2.72|           0.95|    -3.02|     -2.42| 0.00|p < .001 |
+|Gentoo female - Adelie male       |    20.30| 0.99|      327|   20.40|*p* < .001 |  2.26|           0.95|     1.98|      2.53| 0.00|p < .001 |
+|Gentoo female - Chinstrap male    |    12.80| 1.22|      327|   10.47|*p* < .001 |  1.16|           0.95|     0.92|      1.39| 0.00|p < .001 |
+|Gentoo female - Gentoo male       |    -8.83| 1.04|      327|   -8.52|*p* < .001 | -0.94|           0.95|    -1.17|     -0.71| 0.00|p < .001 |
+|Adelie male - Chinstrap male      |    -7.50| 1.17|      327|   -6.39|*p* < .001 | -0.71|           0.95|    -0.93|     -0.48| 0.00|p < .001 |
+|Adelie male - Gentoo male         |   -29.13| 0.98|      327|  -29.69|*p* < .001 | -3.28|           0.95|    -3.62|     -2.95| 0.00|p < .001 |
+|Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87|*p* < .001 | -1.98|           0.95|    -2.24|     -1.71| 0.00|p < .001 |
 
 
 
@@ -2081,7 +2186,7 @@ ggpubr::geom_bracket(inherit.aes = FALSE, # necessary for factorial design
 viofade_fact_bracket
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-40-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-43-1.png" width="672" />
 
 
 <details>
@@ -2101,7 +2206,7 @@ Not exactly the amount of information I would put in the graph, but you can real
   theme(plot.subtitle = ggtext::element_markdown(size = 10))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-41-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-44-1.png" width="672" />
 
 
 </details>
@@ -2142,37 +2247,8 @@ knitr::kable(flipper_sex_ttest)
 |:---------|:-----|-----------:|-----------:|----------:|----:|---------:|---------:|---------:|--------:|-------:|:-----------------------|:-----------|----------:|----------:|----------:|
 |flipper   |sex   |    197.3636|     204.506|  -7.142316| 0.95| -10.06481| -4.219821| -4.807866| 325.2784| 2.3e-06|Welch Two Sample t-test |two.sided   | -0.5331566| -0.7539304| -0.3115901|
 
-`report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements. Now we create the `report_tidy_t()` function:
 
 
-```r
-report_tidy_t <- function(tidy_frame, 
-                          ci.lab = TRUE, 
-                          test.stat = FALSE, 
-                          point = TRUE){
-  
-  text <- paste0(ifelse(point==TRUE,paste0("*d* = ",
-                                           round(tidy_frame$d,2)),""
-                        ), 
-                 ifelse(ci.lab == TRUE,
-                        paste0(", 95% CI [", round(tidy_frame$d_ci_low  ,2), ", ", 
-                               round(tidy_frame$d_ci_high  ,2),"]"),
-                        paste0(" [", round(tidy_frame$d_ci_low  ,2), ", ", 
-                               round(tidy_frame$d_ci_high  ,2),"]")),
-                 
-                 ifelse(test.stat == TRUE,paste0(", *t*","(", 
-                                                 round(tidy_frame$df_error, 2) 
-                                                 ,")"," = ", round(tidy_frame$t,2)),""),
-                 ", *p* ", 
-                 
-                 ifelse(tidy_frame$p < .001, "< .001",
-                        ifelse(tidy_frame$p > .01,paste("=", tidy_frame$p %>% round(2)),
-                               paste("=", tidy_frame$p %>% round(3)))
-                        )
-                 ) 
-  return(text)
-}
-```
 
 Now we can specify the whole plot, using everything we've learned:
 
@@ -2219,7 +2295,7 @@ ggplot(data = df, # specify the dataframe that we want to pull variables from
   xlab("Sex") # change x-axis label
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-45-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-47-1.png" width="672" />
 
 
 
