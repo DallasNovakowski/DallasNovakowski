@@ -804,7 +804,7 @@ nova_palette <- c("#78AAA9", "#FFDB6E")
 
 ![](palmer_penguin.png)
 
-We'll use the `palmerpenguins` dataset, which is easy to get running right away
+We'll use the `palmerpenguins::penguins` dataset, which is easy to get running right away
 
 <figure>
   <img src="penguin_slip.gif" alt="Commuting penguins" width="80%">
