@@ -1905,7 +1905,7 @@ Also, see a basic guide [here](https://www.statology.org/ggsave-r/), the tidyver
 
 ```r
 # save your most recently-displayed plot in a folder called "figures"
-ggsave(here::here("figures", "dallas_fadecloud.png"),
+ggsave(here::here("figures", "fadecloud.png"),
        width=7, height = 5, dpi=700)
 ```
 
