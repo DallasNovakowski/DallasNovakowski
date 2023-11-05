@@ -2076,7 +2076,7 @@ viofade_fact_bracket
 <details>
 <summary> <b> Click here if you want an ultra-stat-detailed plot</b> </summary>
 
-![](pingu_shuffle.gif)
+<!-- ![](pingu_shuffle.gif) -->
 
 Not exactly the amount of information I would put in the graph, but you can really get your analysis fully integrated with the plot, just by using the same subtitle function as before:
 
