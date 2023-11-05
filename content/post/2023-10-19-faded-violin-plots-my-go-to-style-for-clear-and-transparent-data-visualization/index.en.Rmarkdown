@@ -1138,7 +1138,7 @@ canvas # display our blank canvas
 
 ## Add Mean and 95% CI
 
-You could always just plot the mean and 95% CI (confidence intervals) and nothing else. However, like barplots, this comes at the cost of omitting the entire range of responses. We will use `geom_pointrange()` because it easily accepts data from an external summary dataframe:
+You could always just plot the mean and 95% CI (confidence intervals) and nothing else. However, like barplots, this comes at the cost of omitting the range and shape of your data. We will use `geom_pointrange()` because it easily accepts data from an external summary dataframe:
 
 - You can also customize `geom_pointrange()`, for example, with `fatten = 2, size = .4`
 - Alternative: We can also use `stat_summary(fun.data = "mean_cl_normal")`. Does not require external dataframe, but I think creating summary data is good practice, and future-proofs this procedure for ANCOVAs.
