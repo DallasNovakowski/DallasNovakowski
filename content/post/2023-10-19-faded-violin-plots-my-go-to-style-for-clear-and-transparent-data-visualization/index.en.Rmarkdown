@@ -437,7 +437,8 @@ ggplot(data = df, # specify the dataframe that we want to pull variables from
   xlab("Species")
 
 
-
+ggsave(here::here("figures", "dallas_fadecloud.png"),
+       width=4, height = 3, dpi=700)
 
 
 
@@ -711,7 +712,7 @@ viofade_flipper_sex
 
 </details>
 
-I have been enjoying making some guides for data visualization, namely trying to improve on the raincloud plot via the new [fadecloud](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/) as well as [faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/). However, these aren't the plot types I usually choose for publication. This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report.
+I have been enjoying making some guides for data visualization, namely trying to improve on the raincloud plot via the new [fadecloud](https://dallasnova.rbind.io/post/efficient-data-visualization-with-faded-raincloud-plots-delete-boxplot/) as well as [faded dotplots and shadeplots](https://dallasnova.rbind.io/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/). However, I worry that many users aren't sure how to actually use all of the many great tools in ggplot to create figures that are ready for publication. This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report.
 
 <!-- I believe these methods have their place, but I find when I actually present my data, I don't actually use these methods: there are still a lot of objects visible that make the addition of significance brackets overly noisy.  -->
 
@@ -1691,7 +1692,15 @@ internal_shadeplot
 
 <br>
 
+# Saving your plot
 
+A final step in the reproducible pipeline is to automate the saving of your up-to-date graph. You can do this with `ggsave()` for your most recently-created plot.
+
+```{r eval = F}
+# save your most recently-displayed plot in a folder called "figures"
+ggsave(here::here("figures", "dallas_fadecloud.png"),
+       width=4, height = 3, dpi=700)
+```
 
 # Now Try a Factorial Design
 
