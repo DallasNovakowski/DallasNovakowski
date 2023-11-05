@@ -1214,7 +1214,7 @@ canvas +
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-You can see by the legend that the fading matches to the inner 66% of the data, then the inner 95%, with no fading at the outer 5%. The inner 66% of the data holds no special meaning to me. I find that the inner/outer 50% is more intuitive . 
+You can see by the legend that the fading matches to the inner 66% of the data, then the inner 95%, with no fading at the outer 5%. The inner 66% of the data holds no special meaning to me. I find that the inner/outer 50% is more intuitive, and directly translates to the commonly-used boxplot. 
 
 - Alternative: change from 66% to 68%, reflecting +/-1 standard deviation, giving a more direct parallel to a critical descriptive statistic (as well as cohen's d).
 
