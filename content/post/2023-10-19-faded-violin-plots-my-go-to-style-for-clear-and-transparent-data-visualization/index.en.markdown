@@ -525,7 +525,7 @@ flipper_summary
 
 
 #merge estimated marginal mean contrasts with their effect sizes:
-flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper)
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper_fit)
 
 flipper_emmeans_contrasts
 
