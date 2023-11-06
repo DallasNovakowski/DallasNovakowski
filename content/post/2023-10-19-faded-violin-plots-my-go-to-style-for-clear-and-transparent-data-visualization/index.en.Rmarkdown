@@ -495,8 +495,7 @@ flipper_anova <- car::Anova(flipper_fit)
 # Extract effect size (partial eta squared) from anova
 flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
                                              alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             verbose = FALSE)
 # Convert anova table into dataframe
 flipper_anova <- data.frame(flipper_anova)
 
@@ -829,8 +828,7 @@ Calculate effect sizes with `effectsize::eta_squared()`, and import them into th
 # Extract effect size (partial eta squared) from anova
 flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
                                              alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             verbose = FALSE)
 # Convert anova table into dataframe
 flipper_anova <- data.frame(flipper_anova)
 
@@ -1880,7 +1878,9 @@ knitr::kable(flipper_fact_summary)
 # Fit data
 flipper_fact_fit <- stats::aov(flipper ~ species*sex, data = df)
 # Run anova
-flipper_fact_anova <- car::Anova(flipper_fact_fit, type = 2)
+flipper_fact_anova <- car::Anova(flipper_fact_fit,
+                                 type=3
+                                 )
 ```
 
 
@@ -1915,9 +1915,8 @@ Calculate effect sizes with `effectsize::eta_squared()`
 
 ```{r}
 flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
-                                             alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             alternative="two.sided"
+                                             )
 
 flipper_fact_anova <- data.frame(flipper_fact_anova)
 

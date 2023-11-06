@@ -494,8 +494,7 @@ flipper_anova <- car::Anova(flipper_fit)
 # Extract effect size (partial eta squared) from anova
 flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
                                              alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             verbose = FALSE)
 # Convert anova table into dataframe
 flipper_anova <- data.frame(flipper_anova)
 
@@ -852,8 +851,7 @@ Calculate effect sizes with `effectsize::eta_squared()`, and import them into th
 # Extract effect size (partial eta squared) from anova
 flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
                                              alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             verbose = FALSE)
 # Convert anova table into dataframe
 flipper_anova <- data.frame(flipper_anova)
 
@@ -2020,7 +2018,9 @@ knitr::kable(flipper_fact_summary)
 # Fit data
 flipper_fact_fit <- stats::aov(flipper ~ species*sex, data = df)
 # Run anova
-flipper_fact_anova <- car::Anova(flipper_fact_fit, type = 2)
+flipper_fact_anova <- car::Anova(flipper_fact_fit,
+                                 type=3
+                                 )
 ```
 
 
@@ -2068,9 +2068,8 @@ Calculate effect sizes with `effectsize::eta_squared()`
 
 ```r
 flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
-                                             alternative="two.sided",
-                                             verbose = FALSE,
-                                             generalized= FALSE)
+                                             alternative="two.sided"
+                                             )
 
 flipper_fact_anova <- data.frame(flipper_fact_anova)
 
@@ -2087,12 +2086,13 @@ knitr::kable(flipper_fact_anova)
 
 
 
-|            |    Sum.Sq|  Df| F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
-|:-----------|---------:|---:|-------:|------:|-----------:|-----------:|-----:|
-|species     | 50185.027|   2| 784.583|  0.000|       0.798|       0.851| 0.828|
-|sex         |  3905.604|   1| 122.119|  0.000|       0.195|       0.347| 0.272|
-|species:sex |   329.042|   2|   5.144|  0.006|       0.003|       0.073| 0.031|
-|Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
+|            |      Sum.Sq|  Df|   F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
+|:-----------|-----------:|---:|---------:|------:|-----------:|-----------:|-----:|
+|(Intercept) | 2574475.082|   1| 80497.682|  0.000|       0.619|       0.715| 0.672|
+|species     |   21415.629|   2|   334.808|  0.000|       0.026|       0.128| 0.069|
+|sex         |     777.870|   1|    24.322|  0.000|       0.003|       0.073| 0.031|
+|species:sex |     329.042|   2|     5.144|  0.006|          NA|          NA|    NA|
+|Residuals   |   10458.107| 327|        NA|     NA|          NA|          NA|    NA|
 
 
 ## Vizualize the Factorial Data
