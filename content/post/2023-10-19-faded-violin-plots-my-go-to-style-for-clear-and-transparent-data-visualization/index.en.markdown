@@ -247,51 +247,33 @@ make_summary <- function(data, dv, grouping1, grouping2, grouping3){
 }
 
 
-#We can make a custom function calculate_and_merge_effect_sizes() to loop across our rows and compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
-# This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
-calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create an empty list to store effect sizes for each row
-    effect_sizes_list <- vector("list", nrow(dataframe))
+#We can make a custom function calculate_and_merge_effect_sizes() to loop compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
+
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
     
-    # Loop through each row in the dataframe
-    for (i in 1:nrow(dataframe)) {
-        # Extract the t-value and degrees of freedom from the dataframe
-        t_value <- dataframe[[t_col]][i]
-        df <- dataframe[[df_col]][i]
-        
-        # Check if t-value, degrees of freedom are not missing and t-value is not zero
-        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
-            # Calculate Cohen's d effect size using the t-value and degrees of freedom
-            result <- t_to_d(t = t_value, df = df)
-        } else {
-            # If any of the required values are missing or t-value is zero, set the result to NULL
-            result <- NULL
-        }
-        
-        # Store the result in the effect_sizes_list
-        effect_sizes_list[[i]] <- result
-    }
-    
-    # Convert the list of effect sizes into a data frame and add column names with the given prefix
-    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
-    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
-    
-    # Combine the original dataframe with the effect size results by column binding (adding new columns)
-    combined_dataframe <- cbind(dataframe, effect_sizes_df)
-    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
     # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
-      rename(d = effect_size_d,
-            d_ci_low = effect_size_CI_low,
-            d_ci_high = effect_size_CI_high,
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
             df_error = df,
             p = p.value)
 
-    
     # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
-
 
 # Make a custom function, merge_emmeans_summary(), to merge summary and emmeans. Particularly useful for multivariate analyses:
 
@@ -543,7 +525,7 @@ flipper_summary
 
 
 #merge estimated marginal mean contrasts with their effect sizes:
-flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper)
 
 flipper_emmeans_contrasts
 
@@ -891,7 +873,7 @@ flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 ```
 
-As a bonus, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
+As a bonus, you can also convert emmeans pairwise comparisons into cohen's d. my initial approach was to use `effectsize::t_to_d()`, but this only gives you [an approximate d effect size](https://github.com/easystats/effectsize/discussions/617) 
 
 
 We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
@@ -913,45 +895,28 @@ Just note that there is disagreement on how cohen's d should be calculated (e.g.
 
 ```r
 # This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
-calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create an empty list to store effect sizes for each row
-    effect_sizes_list <- vector("list", nrow(dataframe))
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
     
-    # Loop through each row in the dataframe
-    for (i in 1:nrow(dataframe)) {
-        # Extract the t-value and degrees of freedom from the dataframe
-        t_value <- dataframe[[t_col]][i]
-        df <- dataframe[[df_col]][i]
-        
-        # Check if t-value, degrees of freedom are not missing and t-value is not zero
-        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
-            # Calculate Cohen's d effect size using the t-value and degrees of freedom
-            result <- effectsize::t_to_d(t = t_value, df = df)
-        } else {
-            # If any of the required values are missing or t-value is zero, set the result to NULL
-            result <- NULL
-        }
-        
-        # Store the result in the effect_sizes_list
-        effect_sizes_list[[i]] <- result
-    }
-    
-    # Convert the list of effect sizes into a data frame and add column names with the given prefix
-    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
-    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
-    
-    # Combine the original dataframe with the effect size results by column binding (adding new columns)
-    combined_dataframe <- cbind(dataframe, effect_sizes_df)
-    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
     # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
-      rename(d = effect_size_d,
-            d_ci_low = effect_size_CI_low,
-            d_ci_high = effect_size_CI_high,
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
             df_error = df,
             p = p.value)
 
-    
     # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
@@ -965,18 +930,18 @@ Now we can run `calculate_and_merge_effect_sizes()`:
 
 
 ```r
-flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper_fit)
 
 knitr::kable(flipper_emmeans_contrasts)
 ```
 
 
 
-|contrast           |  estimate|        SE| df_error|   t.ratio|  p|          d| effect_size_CI|   d_ci_low|  d_ci_high|
-|:------------------|---------:|---------:|--------:|---------:|--:|----------:|--------------:|----------:|----------:|
-|Adelie - Chinstrap |  -5.72079| 0.9796493|      330|  -5.83963|  0| -0.6429221|           0.95| -0.8637432| -0.4211727|
-|Adelie - Gentoo    | -27.13255| 0.8240767|      330| -32.92479|  0| -3.6249003|           0.95| -3.9744565| -3.2730920|
-|Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|  0| -2.3240101|           0.95| -2.6021617| -2.0436213|
+|contrast           |  estimate|        SE| df_error|   t.ratio|  p|          d|      d_se|  d_ci_low|  d_ci_high|
+|:------------------|---------:|---------:|--------:|---------:|--:|----------:|---------:|---------:|----------:|
+|Adelie - Chinstrap |  -5.72079| 0.9796493|      330|  -5.83963|  0| -0.8573563| 0.1505620| -1.153539| -0.5611739|
+|Adelie - Gentoo    | -27.13255| 0.8240767|      330| -32.92479|  0| -4.0662686| 0.2007611| -4.461201| -3.6713357|
+|Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|  0| -3.2089123| 0.1967510| -3.595956| -2.8218680|
 
 
 We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
@@ -1094,11 +1059,11 @@ knitr::kable(flipper_emmeans_contrasts)
 
 
 
-|contrast           | estimate|   SE| df_error| t.ratio|  p|     d| effect_size_CI| d_ci_low| d_ci_high|
-|:------------------|--------:|----:|--------:|-------:|--:|-----:|--------------:|--------:|---------:|
-|Adelie - Chinstrap |    -5.72| 0.98|      330|   -5.84|  0| -0.64|           0.95|    -0.86|     -0.42|
-|Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|  0| -3.62|           0.95|    -3.97|     -3.27|
-|Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|  0| -2.32|           0.95|    -2.60|     -2.04|
+|contrast           | estimate|   SE| df_error| t.ratio|  p|     d| d_se| d_ci_low| d_ci_high|
+|:------------------|--------:|----:|--------:|-------:|--:|-----:|----:|--------:|---------:|
+|Adelie - Chinstrap |    -5.72| 0.98|      330|   -5.84|  0| -0.86| 0.15|    -1.15|     -0.56|
+|Adelie - Gentoo    |   -27.13| 0.82|      330|  -32.92|  0| -4.07| 0.20|    -4.46|     -3.67|
+|Chinstrap - Gentoo |   -21.41| 1.01|      330|  -21.11|  0| -3.21| 0.20|    -3.60|     -2.82|
 
 `report_tidy_t()` is another useful custom function for doing some in-text or in-plot reporting of a t-test. `report::report_statistics()` is also a notable function, but I haven't figured out how to selectively extract the elements from there. Now we create the `report_tidy_t()` function:
 
@@ -2164,7 +2129,7 @@ viofade_fact
 # convert estimated marginal mean contrasts to dataframe
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
-flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans, flipper_fact_fit)
 
 
 
@@ -2183,23 +2148,23 @@ knitr::kable(flipper_fact_emmeans_contrasts)
 
 
 
-|contrast                          | estimate|   SE| df_error| t.ratio|    p|     d| effect_size_CI| d_ci_low| d_ci_high|
-|:---------------------------------|--------:|----:|--------:|-------:|----:|-----:|--------------:|--------:|---------:|
-|Adelie female - Chinstrap female  |    -3.94| 1.17|      327|   -3.36| 0.01| -0.37|           0.95|    -0.59|     -0.15|
-|Adelie female - Gentoo female     |   -24.91| 0.99|      327|  -25.04| 0.00| -2.77|           0.95|    -3.07|     -2.47|
-|Adelie female - Adelie male       |    -4.62| 0.94|      327|   -4.93| 0.00| -0.55|           0.95|    -0.77|     -0.32|
-|Adelie female - Chinstrap male    |   -12.12| 1.17|      327|  -10.32| 0.00| -1.14|           0.95|    -1.37|     -0.91|
-|Adelie female - Gentoo male       |   -33.75| 0.98|      327|  -34.40| 0.00| -3.80|           0.95|    -4.16|     -3.44|
-|Chinstrap female - Gentoo female  |   -20.97| 1.22|      327|  -17.17| 0.00| -1.90|           0.95|    -2.16|     -1.64|
-|Chinstrap female - Adelie male    |    -0.68| 1.17|      327|   -0.58| 0.99| -0.06|           0.95|    -0.28|      0.15|
-|Chinstrap female - Chinstrap male |    -8.18| 1.37|      327|   -5.96| 0.00| -0.66|           0.95|    -0.88|     -0.44|
-|Chinstrap female - Gentoo male    |   -29.81| 1.21|      327|  -24.63| 0.00| -2.72|           0.95|    -3.02|     -2.42|
-|Gentoo female - Adelie male       |    20.30| 0.99|      327|   20.40| 0.00|  2.26|           0.95|     1.98|      2.53|
-|Gentoo female - Chinstrap male    |    12.80| 1.22|      327|   10.47| 0.00|  1.16|           0.95|     0.92|      1.39|
-|Gentoo female - Gentoo male       |    -8.83| 1.04|      327|   -8.52| 0.00| -0.94|           0.95|    -1.17|     -0.71|
-|Adelie male - Chinstrap male      |    -7.50| 1.17|      327|   -6.39| 0.00| -0.71|           0.95|    -0.93|     -0.48|
-|Adelie male - Gentoo male         |   -29.13| 0.98|      327|  -29.69| 0.00| -3.28|           0.95|    -3.62|     -2.95|
-|Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87| 0.00| -1.98|           0.95|    -2.24|     -1.71|
+|contrast                          | estimate|   SE| df_error| t.ratio|    p|     d| d_se| d_ci_low| d_ci_high|
+|:---------------------------------|--------:|----:|--------:|-------:|----:|-----:|----:|--------:|---------:|
+|Adelie female - Chinstrap female  |    -3.94| 1.17|      327|   -3.36| 0.01| -0.70| 0.21|    -1.11|     -0.28|
+|Adelie female - Gentoo female     |   -24.91| 0.99|      327|  -25.04| 0.00| -4.41| 0.25|    -4.89|     -3.92|
+|Adelie female - Adelie male       |    -4.62| 0.94|      327|   -4.93| 0.00| -0.82| 0.17|    -1.15|     -0.48|
+|Adelie female - Chinstrap male    |   -12.12| 1.17|      327|  -10.32| 0.00| -2.14| 0.22|    -2.58|     -1.70|
+|Adelie female - Gentoo male       |   -33.75| 0.98|      327|  -34.40| 0.00| -5.97| 0.29|    -6.54|     -5.40|
+|Chinstrap female - Gentoo female  |   -20.97| 1.22|      327|  -17.17| 0.00| -3.71| 0.26|    -4.22|     -3.20|
+|Chinstrap female - Adelie male    |    -0.68| 1.17|      327|   -0.58| 0.99| -0.12| 0.21|    -0.53|      0.29|
+|Chinstrap female - Chinstrap male |    -8.18| 1.37|      327|   -5.96| 0.00| -1.45| 0.25|    -1.94|     -0.96|
+|Chinstrap female - Gentoo male    |   -29.81| 1.21|      327|  -24.63| 0.00| -5.27| 0.30|    -5.85|     -4.69|
+|Gentoo female - Adelie male       |    20.30| 0.99|      327|   20.40| 0.00|  3.59| 0.23|     3.15|      4.03|
+|Gentoo female - Chinstrap male    |    12.80| 1.22|      327|   10.47| 0.00|  2.26| 0.23|     1.80|      2.72|
+|Gentoo female - Gentoo male       |    -8.83| 1.04|      327|   -8.52| 0.00| -1.56| 0.19|    -1.94|     -1.18|
+|Adelie male - Chinstrap male      |    -7.50| 1.17|      327|   -6.39| 0.00| -1.33| 0.21|    -1.75|     -0.91|
+|Adelie male - Gentoo male         |   -29.13| 0.98|      327|  -29.69| 0.00| -5.15| 0.27|    -5.67|     -4.63|
+|Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87| 0.00| -3.82| 0.26|    -4.34|     -3.31|
 
 
 

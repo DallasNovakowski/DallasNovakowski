@@ -248,51 +248,33 @@ make_summary <- function(data, dv, grouping1, grouping2, grouping3){
 }
 
 
-#We can make a custom function calculate_and_merge_effect_sizes() to loop across our rows and compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
-# This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
-calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create an empty list to store effect sizes for each row
-    effect_sizes_list <- vector("list", nrow(dataframe))
+#We can make a custom function calculate_and_merge_effect_sizes() to loop compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
+
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
     
-    # Loop through each row in the dataframe
-    for (i in 1:nrow(dataframe)) {
-        # Extract the t-value and degrees of freedom from the dataframe
-        t_value <- dataframe[[t_col]][i]
-        df <- dataframe[[df_col]][i]
-        
-        # Check if t-value, degrees of freedom are not missing and t-value is not zero
-        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
-            # Calculate Cohen's d effect size using the t-value and degrees of freedom
-            result <- t_to_d(t = t_value, df = df)
-        } else {
-            # If any of the required values are missing or t-value is zero, set the result to NULL
-            result <- NULL
-        }
-        
-        # Store the result in the effect_sizes_list
-        effect_sizes_list[[i]] <- result
-    }
-    
-    # Convert the list of effect sizes into a data frame and add column names with the given prefix
-    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
-    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
-    
-    # Combine the original dataframe with the effect size results by column binding (adding new columns)
-    combined_dataframe <- cbind(dataframe, effect_sizes_df)
-    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
     # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
-      rename(d = effect_size_d,
-            d_ci_low = effect_size_CI_low,
-            d_ci_high = effect_size_CI_high,
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
             df_error = df,
             p = p.value)
 
-    
     # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
-
 
 # Make a custom function, merge_emmeans_summary(), to merge summary and emmeans. Particularly useful for multivariate analyses:
 
@@ -544,7 +526,7 @@ flipper_summary
 
 
 #merge estimated marginal mean contrasts with their effect sizes:
-flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper)
 
 flipper_emmeans_contrasts
 
@@ -860,7 +842,7 @@ flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 ```
 
-As a bonus, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
+As a bonus, you can also convert emmeans pairwise comparisons into cohen's d. my initial approach was to use `effectsize::t_to_d()`, but this only gives you [an approximate d effect size](https://github.com/easystats/effectsize/discussions/617) 
 
 
 We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
@@ -881,45 +863,28 @@ Just note that there is disagreement on how cohen's d should be calculated (e.g.
 
 ```{r}
 # This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
-calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_col_prefix) {
-    # Create an empty list to store effect sizes for each row
-    effect_sizes_list <- vector("list", nrow(dataframe))
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
     
-    # Loop through each row in the dataframe
-    for (i in 1:nrow(dataframe)) {
-        # Extract the t-value and degrees of freedom from the dataframe
-        t_value <- dataframe[[t_col]][i]
-        df <- dataframe[[df_col]][i]
-        
-        # Check if t-value, degrees of freedom are not missing and t-value is not zero
-        if (!is.na(t_value) && !is.na(df) && t_value != 0) {
-            # Calculate Cohen's d effect size using the t-value and degrees of freedom
-            result <- effectsize::t_to_d(t = t_value, df = df)
-        } else {
-            # If any of the required values are missing or t-value is zero, set the result to NULL
-            result <- NULL
-        }
-        
-        # Store the result in the effect_sizes_list
-        effect_sizes_list[[i]] <- result
-    }
-    
-    # Convert the list of effect sizes into a data frame and add column names with the given prefix
-    effect_sizes_df <- do.call(rbind, lapply(effect_sizes_list, as.data.frame))
-    colnames(effect_sizes_df) <- paste(result_col_prefix, colnames(effect_sizes_df), sep = "_")
-    
-    # Combine the original dataframe with the effect size results by column binding (adding new columns)
-    combined_dataframe <- cbind(dataframe, effect_sizes_df)
-    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
     # Rename some columns for clarity
     combined_dataframe <- combined_dataframe %>%
-      rename(d = effect_size_d,
-            d_ci_low = effect_size_CI_low,
-            d_ci_high = effect_size_CI_high,
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
             df_error = df,
             p = p.value)
 
-    
     # Return the combined dataframe with effect size results
     return(combined_dataframe)
 }
@@ -934,7 +899,7 @@ calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_co
 Now we can run `calculate_and_merge_effect_sizes()`:
 
 ```{r}
-flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper_fit)
 
 knitr::kable(flipper_emmeans_contrasts)
 ```
@@ -1999,7 +1964,7 @@ viofade_fact
 # convert estimated marginal mean contrasts to dataframe
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
-flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans_contrasts, "t.ratio", "df", "effect_size")
+flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans, flipper_fact_fit)
 
 
 
