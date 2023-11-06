@@ -834,8 +834,6 @@ So above you can see a variety of variables in this dataset. We will focus on th
 
 One of the major benefits of using R for data visualization is that you can make reproducible workflows where your graphs can incorporate your most up-to-date statistical tests. So, let's run some basic analyses here.
 
-Do note that in R, you need to be [careful with how you specify your sums of squares for ANOVAs](https://stats.stackexchange.com/questions/552451/which-r-functions-are-correct-for-estimating-partial-eta-squared-for-effects-in).
-
 Anova with `stats::aov()` and `car::Anova()`:
 
 
@@ -881,8 +879,6 @@ knitr::kable(flipper_anova)
 
 Since we have a model now, we can extract the pairwise comparisons with `emmeans::emmeans()`:
 
-The particular strength of using estimated marginal means is that it lets us compare levels of our dependent variable, while accounting for the influence of other covariates in the model. Not particularly relevant for a one-way design, but this method is pre-built to visualize the results of an ANCOVA.
-
 
 ```r
 # Extract estimated marginal means
@@ -895,10 +891,8 @@ flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
 ```
 
+As a bonus, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
 
-As a tangential note, you can also convert emmeans pairwise comparisons into cohen's d, using `effectsize::t_to_d()`:
-
-Just note that there is disagreement on how cohen's d should be calculated (e.g., as mentioned [here](https://psychbruce.github.io/bruceR/reference/EMMEANS.html))
 
 We can make a custom function `calculate_and_merge_effect_sizes()` to loop across our rows and compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe:
 
@@ -906,6 +900,15 @@ We can make a custom function `calculate_and_merge_effect_sizes()` to loop acros
 
 <details>
 <summary> <b> Click here if you want to see the script for `calculate_and_merge_effect_sizes()`!</b> </summary>
+
+Do note that in R, you need to be [careful with how you specify your sums of squares for ANOVAs](https://stats.stackexchange.com/questions/552451/which-r-functions-are-correct-for-estimating-partial-eta-squared-for-effects-in), see [Andy Field's text companion for some r code examples](https://www.discovr.rocks/solutions/code/code_11/#fit-the-model), and [UCLA's library of contrast coding](https://stats.oarc.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/), and [Maarten Speekenbrink's companion text](https://mspeekenbrink.github.io/sdam-r-companion/factorial-anova.html#formulating-estimating-and-testing-a-factorial-anova), and any other discussions [online](https://www.r-bloggers.com/2011/03/anova-%E2%80%93-type-iiiiii-ss-explained/) .
+
+The particular strength of using estimated marginal means is that it lets us compare levels of our dependent variable, while accounting for the influence of other covariates in the model. Not particularly relevant for a one-way design, but this method is pre-built to visualize the results of an ANCOVA.
+
+These t-tests, and any downstream standardized mean difference stats are [based on the pooled residual standard deviation](https://cran.r-project.org/web/packages/emmeans/vignettes/FAQs.html#nowelch).
+
+Just note that there is disagreement on how cohen's d should be calculated (e.g., as mentioned [here](https://psychbruce.github.io/bruceR/reference/EMMEANS.html)). 
+
 
 
 ```r
@@ -923,7 +926,7 @@ calculate_and_merge_effect_sizes <- function(dataframe, t_col, df_col, result_co
         # Check if t-value, degrees of freedom are not missing and t-value is not zero
         if (!is.na(t_value) && !is.na(df) && t_value != 0) {
             # Calculate Cohen's d effect size using the t-value and degrees of freedom
-            result <- t_to_d(t = t_value, df = df)
+            result <- effectsize::t_to_d(t = t_value, df = df)
         } else {
             # If any of the required values are missing or t-value is zero, set the result to NULL
             result <- NULL
