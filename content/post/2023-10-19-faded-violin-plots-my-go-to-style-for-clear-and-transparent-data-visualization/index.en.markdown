@@ -834,6 +834,8 @@ So above you can see a variety of variables in this dataset. We will focus on th
 
 One of the major benefits of using R for data visualization is that you can make reproducible workflows where your graphs can incorporate your most up-to-date statistical tests. So, let's run some basic analyses here.
 
+Do note that in R, you need to be [careful with how you specify your sums of squares for ANOVAs](https://stats.stackexchange.com/questions/552451/which-r-functions-are-correct-for-estimating-partial-eta-squared-for-effects-in).
+
 Anova with `stats::aov()` and `car::Anova()`:
 
 
@@ -2072,6 +2074,7 @@ flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
                                              )
 
 flipper_fact_anova <- data.frame(flipper_fact_anova)
+flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
 
 flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
 flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
@@ -2086,13 +2089,12 @@ knitr::kable(flipper_fact_anova)
 
 
 
-|            |      Sum.Sq|  Df|   F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
-|:-----------|-----------:|---:|---------:|------:|-----------:|-----------:|-----:|
-|(Intercept) | 2574475.082|   1| 80497.682|  0.000|       0.619|       0.715| 0.672|
-|species     |   21415.629|   2|   334.808|  0.000|       0.026|       0.128| 0.069|
-|sex         |     777.870|   1|    24.322|  0.000|       0.003|       0.073| 0.031|
-|species:sex |     329.042|   2|     5.144|  0.006|          NA|          NA|    NA|
-|Residuals   |   10458.107| 327|        NA|     NA|          NA|          NA|    NA|
+|            |    Sum.Sq|  Df| F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
+|:-----------|---------:|---:|-------:|------:|-----------:|-----------:|-----:|
+|species     | 21415.629|   2| 334.808|  0.000|       0.619|       0.715| 0.672|
+|sex         |   777.870|   1|  24.322|  0.000|       0.026|       0.128| 0.069|
+|species:sex |   329.042|   2|   5.144|  0.006|       0.003|       0.073| 0.031|
+|Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
 
 
 ## Vizualize the Factorial Data
