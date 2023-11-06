@@ -798,6 +798,11 @@ One of the major benefits of using R for data visualization is that you can make
 Anova with `stats::aov()` and `car::Anova()`:
 
 ```{r}
+# Setting contrasts
+contrasts(df$species) <- contr.sum
+
+contrasts(df$sex) <- contr.sum
+
 # Fit data
 flipper_fit <- stats::aov(flipper ~ species, data = df)
 # Run anova
@@ -1842,6 +1847,7 @@ knitr::kable(flipper_fact_summary)
 
 
 ```{r}
+
 # Fit data
 flipper_fact_fit <- stats::aov(flipper ~ species*sex, data = df)
 # Run anova

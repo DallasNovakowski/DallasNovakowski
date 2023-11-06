@@ -820,6 +820,11 @@ Anova with `stats::aov()` and `car::Anova()`:
 
 
 ```r
+# Setting contrasts
+contrasts(df$species) <- contr.sum
+
+contrasts(df$sex) <- contr.sum
+
 # Fit data
 flipper_fit <- stats::aov(flipper ~ species, data = df)
 # Run anova
@@ -2056,8 +2061,8 @@ knitr::kable(flipper_fact_anova)
 
 |            |    Sum.Sq|  Df| F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
 |:-----------|---------:|---:|-------:|------:|-----------:|-----------:|-----:|
-|species     | 21415.629|   2| 334.808|  0.000|       0.619|       0.715| 0.672|
-|sex         |   777.870|   1|  24.322|  0.000|       0.026|       0.128| 0.069|
+|species     | 50075.839|   2| 782.876|  0.000|       0.798|       0.851| 0.827|
+|sex         |  3902.420|   1| 122.019|  0.000|       0.195|       0.347| 0.272|
 |species:sex |   329.042|   2|   5.144|  0.006|       0.003|       0.073| 0.031|
 |Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
 
