@@ -2256,6 +2256,8 @@ Not exactly the amount of information I would put in the graph, but you can real
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-44-1.png" width="672" />
 
 
+Hopefully by the time you are reading [this question will be answered](https://stats.stackexchange.com/questions/630610/partial-eta-square-values-summing-to-greater-than-1)
+
 </details>
 
 # Now Compare Just Two Groups
