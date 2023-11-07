@@ -795,6 +795,8 @@ So above you can see a variety of variables in this dataset. We will focus on th
 
 One of the major benefits of using R for data visualization is that you can make reproducible workflows where your graphs can incorporate your most up-to-date statistical tests. So, let's run some basic analyses here.
 
+## ANOVA
+
 Do note that you need to be careful with how you specify your [sums of squares and contrasts for ANOVAs](https://stats.stackexchange.com/questions/552451/which-r-functions-are-correct-for-estimating-partial-eta-squared-for-effects-in), see Andy Field's [text companion](https://www.discovr.rocks/solutions/code/code_11/#fit-the-model) for some r code examples, and UCLA's [library of contrast coding](https://stats.oarc.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/),  Maarten Speekenbrink's [companion text](https://mspeekenbrink.github.io/sdam-r-companion/factorial-anova.html#formulating-estimating-and-testing-a-factorial-anova), Mattan S. Ben-Shachar's [blog](https://blog.msbstats.info/posts/2021-05-25-everything-about-anova/#centering), and many other discussions [online](https://www.r-bloggers.com/2011/03/anova-%E2%80%93-type-iiiiii-ss-explained/).
 
 
@@ -811,6 +813,8 @@ flipper_fit <- stats::aov(flipper ~ species, data = df)
 # Run anova
 flipper_anova <- car::Anova(flipper_fit)
 ```
+
+## Eta Square
 
 Calculate effect sizes with `effectsize::eta_squared()`, and import them into the ANOVA table:
 
@@ -835,19 +839,81 @@ flipper_anova <- flipper_anova %>%
 knitr::kable(flipper_anova)
 ```
 
-## Pairwise Comparisons, With Effect Sizes
+## Compute Estimated Marginal Means
 
-Since we have a model now, we can extract the pairwise comparisons with `emmeans::emmeans()`:
+Since we have a model now, we can extract the estimated marginal means with `emmeans::emmeans()`:
 
 ```{r}
 # Extract estimated marginal means
 flipper_emmeans <- emmeans::emmeans(flipper_fit, specs = pairwise ~ species)
 
-# convert estimated marginal mean contrasts to dataframe
-flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 
 # Convert estimated marginal means to dataframe
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
+```
+
+
+
+We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+
+
+<details>
+<summary> <b> Click here if you want to see the script for `merge_emmeans_summary()`!</b> </summary>
+
+
+
+```{r}
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
+}
+```
+
+</details>
+
+We can then use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
+
+```{r}
+# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
+flipper_summary <- flipper_summary[order(flipper_summary$species), ]
+flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
+
+# merge dataframes
+flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
+                                                  emmeans_tidy = flipper_emmeans_tidy)
+# Round numeric values
+flipper_summary <- flipper_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_summary)
+```
+
+
+
+
+## Pairwise Comparisons, With Effect Sizes
+
+
+
+```{r}
+# convert estimated marginal mean contrasts to dataframe
+flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
+
 ```
 
 As a bonus, you can also convert emmeans pairwise comparisons into cohen's d. We can make a custom function `calculate_and_merge_effect_sizes()` to compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe, which has raw differences and t-test results:
@@ -906,57 +972,6 @@ knitr::kable(flipper_emmeans_contrasts)
 ```
 
 
-We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
-
-
-<details>
-<summary> <b> Click here if you want to see the script for `merge_emmeans_summary()`!</b> </summary>
-
-
-
-```{r}
-# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
-merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
-    # Add emmeans-related columns to the summary_data
-    
-    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
-    summary_data$emmean <- emmeans_tidy$emmean
-    
-    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
-    summary_data$emmean_se <- emmeans_tidy$SE
-    
-    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
-    summary_data$emmean_loci <- emmeans_tidy$lower.CL
-    
-    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
-    summary_data$emmean_upci <- emmeans_tidy$upper.CL
-    
-    # Return the summary_data with the added emmeans-related columns
-    return(summary_data)
-}
-```
-
-</details>
-
-We can then use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
-
-```{r}
-# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
-flipper_summary <- flipper_summary[order(flipper_summary$species), ]
-flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
-
-# merge dataframes
-flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
-                                                  emmeans_tidy = flipper_emmeans_tidy)
-# Round numeric values
-flipper_summary <- flipper_summary %>%
-  mutate_if(is.numeric, function(x) round(x, 2))
-
-knitr::kable(flipper_summary)
-```
-
-
-
 
 Now we have our analysis data to work with! From here, we can get the data ready to actually work with. To start, we can make a custom function, `report_pval_full()`, that helps us convert p-values to our desired formatting.
 
@@ -994,13 +1009,6 @@ report_pval_full <- function(pval, italicize = TRUE) {
 Create and prepare dataframe for pairwise comparisons
 
 ```{r}
-# convert p-value to non-italicized version (for significance brackets)
-# flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p, italicize = FALSE)
-
-# convert p-value to italicized version (for in-text citations and captioning graph)
-# flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p)
-
-
 flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
   mutate_if(is.numeric, function(x) round(x, 2))
 
@@ -1846,7 +1854,6 @@ knitr::kable(flipper_fact_summary)
 
 
 ```{r}
-
 # Fit data
 flipper_fact_fit <- stats::aov(flipper ~ species*sex, data = df)
 # Run anova
@@ -1855,6 +1862,31 @@ flipper_fact_anova <- car::Anova(flipper_fact_fit,
                                  )
 ```
 
+## Eta Square
+
+Calculate effect sizes with `effectsize::eta_squared()`
+
+```{r}
+flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
+                                             alternative="two.sided"
+                                             )
+
+flipper_fact_anova <- data.frame(flipper_fact_anova)
+flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
+
+flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
+flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
+flipper_fact_anova[1:3,"pes"] <- flipper_fact_anova_pes$Eta2
+
+
+flipper_fact_anova <- flipper_fact_anova %>%
+  dplyr::mutate_if(is.numeric, function(x) round(x, 3))
+
+knitr::kable(flipper_fact_anova)
+```
+
+
+## Estimated Marginal Means
 
 Extract estimated marginal means with `emmeans::emmeans()` and merge with basic summary dataframe with our custom `merge_emmeans_summary()` function:
 
@@ -1883,26 +1915,6 @@ flipper_fact_summary <- flipper_fact_summary %>%
 knitr::kable(flipper_fact_summary)
 ```
 
-Calculate effect sizes with `effectsize::eta_squared()`
-
-```{r}
-flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
-                                             alternative="two.sided"
-                                             )
-
-flipper_fact_anova <- data.frame(flipper_fact_anova)
-flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
-
-flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
-flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
-flipper_fact_anova[1:3,"pes"] <- flipper_fact_anova_pes$Eta2
-
-
-flipper_fact_anova <- flipper_fact_anova %>%
-  dplyr::mutate_if(is.numeric, function(x) round(x, 3))
-
-knitr::kable(flipper_fact_anova)
-```
 
 
 ## Vizualize the Factorial Data
@@ -1960,6 +1972,7 @@ viofade_fact <- ggplot(data = df,
 viofade_fact
 ```
 
+## Pairwise Comparisons
 
 ```{r}
 
@@ -1967,14 +1980,6 @@ viofade_fact
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
 flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans, flipper_fact_fit)
-
-
-
-# convert p-value to non-italicized version (for significance brackets)
-# flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p, italicize = FALSE)
-
-# convert p-value to italicized version (for in-text citations and captioning graph)
-# flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p)
 
 
 flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%

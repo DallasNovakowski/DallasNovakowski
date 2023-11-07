@@ -816,6 +816,8 @@ So above you can see a variety of variables in this dataset. We will focus on th
 
 One of the major benefits of using R for data visualization is that you can make reproducible workflows where your graphs can incorporate your most up-to-date statistical tests. So, let's run some basic analyses here.
 
+## ANOVA
+
 Do note that you need to be careful with how you specify your [sums of squares and contrasts for ANOVAs](https://stats.stackexchange.com/questions/552451/which-r-functions-are-correct-for-estimating-partial-eta-squared-for-effects-in), see Andy Field's [text companion](https://www.discovr.rocks/solutions/code/code_11/#fit-the-model) for some r code examples, and UCLA's [library of contrast coding](https://stats.oarc.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/),  Maarten Speekenbrink's [companion text](https://mspeekenbrink.github.io/sdam-r-companion/factorial-anova.html#formulating-estimating-and-testing-a-factorial-anova), Mattan S. Ben-Shachar's [blog](https://blog.msbstats.info/posts/2021-05-25-everything-about-anova/#centering), and many other discussions [online](https://www.r-bloggers.com/2011/03/anova-%E2%80%93-type-iiiiii-ss-explained/).
 
 
@@ -833,6 +835,8 @@ flipper_fit <- stats::aov(flipper ~ species, data = df)
 # Run anova
 flipper_anova <- car::Anova(flipper_fit)
 ```
+
+## Eta Square
 
 Calculate effect sizes with `effectsize::eta_squared()`, and import them into the ANOVA table:
 
@@ -865,20 +869,92 @@ knitr::kable(flipper_anova)
 |species   | 50525.88|   2|  567.41|      0|        0.74|         0.8| 0.77|
 |Residuals | 14692.75| 330|      NA|     NA|        0.74|         0.8| 0.77|
 
-## Pairwise Comparisons, With Effect Sizes
+## Compute Estimated Marginal Means
 
-Since we have a model now, we can extract the pairwise comparisons with `emmeans::emmeans()`:
+Since we have a model now, we can extract the estimated marginal means with `emmeans::emmeans()`:
 
 
 ```r
 # Extract estimated marginal means
 flipper_emmeans <- emmeans::emmeans(flipper_fit, specs = pairwise ~ species)
 
-# convert estimated marginal mean contrasts to dataframe
-flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 
 # Convert estimated marginal means to dataframe
 flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
+```
+
+
+
+We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
+
+
+<details>
+<summary> <b> Click here if you want to see the script for `merge_emmeans_summary()`!</b> </summary>
+
+
+
+
+```r
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
+}
+```
+
+</details>
+
+We can then use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
+
+
+```r
+# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
+flipper_summary <- flipper_summary[order(flipper_summary$species), ]
+flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
+
+# merge dataframes
+flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
+                                                  emmeans_tidy = flipper_emmeans_tidy)
+# Round numeric values
+flipper_summary <- flipper_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_summary)
+```
+
+
+
+|species   |   mean| min| max|   n| std_dev|   se| y25| y50| y75|   loci|   upci| emmean| emmean_se| emmean_loci| emmean_upci|
+|:---------|------:|---:|---:|---:|-------:|----:|---:|---:|---:|------:|------:|------:|---------:|-----------:|-----------:|
+|Adelie    | 190.10| 172| 210| 146|    6.52| 0.54| 186| 190| 195| 189.04| 191.16| 190.10|      0.55|      189.02|      191.19|
+|Chinstrap | 195.82| 178| 212|  68|    7.13| 0.86| 191| 196| 201| 194.11| 197.49| 195.82|      0.81|      194.23|      197.42|
+|Gentoo    | 217.24| 203| 231| 119|    6.59| 0.60| 212| 216| 222| 216.02| 218.38| 217.24|      0.61|      216.03|      218.44|
+
+
+
+
+## Pairwise Comparisons, With Effect Sizes
+
+
+
+
+```r
+# convert estimated marginal mean contrasts to dataframe
+flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
 ```
 
 As a bonus, you can also convert emmeans pairwise comparisons into cohen's d. We can make a custom function `calculate_and_merge_effect_sizes()` to compute cohen's d for each comparison, then merge the effect sizes in our `flipper_emmeans_contrasts` dataframe, which has raw differences and t-test results:
@@ -945,67 +1021,6 @@ knitr::kable(flipper_emmeans_contrasts)
 |Chinstrap - Gentoo | -21.41176| 1.0143492|      330| -21.10887|  0| -3.2089123| 0.1967510| -3.595956| -2.8218680|
 
 
-We can also make a custom function, `merge_emmeans_summary()`, to merge summary and emmeans. Particularly useful for multivariate analyses:
-
-
-<details>
-<summary> <b> Click here if you want to see the script for `merge_emmeans_summary()`!</b> </summary>
-
-
-
-
-```r
-# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
-merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
-    # Add emmeans-related columns to the summary_data
-    
-    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
-    summary_data$emmean <- emmeans_tidy$emmean
-    
-    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
-    summary_data$emmean_se <- emmeans_tidy$SE
-    
-    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
-    summary_data$emmean_loci <- emmeans_tidy$lower.CL
-    
-    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
-    summary_data$emmean_upci <- emmeans_tidy$upper.CL
-    
-    # Return the summary_data with the added emmeans-related columns
-    return(summary_data)
-}
-```
-
-</details>
-
-We can then use `merge_emmeans_summary()` to combine with our basic `flipper_summary` into a single model-enhanced dataframe:
-
-
-```r
-# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
-flipper_summary <- flipper_summary[order(flipper_summary$species), ]
-flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
-
-# merge dataframes
-flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
-                                                  emmeans_tidy = flipper_emmeans_tidy)
-# Round numeric values
-flipper_summary <- flipper_summary %>%
-  mutate_if(is.numeric, function(x) round(x, 2))
-
-knitr::kable(flipper_summary)
-```
-
-
-
-|species   |   mean| min| max|   n| std_dev|   se| y25| y50| y75|   loci|   upci| emmean| emmean_se| emmean_loci| emmean_upci|
-|:---------|------:|---:|---:|---:|-------:|----:|---:|---:|---:|------:|------:|------:|---------:|-----------:|-----------:|
-|Adelie    | 190.10| 172| 210| 146|    6.52| 0.54| 186| 190| 195| 189.04| 191.16| 190.10|      0.55|      189.02|      191.19|
-|Chinstrap | 195.82| 178| 212|  68|    7.13| 0.86| 191| 196| 201| 194.11| 197.49| 195.82|      0.81|      194.23|      197.42|
-|Gentoo    | 217.24| 203| 231| 119|    6.59| 0.60| 212| 216| 222| 216.02| 218.38| 217.24|      0.61|      216.03|      218.44|
-
-
-
 
 Now we have our analysis data to work with! From here, we can get the data ready to actually work with. To start, we can make a custom function, `report_pval_full()`, that helps us convert p-values to our desired formatting.
 
@@ -1045,13 +1060,6 @@ Create and prepare dataframe for pairwise comparisons
 
 
 ```r
-# convert p-value to non-italicized version (for significance brackets)
-# flipper_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_emmeans_contrasts$p, italicize = FALSE)
-
-# convert p-value to italicized version (for in-text citations and captioning graph)
-# flipper_emmeans_contrasts$p.value <- report_pval_full(flipper_emmeans_contrasts$p)
-
-
 flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
   mutate_if(is.numeric, function(x) round(x, 2))
 
@@ -1163,7 +1171,7 @@ canvas <- ggplot(data = df, # specify the dataframe that we want to pull variabl
 canvas 
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 We specify `cowplot::theme_half_open()` at this early stage because we want to override some arguments in this theme with some new elements later on:
 
@@ -1175,7 +1183,7 @@ canvas <-  canvas +
 canvas # display our blank canvas
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-18-1.png" width="672" />
  <!-- +     ## set max for y-axis -->
 
 ## Add Mean and 95% CI
@@ -1200,7 +1208,7 @@ canvas + # this is our previously-defined canvas object, it passes the appropria
                       ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
 
 ## Adding Density Slab
@@ -1222,7 +1230,7 @@ canvas  +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 You can see the y-axis stretches far higher and lower (170 - 230) than it did previously (190 - ~210). The major strength of this density slab method is that it visualizes the spread and skew of the data, which by default forces us to visualize the entire range of observations. 
 
@@ -1246,7 +1254,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="672" />
 
 ## Fade and Style the Violin Plot
 
@@ -1271,7 +1279,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 
 Instead of using boxplots, I like to fade my violins according to their quantile grouping. I find it makes the violin more informative, and has less visual clutter compared to the boxplot. We add the fading by modifying `ggdist::stat_slab()` with the argument, `fill_ramp = stat(level)`:
@@ -1291,7 +1299,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 
 You can see by the legend that the fading matches to the inner 66% of the data, then the inner 95%, with no fading at the outer 5%. The inner 66% of the data holds no special meaning to me. I find that the inner/outer 50% is more intuitive, and directly translates to the commonly-used boxplot. 
 
@@ -1316,7 +1324,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
 The violins are quite wide, let's adjust their widths using `scale = .4`.
 
@@ -1337,7 +1345,7 @@ canvas +
                   ))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 The fading quantiles are probably better discussed orally or as a figure note, not being directly relevant to any statistical tests. We can get rid of the legend element for fading quantiles with `guides(fill_ramp = "none")`. Here, we also assign this ggplot to a new object, `viofade`, so we can see new code additions in the chunks more easily:
 
@@ -1361,7 +1369,7 @@ viofade <- canvas +
 viofade
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-26-1.png" width="672" />
 
 This is a satisfactory version of the complete viofade, but like any makeover, there is more styling we can do.
 
@@ -1383,7 +1391,7 @@ viofade +
             vjust = 5)
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 ```r
 # You could use this function if you want:
@@ -1419,7 +1427,7 @@ viofade_text <- viofade +
 viofade_text
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 ## Adding Test Statistics
 
@@ -1493,7 +1501,7 @@ viofade_text +
   labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 By default, ggplot doesn't allow markdown styling, so we have weird stars instead of our desired formatting. We can enable markdown styling in the subtitle by using `theme(plot.subtitle = ggtext::element_markdown())`:
 
@@ -1506,7 +1514,7 @@ viofade_text_stats <- viofade_text +
 viofade_text_stats
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 We can also customize our anova extraction function, `report_tidy_anova_etaci()` to show less information in the subtitle.
 
@@ -1520,7 +1528,7 @@ viofade_text +
   theme(plot.subtitle = ggtext::element_markdown())
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 ## Add Significance Brackets
 
@@ -1548,7 +1556,7 @@ viofade_text_stats_bracket1 <- viofade_text_stats +
 viofade_text_stats_bracket1
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 You can also add some additional text to the labels for your significance brackets using `ggpubr::geom_bracket(..., label = paste0(...))`
 
@@ -1583,7 +1591,7 @@ viofade_text_stats_bracket2 +
   xlab("Species")
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 
 <br>
@@ -1691,7 +1699,7 @@ shadeplot <- fresh_canvas +
 shadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 ```r
 faded_dotplot <- fresh_canvas +
@@ -1715,7 +1723,7 @@ faded_dotplot <- fresh_canvas +
 faded_dotplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-2.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-2.png" width="672" />
 
 ```r
 fadecloud <- fresh_canvas + 
@@ -1745,7 +1753,7 @@ fadecloud <- fresh_canvas +
 fadecloud
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-3.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-3.png" width="672" />
 
 ```r
 vioshadeplot <- fresh_canvas +
@@ -1817,7 +1825,7 @@ vioshadeplot <- fresh_canvas +
 vioshadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-4.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-4.png" width="672" />
 
 ```r
 viofade_dotplot <- fresh_canvas +
@@ -1884,7 +1892,7 @@ viofade_dotplot <- fresh_canvas +
 viofade_dotplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-5.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-5.png" width="672" />
 
 ```r
 internal_shadeplot <- fresh_canvas +
@@ -1933,7 +1941,7 @@ internal_shadeplot <- fresh_canvas +
 internal_shadeplot
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-35-6.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-36-6.png" width="672" />
 
 
 </details>
@@ -1994,6 +2002,41 @@ flipper_fact_anova <- car::Anova(flipper_fact_fit,
                                  )
 ```
 
+## Eta Square
+
+Calculate effect sizes with `effectsize::eta_squared()`
+
+
+```r
+flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
+                                             alternative="two.sided"
+                                             )
+
+flipper_fact_anova <- data.frame(flipper_fact_anova)
+flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
+
+flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
+flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
+flipper_fact_anova[1:3,"pes"] <- flipper_fact_anova_pes$Eta2
+
+
+flipper_fact_anova <- flipper_fact_anova %>%
+  dplyr::mutate_if(is.numeric, function(x) round(x, 3))
+
+knitr::kable(flipper_fact_anova)
+```
+
+
+
+|            |    Sum.Sq|  Df| F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
+|:-----------|---------:|---:|-------:|------:|-----------:|-----------:|-----:|
+|species     | 50075.839|   2| 782.876|  0.000|       0.798|       0.851| 0.827|
+|sex         |  3902.420|   1| 122.019|  0.000|       0.195|       0.347| 0.272|
+|species:sex |   329.042|   2|   5.144|  0.006|       0.003|       0.073| 0.031|
+|Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
+
+
+## Estimated Marginal Means
 
 Extract estimated marginal means with `emmeans::emmeans()` and merge with basic summary dataframe with our custom `merge_emmeans_summary()` function:
 
@@ -2034,36 +2077,6 @@ knitr::kable(flipper_fact_summary)
 |Gentoo    |female | 212.71| 203| 222| 58|    3.90| 0.51| 210| 212| 215| 211.70| 213.70| 212.71|      0.74|      211.25|      214.17|
 |Gentoo    |male   | 221.54| 208| 231| 61|    5.67| 0.73| 218| 221| 225| 220.07| 222.93| 221.54|      0.72|      220.12|      222.97|
 
-Calculate effect sizes with `effectsize::eta_squared()`
-
-
-```r
-flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
-                                             alternative="two.sided"
-                                             )
-
-flipper_fact_anova <- data.frame(flipper_fact_anova)
-flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
-
-flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
-flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
-flipper_fact_anova[1:3,"pes"] <- flipper_fact_anova_pes$Eta2
-
-
-flipper_fact_anova <- flipper_fact_anova %>%
-  dplyr::mutate_if(is.numeric, function(x) round(x, 3))
-
-knitr::kable(flipper_fact_anova)
-```
-
-
-
-|            |    Sum.Sq|  Df| F.value| Pr..F.| pes_ci95_lo| pes_ci95_hi|   pes|
-|:-----------|---------:|---:|-------:|------:|-----------:|-----------:|-----:|
-|species     | 50075.839|   2| 782.876|  0.000|       0.798|       0.851| 0.827|
-|sex         |  3902.420|   1| 122.019|  0.000|       0.195|       0.347| 0.272|
-|species:sex |   329.042|   2|   5.144|  0.006|       0.003|       0.073| 0.031|
-|Residuals   | 10458.107| 327|      NA|     NA|          NA|          NA|    NA|
 
 
 ## Vizualize the Factorial Data
@@ -2122,8 +2135,9 @@ viofade_fact <- ggplot(data = df,
 viofade_fact
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-41-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-42-1.png" width="672" />
 
+## Pairwise Comparisons
 
 
 ```r
@@ -2131,14 +2145,6 @@ viofade_fact
 flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
 
 flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans, flipper_fact_fit)
-
-
-
-# convert p-value to non-italicized version (for significance brackets)
-# flipper_fact_emmeans_contrasts$p_no_it <-  report_pval_full(flipper_fact_emmeans_contrasts$p, italicize = FALSE)
-
-# convert p-value to italicized version (for in-text citations and captioning graph)
-# flipper_fact_emmeans_contrasts$p.value <- report_pval_full(flipper_fact_emmeans_contrasts$p)
 
 
 flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%
@@ -2233,7 +2239,7 @@ viofade_fact_bracket <- viofade_fact +
 viofade_fact_bracket
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-43-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-44-1.png" width="672" />
 
 
 <details>
@@ -2253,7 +2259,7 @@ Not exactly the amount of information I would put in the graph, but you can real
   theme(plot.subtitle = ggtext::element_markdown(size = 10))
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-44-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-45-1.png" width="672" />
 
 
 Hopefully by the time you are reading [this question will be answered](https://stats.stackexchange.com/questions/630610/partial-eta-square-values-summing-to-greater-than-1)
@@ -2344,7 +2350,7 @@ ggplot(data = df, # specify the dataframe that we want to pull variables from
   xlab("Sex") # change x-axis label
 ```
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-47-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-48-1.png" width="672" />
 
 
 
