@@ -5,7 +5,7 @@ author: Dallas Novakowski
 date: '2023-10-19'
 slug: faded-violin-plots-my-go-to-style-for-clear-and-transparent-data-visualization
 summary: "This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report. This post is sectioned out piece-by-piece to better demonstrate the impacts of each function and argument for ggplot, and also incorporates statistical hypothesis tests."
-description: "A beginner tutorial for making data graphs and plots in ggplot2 and ggdist, moving beyond barplots, dynamite plots, boxplots, and even rainplots. This guide shows how to include significance brackets, p-values, effect sizes, violin plots, and statistical tests in the data visualization."
+description: "A beginner ggplot tutorial for making data graphs and plots in ggplot2 and ggdist for experimental design. Moving beyond barplots, dynamite plots, boxplots, and even rainplots. This guide shows how to include significance brackets, p-values, effect sizes, violin plots, and statistical tests in the data visualization."
 categories: []
 tags: 
   - raincloud
