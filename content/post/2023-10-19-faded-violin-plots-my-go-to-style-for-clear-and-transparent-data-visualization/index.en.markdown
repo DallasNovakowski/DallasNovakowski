@@ -5,7 +5,7 @@ author: Dallas Novakowski
 date: '2023-10-19'
 slug: faded-violin-plots-my-go-to-style-for-clear-and-transparent-data-visualization
 summary: "This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report. This post is sectioned out piece-by-piece to better demonstrate the impacts of each function and argument for ggplot, and also incorporates statistical hypothesis tests."
-
+description: "A beginner tutorial for making data graphs and plots in ggplot2 and ggdist, moving beyond barplots, dynamite plots, boxplots, and even rainplots. This guide shows how to include significance brackets, p-values, effect sizes, violin plots, and statistical tests in the data visualization."
 categories: []
 tags: 
   - raincloud
@@ -2174,6 +2174,7 @@ knitr::kable(flipper_fact_emmeans_contrasts)
 |Chinstrap male - Gentoo male      |   -21.63| 1.21|      327|  -17.87| 0.00| -3.82| 0.26|    -4.34|     -3.31|
 
 
+Note that `emmeans::emmeans()` automatically applies Tukey adjustments for multiple comparisons, so with many different contrasts, your statistical power will be far lower. See Ariel Muldoon's guide for [specifying custom and planned contrasts in `emmeans::emmeans()`](https://aosmith.rbind.io/2019/04/15/custom-contrasts-emmeans/).
 
 
 ```r
@@ -2391,7 +2392,7 @@ Kassambara A (2023). _ggpubr: 'ggplot2' Based Publication Ready Plots_. R packag
  
 Kay M (2023). _ggdist: Visualizations of Distributions and Uncertainty_. doi: 10.5281/zenodo.3879620 (URL: https://doi.org/10.5281/zenodo.3879620), R package version 3.3.0, <URL: https://mjskay.github.io/ggdist/>.
  
-Lenth R (2023). _emmeans: Estimated Marginal Means, aka Least-Squares Means_. R package version 1.8.6, <URL: https://CRAN.R-project.org/package=emmeans>.
+Lenth R (2023). _emmeans: Estimated Marginal Means, aka Least-Squares Means_. R package version 1.8.9, <URL: https://CRAN.R-project.org/package=emmeans>.
  
 Makowski D, Lüdecke D, Patil I, Thériault R, Ben-Shachar M, Wiernik B (2023). "Automated Results Reporting as a Practical Tool to Improve Reproducibility and Methodological Best Practices Adoption." _CRAN_. <URL: https://easystats.github.io/report/>.
  
@@ -2426,3 +2427,1449 @@ Wilke C (2020). _cowplot: Streamlined Plot Theme and Plot Annotations for 'ggplo
 Wilke C, Wiernik B (2022). _ggtext: Improved Text Rendering Support for 'ggplot2'_. R package version 0.1.2, <URL: https://CRAN.R-project.org/package=ggtext>.
 
 ![](see_nothing.gif)
+
+## Code Dump
+
+<details>
+<summary> <b> Click here to see absolutely all the code in this post:</b> </summary>
+
+
+
+
+
+
+
+
+
+```r
+# Load-packages ------------------------------------------------------------------
+
+library(palmerpenguins) # dataset
+library(cowplot) #  publication-ready plots
+library(tidyverse) # ggplot and tidy functions
+library(ggdist) # density slabs
+library(EnvStats) # stat_n_text() for inserting sample sizes
+library(ggtext) # formatting text elements with markdown syntax
+library(afex) # anova functions
+library(car) # anova functions
+library(emmeans) # estimated marginal means and pairwise comparisons
+library(effectsize) # effect sizes
+library(ggpubr) # significance brackets
+library(weights) # rounding values
+library(report) # for citing packages
+library(janitor) #for cleaning variable names
+library(ggpp) # for position_dodge2nudge
+
+# Define color palette
+nova_palette <- c("#78AAA9", "#FFDB6E")
+
+
+# define functions -----------------------------------------------------------
+
+# This function generates a summary table with various statistics for the specified grouping variables and dependent variable.
+make_summary <- function(data, dv, grouping1, grouping2, grouping3){
+  # Use dplyr to group the data by the specified grouping variables and calculate summary statistics
+  
+  data %>%
+    group_by({{grouping1}}, {{grouping2}}, {{grouping3}}) %>% # Group by the specified variables
+    dplyr::summarise(
+      mean = round(mean({{dv}}), 2), # Calculate and round the mean of the dependent variable
+      min = round(min({{dv}}), 2),   # Calculate and round the minimum
+      max = round(max({{dv}}), 2),   # Calculate and round the maximum
+      n = n(),                       # Count the number of observations
+      std_dev = round(sd({{dv}}), 2), # Calculate and round the standard deviation
+      se = round(sd({{dv}}) / sqrt(n()), 2), # Calculate and round the standard error
+      y25 = round(quantile({{dv}}, 0.25)),  # Calculate and round the 25th percentile
+      y50 = round(median({{dv}})),         # Calculate and round the median (50th percentile)
+      y75 = round(quantile({{dv}}, 0.75)),  # Calculate and round the 75th percentile
+      loci = round(mean({{dv}}), 1) - 1.96 * se, # Calculate and round the lower confidence interval
+      upci = round(mean({{dv}}), 1) + 1.96 * se  # Calculate and round the upper confidence interval
+    )
+}
+
+
+#We can make a custom function calculate_and_merge_effect_sizes() to loop compute cohen’s d for each comparison, then merge the effect sizes in our flipper_emmeans_contrasts dataframe:
+
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
+    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
+    # Rename some columns for clarity
+    combined_dataframe <- combined_dataframe %>%
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
+            df_error = df,
+            p = p.value)
+
+    # Return the combined dataframe with effect size results
+    return(combined_dataframe)
+}
+
+# Make a custom function, merge_emmeans_summary(), to merge summary and emmeans. Particularly useful for multivariate analyses:
+
+#merging regular summary stats with emmeans
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
+}
+
+
+# This function generates a text summary based on user-specified options using a tidy t-test dataframe.
+report_tidy_t <- function(tidy_frame, 
+                          italicize = TRUE, 
+                          ci = TRUE, 
+                          ci.lab = TRUE, 
+                          test.stat = FALSE, 
+                          point = TRUE, 
+                          pval = TRUE, 
+                          pval_comma = TRUE
+){
+  # Initialize an empty string to store the result text
+  text <- ""
+  
+  # Conditionally add effect size (d) to the result text
+  if (point == TRUE) {
+    text <- paste0(text,
+      ifelse(italicize == TRUE, "*d* = ", "d = "), # Italicized or not
+      round(tidy_frame$d, 2) # Rounded d value
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]"), # Label and rounded CI values
+        paste0(" [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]") # Only rounded CI values
+      )
+    )
+  }
+  
+  # Conditionally add t-statistic and degrees of freedom to the result text
+  if (test.stat == TRUE) {
+    text <- paste0(text,
+      ", *t*(", round(tidy_frame$df_error, 2), ") = ", round(tidy_frame$t, 2) # t-statistic and df
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ifelse(pval_comma == TRUE,
+        ifelse(italicize == TRUE, ", *p* ", ", p "), 
+        ifelse(italicize == TRUE, "*p* ", "p ")  # Italicized or not
+      ),
+      ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, 
+                 paste("=", tidy_frame$p %>% round(2)), 
+                 paste("=", tidy_frame$p %>% round(3))
+                 )
+        )
+    )
+  }
+  
+  # Return the generated text summary
+  return(text)
+}
+
+
+# This function formats a p-value and optionally italicizes it for reporting.
+report_pval_full <- function(pval, italicize = TRUE) {
+  # Check if the p-value is less than .001
+  if (pval < .001) {
+    # If p-value is very small, format it as "*p* < .001" (with or without italics)
+    result <- ifelse(italicize == TRUE, "*p* < .001", "p < .001")
+  } else {
+    # If p-value is not very small, format it as "*p* = " with either 2 or 3 decimal places
+    if (pval >= .01) {
+      # Use 2 decimal places for p-values >= .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 2)) # Append the formatted p-value
+    } else {
+      # Use 3 decimal places for p-values less than .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 3)) # Append the formatted p-value
+    }
+  }
+  
+  # Return the formatted p-value
+  return(result)
+}
+
+
+
+# This function generates a text summary of ANOVA results based on user-specified options.
+report_tidy_anova_etaci <- function(tidy_frame, # Your tidy ANOVA dataframe
+                                    term, # The predictor in your tidy ANOVA dataframe
+                                    effsize = TRUE, # Display the effect size
+                                    ci95 = TRUE, # Display the 95% CI
+                                    ci.lab = TRUE, # Display the "95% CI" label
+                                    teststat = TRUE, # Display the F-score and degrees of freedom
+                                    pval = TRUE # Display the p-value
+                                    ){
+  # Initialize an empty string to store the result text
+  text <- ""
+  
+  # Conditionally add effect size (eta square) to the result text
+  if (effsize == TRUE) {
+    text <- paste0(text,
+      "\u03b7^2^ = ", # Unicode for eta square
+      round(as.numeric(tidy_frame[term, "pes"]), 2)
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci95 == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI ["), " ["),   
+      round(as.numeric(tidy_frame[term, "pes_ci95_lo"]), 2), ", ", 
+      round(as.numeric(tidy_frame[term, "pes_ci95_hi"]), 2), "]"
+    )
+  }
+  
+  # Conditionally add F-score and degrees of freedom to the result text
+  if (teststat == TRUE) {
+    text <- paste0(text,
+      ", *F*(", tidy_frame[term, "Df"],
+      ", ", tidy_frame["Residuals", "Df"], ") = ",
+      round(as.numeric(tidy_frame[term, "F.value"], 2))
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ", ",  report_pval_full(tidy_frame[term, "Pr..F."])
+    )
+  }
+  
+  # Return the generated text summary
+  return(text)
+}
+
+
+
+# load-data ------------------------------------------------------------------
+
+# assigns data to a dataframe we call "df"
+df <- palmerpenguins::penguins
+
+# drop rows with missing values
+df <- df[complete.cases(df)==TRUE, ]
+
+df <- rename(df,  flipper = flipper_length_mm)
+
+# peek at the structure of our dataframe 
+str(df)
+
+
+# create summary dataframe --------------------------------------------
+
+# Apply our custom function to create summary dataframe
+flipper_summary <- make_summary(data = df, dv = flipper, grouping1 = species)
+
+# Show summary dataframe in table
+knitr::kable(flipper_summary)
+
+
+# analysis ------------------------------------------------------------------
+
+# Anova with stats::aov() and car::Anova():
+
+# Fit data
+flipper_fit <- stats::aov(flipper ~ species, data = df)
+# Run anova
+flipper_anova <- car::Anova(flipper_fit)
+
+#Calculate effect sizes with effectsize::eta_squared(), and import them into the ANOVA table:
+
+# Extract effect size (partial eta squared) from anova
+flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
+                                             alternative="two.sided",
+                                             verbose = FALSE)
+# Convert anova table into dataframe
+flipper_anova <- data.frame(flipper_anova)
+
+# import effect size estimates and confidence intervals to anova dataframe
+flipper_anova$pes_ci95_lo <- flipper_anova_pes$CI_low
+flipper_anova$pes_ci95_hi <- flipper_anova_pes$CI_high
+flipper_anova$pes <- flipper_anova_pes$Eta2
+
+# round all numeric columns to 2 decimal places
+flipper_anova <- flipper_anova %>%
+  dplyr::mutate_if(is.numeric, function(x) round(x, 2))
+
+# display anova dataframe
+knitr::kable(flipper_anova)
+
+
+# Estimated marginal means --------------------------
+
+# Extract estimated marginal means
+flipper_emmeans <- emmeans::emmeans(flipper_fit, specs = pairwise ~ species)
+
+# convert estimated marginal mean contrasts to dataframe
+flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
+
+# Convert estimated marginal means to dataframe
+flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
+
+
+
+# Use merge_emmeans_summary() to combine with our basic flipper_summary into a single model-enhanced dataframe:
+
+# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
+flipper_summary <- flipper_summary[order(flipper_summary$species), ]
+flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
+
+# merge dataframes
+flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
+                                                  emmeans_tidy = flipper_emmeans_tidy)
+# Round numeric values
+flipper_summary <- flipper_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+flipper_summary
+
+
+
+
+#merge estimated marginal mean contrasts with their effect sizes:
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper_fit)
+
+flipper_emmeans_contrasts
+
+
+
+
+# visualize data -------------------
+
+ggplot(data = df, # specify the dataframe that we want to pull variables from
+       aes(y = flipper, # our dependent/response/outcome variable 
+           x = species  # our grouping/independent/predictor variable
+       )) +  
+  cowplot::theme_half_open() + # nice theme for publication
+  ggdist::stat_slab(side = "both",  # turn from slab to violin
+                    aes(fill_ramp = stat(level)),  # specify shading
+                    fill = nova_palette[1], # specify used to fill violin
+                    .width = c(.50, 1), # specify shading quantiles
+                    scale = .4) + # change size of violin
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))  +   
+  geom_text(data = flipper_summary, aes(x = species, 
+                                        y = mean, 
+                                        label = round(mean,1)),
+            color="black", 
+            size = 2.5, 
+            vjust = 5) +
+  geom_text(data = flipper_summary, 
+            aes(label = paste("n =", n), 
+                y = flipper_summary[which.min(flipper_summary$min),]$mean -
+                  3*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 2, 
+            color = "grey60") +
+  
+  guides(fill_ramp = "none") + # get rid of legend element for fading quantiles
+  labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species")) +
+  theme(plot.subtitle = ggtext::element_markdown()) +
+  ggpubr::geom_bracket( 
+                       tip.length = 0.02, # the downard "tips" of the bracket
+                       vjust = 0, # moves your text label (in this case, the p-value)
+                       xmin = 1, #starting point for the bracket
+                       xmax = 2, # ending point for the bracket
+                       y.position = 220, # vertical location of the bracket
+                       label.size = 2.5, # size of your bracket text
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+  ) + 
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
+    
+    #     label = paste0("My hypothesis, ", 
+    #                report_pval_full(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == 
+    #                                            'Chinstrap - Gentoo', "p"], italicize = FALSE)) 
+    # 
+    )+
+  theme(axis.title = element_text(face="bold")) + 
+  ylab("Flipper length (mm)") +
+  xlab("Species")
+
+
+
+
+ggsave(here::here("figures", "viofade.png"),
+       width=7, height = 3, dpi=700)
+
+library(palmerpenguins) # dataset
+library(cowplot) #  publication-ready plots
+library(tidyverse) # ggplot and tidy functions
+library(ggdist) # density slabs
+library(EnvStats) # stat_n_text() for inserting sample sizes
+library(ggtext) # formatting text elements with markdown syntax
+library(afex) # anova functions
+library(car) # anova functions
+library(emmeans) # estimated marginal means and pairwise comparisons
+library(effectsize) # effect sizes
+library(ggpubr) # significance brackets
+library(weights) # rounding values
+library(report) # for citing packages
+library(janitor) #for cleaning variable names
+library(ggpp) # for position_dodge2nudge
+
+# Define color palette
+nova_palette <- c("#78AAA9", "#FFDB6E")
+# assigns data to a dataframe we call "df"
+df <- palmerpenguins::penguins
+
+# drop rows with missing values
+df <- df[complete.cases(df)==TRUE, ]
+
+df <- rename(df,  flipper = flipper_length_mm)
+
+# peek at the structure of our dataframe 
+str(df)
+# This function generates a summary table with various statistics for the specified grouping variables and dependent variable.
+make_summary <- function(data, dv, grouping1, grouping2, grouping3){
+  # Use dplyr to group the data by the specified grouping variables and calculate summary statistics
+  
+  data %>%
+    group_by({{grouping1}}, {{grouping2}}, {{grouping3}}) %>% # Group by the specified variables
+    dplyr::summarise(
+      mean = round(mean({{dv}}), 2), # Calculate and round the mean of the dependent variable
+      min = round(min({{dv}}), 2),   # Calculate and round the minimum
+      max = round(max({{dv}}), 2),   # Calculate and round the maximum
+      n = n(),                       # Count the number of observations
+      std_dev = round(sd({{dv}}), 2), # Calculate and round the standard deviation
+      se = round(sd({{dv}}) / sqrt(n()), 2), # Calculate and round the standard error
+      y25 = round(quantile({{dv}}, 0.25)),  # Calculate and round the 25th percentile
+      y50 = round(median({{dv}})),         # Calculate and round the median (50th percentile)
+      y75 = round(quantile({{dv}}, 0.75)),  # Calculate and round the 75th percentile
+      loci = round(mean({{dv}}), 1) - 1.96 * se, # Calculate and round the lower confidence interval
+      upci = round(mean({{dv}}), 1) + 1.96 * se  # Calculate and round the upper confidence interval
+    )
+}
+
+# Apply our custom function to create summary dataframe
+flipper_summary <- make_summary(data = df, dv = flipper, grouping1 = species)
+
+# Show summary dataframe in table
+knitr::kable(flipper_summary)
+# Setting contrasts
+contrasts(df$species) <- contr.sum
+
+contrasts(df$sex) <- contr.sum
+
+# Fit data
+flipper_fit <- stats::aov(flipper ~ species, data = df)
+# Run anova
+flipper_anova <- car::Anova(flipper_fit)
+# Extract effect size (partial eta squared) from anova
+flipper_anova_pes <- effectsize::eta_squared(flipper_anova,
+                                             alternative="two.sided",
+                                             verbose = FALSE)
+# Convert anova table into dataframe
+flipper_anova <- data.frame(flipper_anova)
+
+# import effect size estimates and confidence intervals to anova dataframe
+flipper_anova$pes_ci95_lo <- flipper_anova_pes$CI_low
+flipper_anova$pes_ci95_hi <- flipper_anova_pes$CI_high
+flipper_anova$pes <- flipper_anova_pes$Eta2
+
+# round all numeric columns to 2 decimal places
+flipper_anova <- flipper_anova %>%
+  dplyr::mutate_if(is.numeric, function(x) round(x, 2))
+
+# display anova dataframe
+knitr::kable(flipper_anova)
+# Extract estimated marginal means
+flipper_emmeans <- emmeans::emmeans(flipper_fit, specs = pairwise ~ species)
+
+
+# Convert estimated marginal means to dataframe
+flipper_emmeans_tidy <- data.frame(flipper_emmeans$emmeans)
+# This function takes summary data and a tidy emmeans object and adds emmeans-related columns to the summary data
+merge_emmeans_summary <- function(summary_data, emmeans_tidy) {
+    # Add emmeans-related columns to the summary_data
+    
+    # Assign the 'emmean' values from the emmeans_tidy to a new column 'emmean' in summary_data
+    summary_data$emmean <- emmeans_tidy$emmean
+    
+    # Assign the 'SE' values from emmeans_tidy to a new column 'emmean_se' in summary_data
+    summary_data$emmean_se <- emmeans_tidy$SE
+    
+    # Assign the 'lower.CL' values from emmeans_tidy to a new column 'emmean_loci' in summary_data
+    summary_data$emmean_loci <- emmeans_tidy$lower.CL
+    
+    # Assign the 'upper.CL' values from emmeans_tidy to a new column 'emmean_upci' in summary_data
+    summary_data$emmean_upci <- emmeans_tidy$upper.CL
+    
+    # Return the summary_data with the added emmeans-related columns
+    return(summary_data)
+}
+# Order the dataframes based on dependent variables - Not necessary here, but good practice that helps for factorial designs
+flipper_summary <- flipper_summary[order(flipper_summary$species), ]
+flipper_emmeans_tidy <- flipper_emmeans_tidy[order(flipper_emmeans_tidy$species), ]
+
+# merge dataframes
+flipper_summary <- merge_emmeans_summary(summary_data = flipper_summary,
+                                                  emmeans_tidy = flipper_emmeans_tidy)
+# Round numeric values
+flipper_summary <- flipper_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_summary)
+# convert estimated marginal mean contrasts to dataframe
+flipper_emmeans_contrasts <- data.frame(flipper_emmeans$contrasts)
+
+# This function takes a dataframe, a column name for t-values, a column name for degrees of freedom, and a prefix for result column names.
+calculate_and_merge_effect_sizes <- function(emmeans, model) {
+    
+  contrasts <- data.frame(emmeans$contrasts)
+
+  emmean_d <- data.frame(emmeans::eff_size(
+    emmeans,
+    method = "pairwise",
+    sigma = sigma(model),
+    edf = df.residual(model)))
+  
+ combined_dataframe <- data.frame(contrasts, emmean_d)
+  
+    # Rename some columns for clarity
+    combined_dataframe <- combined_dataframe %>%
+  select(-contrast.1, -df.1)%>%
+      rename(d = effect.size,
+            d_ci_low = lower.CL,
+            d_ci_high = upper.CL,
+            d_se = SE.1,
+            df_error = df,
+            p = p.value)
+
+    # Return the combined dataframe with effect size results
+    return(combined_dataframe)
+}
+
+
+flipper_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_emmeans, flipper_fit)
+
+knitr::kable(flipper_emmeans_contrasts)
+# This function formats a p-value and optionally italicizes it for reporting.
+report_pval_full <- function(pval, italicize = TRUE) {
+  # Check if the p-value is less than .001
+  if (pval < .001) {
+    # If p-value is very small, format it as "*p* < .001" (with or without italics)
+    result <- ifelse(italicize == TRUE, "*p* < .001", "p < .001")
+  } else {
+    # If p-value is not very small, format it as "*p* = " with either 2 or 3 decimal places
+    if (pval >= .01) {
+      # Use 2 decimal places for p-values >= .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 2)) # Append the formatted p-value
+    } else {
+      # Use 3 decimal places for p-values less than .01
+      result <- ifelse(italicize == TRUE, "*p*", "p") # Start with "*p*" or "p"
+      result <- paste0(result, " = ", weights::rd(pval, 3)) # Append the formatted p-value
+    }
+  }
+  
+  # Return the formatted p-value
+  return(result)
+}
+flipper_emmeans_contrasts <- flipper_emmeans_contrasts %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_emmeans_contrasts)
+# This function generates a text summary based on user-specified options using a tidy t-test dataframe.
+report_tidy_t <- function(tidy_frame, 
+                          italicize = TRUE, 
+                          ci = TRUE, 
+                          ci.lab = TRUE, 
+                          test.stat = FALSE, 
+                          point = TRUE, 
+                          pval = TRUE, 
+                          pval_comma = TRUE
+){
+  # Initialize an empty string to store the result text
+  text <- ""
+  
+  # Conditionally add effect size (d) to the result text
+  if (point == TRUE) {
+    text <- paste0(text,
+      ifelse(italicize == TRUE, "*d* = ", "d = "), # Italicized or not
+      round(tidy_frame$d, 2) # Rounded d value
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]"), # Label and rounded CI values
+        paste0(" [", 
+               round(tidy_frame$d_ci_low, 2), ", ", 
+               round(tidy_frame$d_ci_high, 2), "]") # Only rounded CI values
+      )
+    )
+  }
+  
+  # Conditionally add t-statistic and degrees of freedom to the result text
+  if (test.stat == TRUE) {
+    text <- paste0(text,
+      ", *t*(", round(tidy_frame$df_error, 2), ") = ", round(tidy_frame$t, 2) # t-statistic and df
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ifelse(pval_comma == TRUE,
+        ifelse(italicize == TRUE, ", *p* ", ", p "), 
+        ifelse(italicize == TRUE, "*p* ", "p ")  # Italicized or not
+      ),
+      ifelse(tidy_frame$p < .001, "< .001", # Formatting based on p-value
+          ifelse(tidy_frame$p > .01, 
+                 paste("=", tidy_frame$p %>% round(2)), 
+                 paste("=", tidy_frame$p %>% round(3))
+                 )
+        )
+    )
+  }
+  
+  # Return the generated text summary
+  return(text)
+}
+canvas <- ggplot(data = df, # specify the dataframe that we want to pull variables from
+                  aes(y = flipper, # our dependent/response/outcome variable 
+                      x = species  # our grouping/independent/predictor variable
+                      ))
+
+canvas 
+canvas <-  canvas +  
+  cowplot::theme_half_open() # nice theme for publication
+
+canvas # display our blank canvas
+canvas + # this is our previously-defined canvas object, it passes the appropriate variables and theme
+  # This function puts out the dot-whisker for the mean + 95% CI
+    geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                      ))
+  
+canvas  +
+  # density slab
+  ggdist::stat_slab() + # add a density slab
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+canvas +  
+  # density slab
+  ggdist::stat_slab(
+    side = "both") + # change the density slab to violin
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+canvas +  
+  # density slab
+  ggdist::stat_slab(side = "both", 
+                    fill = nova_palette[1]) + # color the violin geom with desired color
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+canvas +  
+  # density slab
+  ggdist::stat_slab(side = "both", 
+                    fill = nova_palette[1],  
+                    aes(fill_ramp = stat(level))) +  # fade violins according to their quantile grouping
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+canvas +  
+  # density slab
+  ggdist::stat_slab(side = "both",  
+                    aes(fill_ramp = stat(level)), 
+                    fill = nova_palette[1],
+                    .width = c(.50, 1)) +  # change quantiles for shading from 66% to 50% (and eliminate the 95% shading) 
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+canvas +  
+  # density slab
+  ggdist::stat_slab(side = "both",  
+                    aes(fill_ramp = stat(level)), 
+                    fill = nova_palette[1],
+                    .width = c(.50, 1),
+                    scale = .4) +  # adjust slab width
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))
+viofade <- canvas +  
+  # density slab
+  ggdist::stat_slab(side = "both",  
+                    aes(fill_ramp = stat(level)), 
+                    fill = nova_palette[1],
+                    .width = c(.50, 1),
+                    scale = .4) + 
+  geom_pointrange(data = flipper_summary, # our externally-defined summary dataframe
+                  aes(x = species,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  ))  +
+  guides(fill_ramp = "none") # get rid of legend element for fading quantiles
+
+viofade
+viofade +
+  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", 
+            size = 4, 
+            vjust = 5)
+
+# You could use this function if you want:
+   # stat_summary(aes(label = round(..y..,1)), 
+   #                         fun = mean, 
+   #                         geom = "text",vjust = 5)
+viofade_text <- viofade +
+  geom_text(data = flipper_summary, aes(x = species, 
+                                        y = mean, 
+                                        label = round(mean,1)),
+            color="black", 
+            size = 4, 
+            vjust = 5) +
+  geom_text(data = flipper_summary, 
+            aes(label = paste("n =", n), 
+                y = flipper_summary[which.min(flipper_summary$min),]$mean -
+                  3*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 3, 
+            color = "grey60") 
+
+# You could use this for sample sizes if you want
+ # EnvStats::stat_n_text(color = "grey60")
+
+viofade_text
+# This function generates a text summary of ANOVA results based on user-specified options.
+report_tidy_anova_etaci <- function(tidy_frame, # Your tidy ANOVA dataframe
+                                    term, # The predictor in your tidy ANOVA dataframe
+                                    effsize = TRUE, # Display the effect size
+                                    ci95 = TRUE, # Display the 95% CI
+                                    ci.lab = TRUE, # Display the "95% CI" label
+                                    teststat = TRUE, # Display the F-score and degrees of freedom
+                                    pval = TRUE # Display the p-value
+                                    ){
+  # Initialize an empty string to store the result text
+  text <- ""
+  
+  # Conditionally add effect size (eta square) to the result text
+  if (effsize == TRUE) {
+    text <- paste0(text,
+      "\u03b7^2^ = ", # Unicode for eta square
+      round(as.numeric(tidy_frame[term, "pes"]), 2)
+    )
+  }
+  
+  # Conditionally add 95% CI to the result text
+  if (ci95 == TRUE) {
+    text <- paste0(text,
+      ifelse(ci.lab == TRUE,
+        paste0(", 95% CI ["), " ["),   
+      round(as.numeric(tidy_frame[term, "pes_ci95_lo"]), 2), ", ", 
+      round(as.numeric(tidy_frame[term, "pes_ci95_hi"]), 2), "]"
+    )
+  }
+  
+  # Conditionally add F-score and degrees of freedom to the result text
+  if (teststat == TRUE) {
+    text <- paste0(text,
+      ", *F*(", tidy_frame[term, "Df"],
+      ", ", tidy_frame["Residuals", "Df"], ") = ",
+      round(as.numeric(tidy_frame[term, "F.value"], 2))
+    )
+  }
+  
+  # Conditionally add p-value to the result text
+  if (pval == TRUE) {
+    text <- paste0(text,
+      ", ",  report_pval_full(tidy_frame[term, "Pr..F."])
+    )
+  }
+  
+  # Return the generated text summary
+  return(text)
+}
+
+
+viofade_text + 
+  labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species"))
+viofade_text_stats <- viofade_text + 
+  labs(subtitle = report_tidy_anova_etaci(flipper_anova,"species")) + 
+  theme(plot.subtitle = ggtext::element_markdown())
+
+viofade_text_stats
+viofade_text + 
+  labs(subtitle = report_tidy_anova_etaci(flipper_anova, 
+                                          "species", 
+                                          teststat = FALSE, 
+                                          pval = FALSE)) + 
+  theme(plot.subtitle = ggtext::element_markdown())
+viofade_text_stats_bracket1 <- viofade_text_stats +
+  ggpubr::geom_bracket( 
+                       tip.length = 0.02, # the downard "tips" of the bracket
+                       vjust = 0, # moves your text label (in this case, the p-value)
+                       xmin = 1, #starting point for the bracket
+                       xmax = 2, # ending point for the bracket
+                       y.position = 220, # vertical location of the bracket
+                       label.size = 2.5, # size of your bracket text
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+  )
+
+viofade_text_stats_bracket1
+viofade_text_stats_bracket2 <- viofade_text_stats_bracket1 +
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
+  )
+
+viofade_text_stats_bracket2 +
+  theme(axis.title = element_text(face="bold")) + 
+  ylab("Flipper length (mm)") +
+  xlab("Species")
+dark_aqua <- "#1E716F"
+
+
+fresh_canvas <- canvas + 
+  theme(axis.title = element_text(face="bold")) + 
+  ylab("Flipper length (mm)") +
+  xlab("Species") +
+  geom_text(data = flipper_summary, 
+            aes(label = paste("n =", n), 
+                y = flipper_summary[which.min(flipper_summary$min),]$mean -
+                  3.2*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 2.5, 
+            color = "grey60")
+
+
+dotwhisker <- geom_pointrange(data = flipper_summary,
+                              aes(x = species, 
+                                  mean,
+                                  ymin = loci, 
+                                  ymax = upci),
+                              # fatten = 2,
+                              size = .5,
+                              position = ggpp::position_dodge2nudge(x = -.07),
+                              color = "black", 
+                              show.legend = FALSE)
+# add mean text
+meantext <-  geom_text(data = flipper_summary, 
+                       aes(x = species, 
+                           y = mean, 
+                           label = round(mean,1)),
+                       color="black", size = 3.2, 
+                       position = ggpp::position_dodge2nudge(x = -.25))
+
+offset_bracket1 <- ggpubr::geom_bracket( 
+  tip.length = 0.02, # the downard "tips" of the bracket
+  vjust = 0, # moves your text label (in this case, the p-value)
+  xmin = .93, #starting point for the bracket
+  xmax = 1.93, # ending point for the bracket
+  y.position = 220, # vertical location of the bracket
+  label.size = 2.5, # size of your bracket text
+  label = paste0("My hypothesis, ", 
+                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                               italicize = FALSE, 
+                               ci = FALSE, 
+                               point = FALSE, 
+                               pval_comma= FALSE)) # content of your bracket text
+) 
+
+offset_bracket2 <-  ggpubr::geom_bracket( 
+  tip.length = 0.02, 
+  vjust = 0,
+  xmin = 1.93, 
+  xmax = 2.93, 
+  y.position = 227 ,
+  label.size = 2.5,
+  label = paste0("My hypothesis, ", 
+                 report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast == "Chinstrap - Gentoo",], 
+                               italicize = FALSE, 
+                               ci = FALSE, 
+                               point = FALSE, 
+                               pval_comma= FALSE)))
+
+shadeplot <- fresh_canvas +
+  ## Add density slab
+  ggdist::stat_slab( alpha = 0.5,
+                     adjust = 2,
+                     side = "right", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = dark_aqua,
+                     aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.5,
+                    side = "right", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) + 
+  dotwhisker +
+  meantext +
+  offset_bracket1 +
+  offset_bracket2 +
+  labs(title = "Shadeplot") 
+
+
+shadeplot
+
+faded_dotplot <- fresh_canvas +
+  ggdist::stat_dots(side = "right", ## set direction of dots
+                    scale = 0.5, ## defines the highest level the dots can be stacked to
+                    show.legend = F, 
+                    dotsize = 1.5, 
+                    position = position_dodge(width = .8),
+                    ## stat- and colour-related properties
+                    .width = c(.50, 1), ## set quantiles for shading
+                    aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
+                        fill_ramp = stat(level)), 
+                    color = dark_aqua,
+                    fill = dark_aqua)  + 
+  dotwhisker +
+  meantext +
+  offset_bracket1 +
+  offset_bracket2  +
+  labs(title = "Faded dotplot")
+
+faded_dotplot
+
+
+
+fadecloud <- fresh_canvas + 
+  ggdist::stat_slab( alpha = 0.5,
+                     adjust = 2,
+                     side = "left", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = dark_aqua,
+                     aes(fill_ramp = stat(level))) +
+  ## dots
+  ggdist::stat_dots(alpha = 0.5,
+                    side = "right", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  dotwhisker +
+  meantext +
+  offset_bracket1 +
+  offset_bracket2 +
+  labs(title = "Fadecloud")
+
+fadecloud
+
+
+
+vioshadeplot <- fresh_canvas +
+  ggdist::stat_slab( alpha = .5,
+                     adjust = 2,
+                     side = "both", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = nova_palette[1],
+                     aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.2,
+                    side = "both", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) +
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  size = .5,
+                  color = "black",
+                  show.legend = FALSE) +
+  # add mean text
+  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = -.4)) +
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, # the downard "tips" of the bracket
+    vjust = 0, # moves your text label (in this case, the p-value)
+    xmin = 1, #starting point for the bracket
+    xmax = 2, # ending point for the bracket
+    y.position = 220, # vertical location of the bracket
+    label.size = 2.5, # size of your bracket text
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))  
+  ) +     
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
+  ) +
+  labs(title = "Violin shadeplot")
+
+
+vioshadeplot
+
+
+viofade_dotplot <- fresh_canvas +
+  ggdist::stat_dots(side = "both", ## set direction of dots
+                    scale = 0.4, ## defines the highest level the dots can be stacked to
+                    alpha = .4,
+                    show.legend = F, 
+                    dotsize = 1.5, 
+                    position = position_dodge(width = .8),
+                    ## stat- and colour-related properties
+                    .width = c(.50, 1), ## set quantiles for shading
+                    aes(colour_ramp = stat(level), ## set stat ramping and assign colour/fill to variable
+                        fill_ramp = stat(level)), 
+                    color = nova_palette[1],
+                    fill = nova_palette[1])  + 
+  ggdist::scale_fill_ramp_discrete(range = c(0.5, 1),
+                                   aesthetics = c("fill_ramp")) +
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  size = .5,
+                  color = "black", 
+                  show.legend = FALSE) +
+  # add mean text
+  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", 
+            size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = -.4)) +   
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, # the downard "tips" of the bracket
+    vjust = 0, # moves your text label (in this case, the p-value)
+    xmin = 1, #starting point for the bracket
+    xmax = 2, # ending point for the bracket
+    y.position = 220, # vertical location of the bracket
+    label.size = 2.5, # size of your bracket text
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Adelie - Chinstrap",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE)) # content of your bracket text
+  ) + 
+  ggpubr::geom_bracket( 
+    tip.length = 0.02, 
+    vjust = 0,
+    xmin = 2, 
+    xmax = 3, 
+    y.position = 227 ,
+    label.size = 2.5,
+    label = paste0("My hypothesis, ", 
+                   report_tidy_t(flipper_emmeans_contrasts[flipper_emmeans_contrasts$contrast =="Chinstrap - Gentoo",], 
+                                 italicize = FALSE, 
+                                 ci = FALSE, 
+                                 point = FALSE, 
+                                 pval_comma= FALSE))
+  ) +
+  labs(title = "Faded Violin dotplot")
+
+viofade_dotplot
+
+
+
+internal_shadeplot <- fresh_canvas +
+  ## Add density slab
+  ggdist::stat_slab( alpha = .5,
+                     adjust = 2,
+                     side = "left", 
+                     scale = 0.4, 
+                     show.legend = F, 
+                     position = position_dodge(width = .8), 
+                     .width = c(.50, 1),
+                     fill = nova_palette[1],
+                     aes(fill_ramp = stat(level))) +
+  ## Add stacked dots
+  ggdist::stat_dots(alpha = 0.2,
+                    side = "left", 
+                    scale = 0.4, 
+                    color = dark_aqua,
+                    fill = dark_aqua,
+                    # dotsize = 1.5, 
+                    position = position_dodge(width = .8)) +
+  ggdist::scale_fill_ramp_discrete(range = c(0.0, 1),
+                                   aesthetics = c("fill_ramp")) + 
+  geom_pointrange(data = flipper_summary,
+                  aes(x = species, 
+                      mean,
+                      ymin = loci, 
+                      ymax = upci),
+                  size = .5,
+                  color = "black",
+                  position = ggpp::position_dodge2nudge(x = -.07),
+                  show.legend = FALSE) +
+  # add mean text
+  geom_text(data = flipper_summary, 
+            aes(x = species, 
+                y = mean, 
+                label = round(mean,1)),
+            color="black", size = 3.2, 
+            position = ggpp::position_dodge2nudge(x = .2)) + 
+  
+  offset_bracket1 +
+  offset_bracket2 +
+  labs(title = "Shadeplot with Embedded Dot-Whisker") 
+
+
+internal_shadeplot
+
+# save your most recently-displayed plot in a folder called "figures"
+ggsave(here::here("figures", "viofade.png"),
+       width=7, height = 5, dpi=700)
+flipper_fact_summary <- make_summary(data = df, dv = flipper, grouping1 = species, grouping2 = sex)
+
+knitr::kable(flipper_fact_summary)
+# Fit data
+flipper_fact_fit <- stats::aov(flipper ~ species*sex, data = df)
+# Run anova
+flipper_fact_anova <- car::Anova(flipper_fact_fit,
+                                 type=3
+                                 )
+flipper_fact_anova_pes <- effectsize::eta_squared(flipper_fact_anova,
+                                             alternative="two.sided"
+                                             )
+
+flipper_fact_anova <- data.frame(flipper_fact_anova)
+flipper_fact_anova <- flipper_fact_anova[!(rownames(flipper_fact_anova) == "(Intercept)"), ]
+
+flipper_fact_anova[1:3,"pes_ci95_lo"] <- flipper_fact_anova_pes$CI_low
+flipper_fact_anova[1:3,"pes_ci95_hi"] <- flipper_fact_anova_pes$CI_high
+flipper_fact_anova[1:3,"pes"] <- flipper_fact_anova_pes$Eta2
+
+
+flipper_fact_anova <- flipper_fact_anova %>%
+  dplyr::mutate_if(is.numeric, function(x) round(x, 3))
+
+knitr::kable(flipper_fact_anova)
+# Extract estimated marginal means
+flipper_fact_emmeans <- emmeans::emmeans(flipper_fact_fit, specs = pairwise ~ species:sex)
+
+
+# Convert estimated marginal means to dataframe
+flipper_fact_emmeans_tidy <- data.frame(flipper_fact_emmeans$emmeans)
+
+
+flipper_fact_summary <- flipper_fact_summary[order(flipper_fact_summary$species, 
+                                                   flipper_fact_summary$sex), ]
+
+flipper_fact_emmeans_tidy <- flipper_fact_emmeans_tidy[order(flipper_fact_emmeans_tidy$species,
+                                                             flipper_fact_emmeans_tidy$sex), ]
+
+
+flipper_fact_summary <- merge_emmeans_summary(summary_data = flipper_fact_summary,
+                                                  emmeans_tidy = flipper_fact_emmeans_tidy)
+
+flipper_fact_summary <- flipper_fact_summary %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_fact_summary)
+viofade_fact <- ggplot(data = df,
+                       aes(y = flipper, # our dependent/response/outcome variable 
+                           x = species,  # our grouping/independent/predictor variable
+                           fill = sex)) +  # our third grouping/independent/interaction variable
+  ggdist::stat_slab(side = "both",  
+                    aes(fill_ramp = stat(level)),
+                    .width = c(.50, 1),
+                    scale = .4,
+                    position = position_dodge(width = .7)) +
+  scale_fill_manual(values = nova_palette) +
+  # stat_summary(fun.data = "mean_cl_normal", 
+  #              show.legend = F, 
+  #              color = "black", 
+  #              position = position_dodge(width = .7))  + 
+  geom_pointrange(data = flipper_fact_summary,
+                  aes(x = species, 
+                      y = emmean, 
+                      ymin = emmean_loci, 
+                      ymax = emmean_upci),
+                  position = position_dodge(.7), show.legend = F) +
+  geom_text(data = flipper_fact_summary, aes(x = species, 
+                                             y = emmean, 
+                                             label = round(emmean,1)),
+            color="black", 
+            size = 2.5, 
+            vjust = 5, 
+            position = position_dodge(width = .7)) +
+  # stat_summary(aes(label=round(..y..,0)), 
+  #              fun=mean, geom="text",  
+  #              position = position_dodge(width = .7), 
+  #              size=2.5, 
+  #              vjust = 5) +
+  geom_text(data = flipper_fact_summary, 
+            aes(label = paste("n =", n), 
+                y = flipper_fact_summary[which.min(flipper_fact_summary$min),]$mean -
+                  3*flipper_fact_summary[which.min(flipper_fact_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 2, 
+            color = "grey60", 
+            position = position_dodge(width = .7)) +
+  guides(fill_ramp = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0.03, 0))) +
+  cowplot::theme_half_open() +  
+  theme(axis.title = element_text(face="bold"), 
+        legend.title = element_text(face="bold")) + 
+  labs(x = "Species", 
+       y = "Flipper length (mm)", 
+       fill = "Sex")
+
+
+viofade_fact
+
+# convert estimated marginal mean contrasts to dataframe
+flipper_fact_emmeans_contrasts <- data.frame(flipper_fact_emmeans$contrasts)
+
+flipper_fact_emmeans_contrasts <- calculate_and_merge_effect_sizes(flipper_fact_emmeans, flipper_fact_fit)
+
+
+flipper_fact_emmeans_contrasts <- flipper_fact_emmeans_contrasts %>%
+  mutate_if(is.numeric, function(x) round(x, 2))
+
+knitr::kable(flipper_fact_emmeans_contrasts)
+viofade_fact_bracket <- viofade_fact + 
+  ggpubr::geom_bracket(inherit.aes = FALSE, # necessary for factorial design
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = 1.175, # You need to play with these by hand
+                       xmax = 1.825, 
+                       y.position = 210 ,
+                       label.size = 2.1,
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap female - Adelie male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+                       
+                       
+  ) +
+  ggpubr::geom_bracket(inherit.aes = FALSE, 
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = .825, 
+                       xmax = 1.175, 
+                       y.position = 217 ,
+                       label.size = 2.1,
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Adelie male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+  ) +
+  ggpubr::geom_bracket(inherit.aes = FALSE, 
+                       tip.length = 0.02, 
+                       vjust = 0,
+                       xmin = .825, 
+                       xmax = 2.175, 
+                       y.position = 225 ,
+                       label.size = 2.1,
+                       
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Adelie female - Chinstrap male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+  ) +
+  ggpubr::geom_bracket(inherit.aes = FALSE, 
+                       tip.length = -0.02, 
+                       vjust = 0.6,
+                       xmin = 2.175, 
+                       xmax = 3.175, 
+                       y.position = 185 ,
+                       label.size = 2.1,
+                       label = paste0(
+                         report_tidy_t(
+                           flipper_fact_emmeans_contrasts[flipper_fact_emmeans_contrasts$contrast =="Chinstrap male - Gentoo male",], 
+                           italicize = FALSE, 
+                           ci = FALSE)) # content of your bracket text
+  )
+
+
+  
+viofade_fact_bracket
+ viofade_fact_bracket +
+    labs(subtitle = paste0("**species**: ", report_tidy_anova_etaci(flipper_fact_anova,"species"), "<br>",
+                           "**sex**: ", report_tidy_anova_etaci(flipper_fact_anova,"sex"), "<br>",
+                           "**species*sex**: ",report_tidy_anova_etaci(flipper_fact_anova,"species:sex"))
+         )  + 
+  theme(plot.subtitle = ggtext::element_markdown(size = 10))
+
+flipper_sex_summary <- make_summary(data = df, dv = flipper, grouping1 = sex)
+
+knitr::kable(flipper_sex_summary)
+flipper_sex_ttest <- t.test(flipper ~ sex, data=df) %>%
+  report::report() %>%
+  data.frame() %>%
+  janitor::clean_names()
+
+knitr::kable(flipper_sex_ttest)
+ggplot(data = df, # specify the dataframe that we want to pull variables from
+       aes(y = flipper, # our dependent/response/outcome variable 
+           x = sex  # our grouping/independent/predictor variable
+       )) +  
+  # insert faded violin slab
+  ggdist::stat_slab(side = "both",  # turn from slab to violin
+                    aes(fill_ramp = stat(level)),  # specify shading
+                    fill = nova_palette[1], # specify used to fill violin
+                    .width = c(.50, 1), # specify shading quantiles
+                    scale = .4) + # change size of violin
+  # insert mean text
+  geom_text(data = flipper_sex_summary, # our externally-defined summary dataframe
+            aes(x = sex, # x-position of geom_text
+                y = mean, # y-position of geom_text
+                label = round(mean,1)), # actual content
+            color="black", 
+            size = 4, # size of text
+            vjust = 3.5) + # some vertical nudging downwards
+  # Insert mean and 95% confidence interval
+  geom_pointrange(data = flipper_sex_summary, # our externally-defined summary dataframe
+                  aes(x = sex,  # our independent variable
+                      y = mean, # our outcome/dependent variable
+                      ymin = loci,  # lower-bound confidence interval
+                      ymax = upci # upper-bound confidence interval
+                  )) +
+  # insert sample sizes
+  geom_text(data = flipper_sex_summary, # specify our custom dataframe
+            aes(label = paste("n =", n), # the actual text content
+                y = flipper_summary[which.min(flipper_summary$min),]$mean -
+                  3*flipper_summary[which.min(flipper_summary$min),]$std_dev), #  dynamically set the location of sample size (3 standard deviations below the mean of the lowest-scoring group)
+            size = 3,  # size of text
+            color = "grey60") +
+  guides(fill_ramp = "none") + # get rid of legend element for fading quantiles
+  cowplot::theme_half_open() + # nice theme for publication
+  labs(subtitle = report_tidy_t(flipper_sex_ttest, test.stat = T)) + # test statistic 
+  theme(plot.subtitle = ggtext::element_markdown()) + # enable markdown styling 
+  theme(axis.title = element_text(face="bold")) + #bold axis titles
+  ylab("Flipper length (mm)") + # change y-axis label 
+  xlab("Sex") # change x-axis label
+
+# Use cite_packages to generate package citations
+package_citations <- cite_packages()
+```
+
+
+</details>

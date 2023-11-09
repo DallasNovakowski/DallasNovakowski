@@ -5,7 +5,7 @@ author: Dallas Novakowski
 date: '2023-10-19'
 slug: faded-violin-plots-my-go-to-style-for-clear-and-transparent-data-visualization
 summary: "This post is a rundown of a workflow that I use for preparing group-comparison graphs that are ready to include in nearly any kind of report. This post is sectioned out piece-by-piece to better demonstrate the impacts of each function and argument for ggplot, and also incorporates statistical hypothesis tests."
-
+description: "A beginner tutorial for making data graphs and plots in ggplot2 and ggdist, moving beyond barplots, dynamite plots, boxplots, and even rainplots. This guide shows how to include significance brackets, p-values, effect sizes, violin plots, and statistical tests in the data visualization."
 categories: []
 tags: 
   - raincloud
@@ -1989,6 +1989,7 @@ knitr::kable(flipper_fact_emmeans_contrasts)
 ```
 
 
+Note that `emmeans::emmeans()` automatically applies Tukey adjustments for multiple comparisons, so with many different contrasts, your statistical power will be far lower. See Ariel Muldoon's guide for [specifying custom and planned contrasts in `emmeans::emmeans()`](https://aosmith.rbind.io/2019/04/15/custom-contrasts-emmeans/).
 
 ```{r}
 viofade_fact_bracket <- viofade_fact + 
@@ -2167,3 +2168,29 @@ package_citations <- cite_packages()
 `r paste(package_citations, collapse = "\n \n")`
 
 ![](see_nothing.gif)
+
+## Code Dump
+
+<details>
+<summary> <b> Click here to see absolutely all the code in this post:</b> </summary>
+
+
+
+
+```{r getlabels, echo = FALSE, purl = FALSE}
+labs = knitr::all_labels()
+labs = labs[!labs %in% c("setup", "toc", "getlabels", "allcode", "makescript")]
+```
+
+```{r makescript, include = FALSE, purl = FALSE}
+options(knitr.duplicate.label = "allow") # Needed to purl like this
+input  = knitr::current_input()  # filename of input document
+output = here::here("content", "post", "2023-10-19-faded-violin-plots-my-go-to-style-for-clear-and-transparent-data-visualization", paste(tools::file_path_sans_ext(input), "R", sep = ".") )
+knitr::purl(input, output, documentation = 0, quiet = TRUE)
+```
+
+```{r allcode, ref.label = labs, eval = FALSE, purl = FALSE}
+```
+
+
+</details>
