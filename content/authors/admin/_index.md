@@ -61,7 +61,8 @@ My current projects examine the impact of explanations on people's reactions to 
 
 <center> 
 
-#### <i class="fa fa-download" aria-hidden="true" style="color:#035AA6"></i> {{< staticref "uploads/novakowski_cv.pdf" "newtab" >}}Download my CV{{< /staticref >}}
+[**View my CV**](https://docs.google.com/document/d/1YQyXYNVI-lz6aIExK0KynW5EbJjEGYMyc4U7-Be2G6s/edit?usp=sharing)
+
 </center> 
 
 I am also excited to use and share open science practices. My research materials are available through [GitHub](https://github.com/DallasNovakowski) and the [Open Science Framework](https://osf.io/p9vhn/).
