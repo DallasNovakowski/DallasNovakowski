@@ -54,7 +54,6 @@ social:
   link: https://www.linkedin.com/in/dallas-novakowski-phd-12b3a6102
 superuser: true
 title: Dallas Novakowski, Ph.D.
-pos
 ---
 
 I am a behavioral scientist interested in leveraging data science and consumer research to help people and organizations make decisions that are aligned with their values.
