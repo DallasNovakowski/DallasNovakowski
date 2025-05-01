@@ -3,6 +3,6 @@ cms_exclude: false
 header:
   caption: ""
   image: ""
-title: Thought-doer
+title: Thought-doing
 view: 2
 ---
