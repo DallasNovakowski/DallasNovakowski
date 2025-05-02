@@ -60,9 +60,11 @@ I am a behavioral scientist interested in leveraging data science and consumer r
 
 I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/).
 
-## As an academic...
+## As an academic
 
 I primarily investigate how social, cognitive, and emotional forces intersect to influence judgment and decision-making in consumer and organizational contexts. My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, consumption of security products), and the effects early traumatic events on substance abuse.
+
+I have also taught multiple undergraduate courses in Marketing across the University of Calgary's Haskayne School of Business, as well as the University of Lethbridge's Dhillon School of Business, with topics including Services Marketing and Buyer Behaviour.
 
 <center> 
 
@@ -70,12 +72,12 @@ I primarily investigate how social, cognitive, and emotional forces intersect to
 
 </center>
 
-## As a "hands-on" practitioner...
+## As a "hands-on" practitioner
 
 I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. I have worked with the Saskatchewan Brain Injury Association, Saskatchewan Ministry of Justice's Department of Research and Evidence-Based Excellence, and currently volunteer as an organizer for the [North Shore Ultimate League](nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
 
-## In everything I do...
+## In everything I do
 
-I am committed to acting with transparency, fairness, and integrity, exemplified in my professional work by using open science practices, and freely sharing materials. My research and analysis materials are available through [GitHub](https://github.com/DallasNovakowski) and the [Open Science Framework](https://osf.io/p9vhn/).
+I am committed to acting with transparency, fairness, generosity, and integrity. My research and analysis materials are available through [GitHub](https://github.com/DallasNovakowski) and the [Open Science Framework](https://osf.io/p9vhn/).
 
 Contact me at [dallasnovakowski\@gmail.com](mailto:dallasnovakowski@gmail.com)
