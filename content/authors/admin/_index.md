@@ -1,5 +1,5 @@
 ---
-bio:  I am a behavioral scientist interested in leveraging open science, consumer research, and evolutionary psychology to help people and organizations make better decisions.
+bio:  I am a behavioral scientist interested in leveraging rigorous consumer research and equitable partnerships to help people and organizations make the decisiosn that are best aligned with their values.
 education:
   courses:
   - course: Ph.D. in Management (Marketing)
@@ -56,7 +56,7 @@ superuser: true
 title: Dallas Novakowski, Ph.D.
 ---
 
-I am a behavioral scientist interested in leveraging data science and consumer research to help people and organizations make decisions that are aligned with their values.
+I am a behavioral scientist interested in leveraging rigorous consumer research and equitable partnerships to help people and organizations make decisions that are best aligned with their values.
 
 I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/).
 
