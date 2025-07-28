@@ -28,12 +28,12 @@ social:
 - icon: envelope
   icon_pack: fas
   link: mailto:dallasnovakowski@gmail.com
-- display:
-    header: false
-  icon: twitter
+- icon: bluesky
   icon_pack: fab
-  label: Follow me on Twitter
-  link: https://twitter.com/d_novakowski
+  link: https://bsky.app/profile/dallasnova.bsky.social
+- icon: bluesky
+  icon_pack: fas
+  link: https://bsky.app/profile/dallasnova.bsky.social
 - icon: graduation-cap
   icon_pack: fas
   link: https://scholar.google.ca/citations?user=XQyDmAwAAAAJ
@@ -74,7 +74,7 @@ I have also taught multiple undergraduate courses in Marketing across the Univer
 
 ## As a "hands-on" practitioner
 
-I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. I have worked with the Saskatchewan Brain Injury Association, Saskatchewan Ministry of Justice's Department of Research and Evidence-Based Excellence, and currently volunteer as an organizer for the [North Shore Ultimate League](nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
+I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. I have worked with the Saskatchewan Brain Injury Association and the Saskatchewan Ministry of Justice's Department of Research and Evidence-Based Excellence. I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
 
 ## In everything I do
 
