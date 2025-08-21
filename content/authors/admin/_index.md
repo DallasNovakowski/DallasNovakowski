@@ -1,5 +1,5 @@
 ---
-bio:  I am a behavioral scientist interested in leveraging rigorous consumer research and equitable partnerships to help people and organizations make the decisiosn that are best aligned with their values.
+bio:  I am a behavioral scientist interested in leveraging rigorous consumer research and equitable partnerships to help people and organizations make the decisions that are best aligned with their values.
 education:
   courses:
   - course: Ph.D. in Management (Marketing)
@@ -63,7 +63,7 @@ I am currently working as the Survey and Research Analyst with the Institutional
 
 ## As an academic
 
-I primarily investigate how social, cognitive, and emotional forces intersect to influence judgment and decision-making in consumer and organizational contexts. My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, speculative investing), and the decision-makung underlying protective consumer behaviours.
+I primarily investigate how social, cognitive, and emotional forces intersect to influence judgment and decision-making in consumer and organizational contexts. My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, speculative investing), and the decision-making underlying protective consumer behaviours.
 
 I have also taught multiple undergraduate courses in Marketing across the University of Calgary's Haskayne School of Business, as well as the University of Lethbridge's Dhillon School of Business, with topics including Services Marketing and Buyer Behaviour.
 
