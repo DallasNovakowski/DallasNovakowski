@@ -52,7 +52,7 @@ title: Dallas Novakowski, Ph.D.
 
 I am a behavioral scientist interested in leveraging rigorous consumer research and equitable partnerships to help people and organizations make decisions that are best aligned with their values.
 
-I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/).
+I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/about/pir).
 
 <center> 
 
@@ -72,7 +72,7 @@ I have also taught multiple undergraduate courses in Marketing across the Univer
 
 I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. 
 
-In my current role at the [College of New Caledonia](https://cnc.bc.ca/about/pir), I take a key position in handling my school's institutional survey Portfolio. Within my comprehensive duties from client discovery, to data collection, analysis, and report generation, I am experienced in coordinating across campus units (e.g., deans, student services, VPs, frontline staff) for effective study deployment. In this work, I have gotten great satisfaction from aligning rigorous research projects to strategic goals, and delivering actionable insights to improve the campus experience.
+In my current role at the College of New Caledonia, I take a key position in handling my school's institutional survey Portfolio. Within my comprehensive duties from client discovery, to data collection, analysis, and report generation, I am experienced in coordinating across campus units (e.g., deans, student services, VPs, frontline staff) for effective study deployment. In this work, I have gotten great satisfaction from aligning rigorous research projects to strategic goals, and delivering actionable insights to improve the campus experience.
 
 I have worked with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) in program development and facilitation and at the [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety), conducting research and program evaluation work. I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
 
