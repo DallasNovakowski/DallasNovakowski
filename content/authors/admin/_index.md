@@ -28,12 +28,6 @@ social:
 - icon: envelope
   icon_pack: fas
   link: mailto:dallasnovakowski@gmail.com
-- icon: bluesky
-  icon_pack: fab
-  link: https://bsky.app/profile/dallasnova.bsky.social
-- icon: bluesky
-  icon_pack: fas
-  link: https://bsky.app/profile/dallasnova.bsky.social
 - icon: graduation-cap
   icon_pack: fas
   link: https://scholar.google.ca/citations?user=XQyDmAwAAAAJ
@@ -60,21 +54,27 @@ I am a behavioral scientist interested in leveraging rigorous consumer research 
 
 I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/).
 
-## As an academic
-
-I primarily investigate how social, cognitive, and emotional forces intersect to influence judgment and decision-making in consumer and organizational contexts. My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, consumption of security products), and the effects early traumatic events on substance abuse.
-
-I have also taught multiple undergraduate courses in Marketing across the University of Calgary's Haskayne School of Business, as well as the University of Lethbridge's Dhillon School of Business, with topics including Services Marketing and Buyer Behaviour.
-
 <center> 
 
-[**View my CV**](https://docs.google.com/document/d/1YQyXYNVI-lz6aIExK0KynW5EbJjEGYMyc4U7-Be2G6s/edit?usp=sharing)
+[**View my CV Here**](https://docs.google.com/document/d/1YQyXYNVI-lz6aIExK0KynW5EbJjEGYMyc4U7-Be2G6s/edit?usp=sharing)
 
 </center>
 
+
+## As an academic
+
+I primarily investigate how social, cognitive, and emotional forces intersect to influence judgment and decision-making in consumer and organizational contexts. My current projects examine the impact of explanations on people's reactions to algorithmic decisions, effects of inequality on risk-taking behaviors (e.g., gambling, speculative investing), and the decision-makung underlying protective consumer behaviours.
+
+I have also taught multiple undergraduate courses in Marketing across the University of Calgary's Haskayne School of Business, as well as the University of Lethbridge's Dhillon School of Business, with topics including Services Marketing and Buyer Behaviour.
+
+
 ## As a "hands-on" practitioner
 
-I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. I have worked with the Saskatchewan Brain Injury Association and the Saskatchewan Ministry of Justice's Department of Research and Evidence-Based Excellence. I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
+I coordinate across internal and external partners to develop meaningful and evidence-based strategies to improve products, services, and organizational functioning. 
+
+In my current role at the College of New Caledonia, I take a key position in handling my school's institutional survey Portfolio. Within my comprehensive duties from client discovery, to data collection, analysis, and report generation, I am experienced in coordinating across campus units (e.g., deans, student services, VPs, frontline staff) for effective study deployment. In this work, I have gotten great satisfaction from aligning rigorous research projects to strategic goals, and delivering actionable insights to improve the campus experience.
+
+I have worked with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) in program development and facilitation and at the [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety), conducting research and program evaluation work. I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
 
 ## In everything I do
 
