@@ -7,9 +7,15 @@ main:
   # - name: Projects
   #   url: '/project'
   #   weight: 30
-  - name: Thought-doing
+  - name: Thought-doing (Blog)
     url: '/post'
     weight: 20
+  - name: Socia - Research & Strategy
+    url: '/community-market-research-consulting'
+    weight: 10
+    
+    
+    
   # - name: Publications
   #   url: '/publication'
   #   weight: 50

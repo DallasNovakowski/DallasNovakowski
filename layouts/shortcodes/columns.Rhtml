@@ -1,0 +1,5 @@
+{{ $center := .Get "center" | default "false" }}
+
+<div style="display:flex; gap:2rem; flex-wrap:wrap; {{ if eq $center "true" }}align-items:center;{{ end }}">
+  {{ .Inner | safeHTML }}
+</div>
