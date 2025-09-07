@@ -21,14 +21,34 @@ header:
 
 
 <div class="header-with-logo">
-  <h1>Example Products</h1>
+  <h1>Socia Example Products</h1>
   <img src="/community-market-research-consulting/socia_logo.png" alt="Socia Logo" style="height:100px;">
 </div>
 
 
 
 
-This page offers some demos of what some of my work looks like. Please note that these products do not contain real data, instead being simulated for the purposes of demonstration. The materials here can be accessed via my [github site](https://github.com/DallasNovakowski/socia_demo)
+This page offers some demos of what some of my work looks like. Please note that these products do not contain real data, instead being simulated for the purposes of demonstration. [The code to create these materials yourself here can be accessed via my Github site](https://github.com/DallasNovakowski/socia_demo).
+
+
+{{< columns>}}
+{{< column >}}
+
+As with [the Socia Resource Library](/community-market-research-consulting/resource-library/), these example products, and the code to reproduce them, are shared under the [Creative Commons license - Attribution-ShareAlike 4.0 International Deed](https://creativecommons.org/licenses/by-sa/4.0/). I also ask that I ask that these materials be used in good faith - only being used for ethical and high-integrity practice.
+
+{{< /column >}}
+
+{{< column >}}
+
+Cite as:
+
+Novakowski, D. (2025). Socia Example Products, Retrieved from https://github.com/DallasNovakowski/socia_demo
+
+{{< /column >}}
+{{< /columns >}}
+
+
+
 
 
 <style>
@@ -196,17 +216,20 @@ row-gap: 1rem;           /* vertical spacing when stacked */
 
 My primary tools and software used revolves around the the programming language R, and its related applications and packages, such as Rstudio (for user interface), ggplot (for data visualization) Shiny (for dashboarding), and Quarto (for generating reports). This system has the particular benefit of being open source, meaning that the software is free to use and edit, so that advanced methods are constantly being added. However, I am also proficient in other software and tools as needed (e.g. Tableau, PowerBI, Python, Excel, SQL, PowerQuery).
 
+<br>
+
 ## Methods for Visualizing and Reporting Data
 
+<br>
 
 <div style="padding: .5rem; border-radius: 0.5rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
   <div class="cta-container">
 
   <!-- Button + description -->
   <div class="cta-button-wrapper">
-    <a href="https://gzlvni-dallas-novakowski.shinyapps.io/socia_demo/" class="cta-button library">Click to view Demo Dashboard</a>
+    <a href="https://gzlvni-dallas-novakowski.shinyapps.io/socia_demo/" class="cta-button library">Click to viewExample Dashboard</a>
     <div class="cta-description">
-      Dashboards have become popular for good reason; they give users agency to customize the analyses available, selecting particular target measures, while grouping and filtering to address their particular needs. 
+      Dashboards have become popular for good reason; they give users agency to customize the analyses available, selecting particular target measures, while grouping and filtering to address their particular needs. As added value, this dashboard also showcases how to dynamically switch between <a href="/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/">raincloud plots, fadeclouds, shadeplots, boxplots, and barplots</a>, all in a single dashbaord 
       <br> <br>
   Working in close collaboration with your team, we will make a dashboard to suit your unique needs.
     </div>
@@ -220,14 +243,14 @@ My primary tools and software used revolves around the the programming language 
   </div>
 </div>
 
-
+<br>
 
 <div style="padding: .5rem; border-radius: 0.5rem; margin:0rem;">
   <div class="cta-container">
 
   <!-- Button + description -->
   <div class="cta-button-wrapper">
-    <a href="/uploads/socia_report_demo.pdf" class="cta-button examples">Click to View Static Reports</a>
+    <a href="/uploads/socia_report_demo.pdf" class="cta-button examples">Click to View Example Static Report</a>
     <div class="cta-description">
       Research and data analysis is about more than just showing data - it's about telling a story. Often, teams need a curated report to show them exactly what is going on, and what it means for you. <br> <br> I work hard to learn your exact organizational context and priorities, and create digestible reports that do the heavy lifting of selecting relevant groups and filters, to show you exactly what you need to know, and how it can be used. 
 

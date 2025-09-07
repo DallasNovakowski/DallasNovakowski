@@ -1,5 +1,5 @@
 ---
-# title: "About the Brand"
+# title: "Resource Library"
 type: page
 # type: docs
 
@@ -18,12 +18,11 @@ weight: 2
 
 
 <div class="header-with-logo">
-  <h1>Resource Library</h1>
+  <h1>Socia Resource Library</h1>
   <img src="/community-market-research-consulting/socia_logo.png" alt="Socia Logo" style="height:100px;">
 </div>
 
-
-
+This page is an openly-available collection of tools and resources to help support individuals and organizations conduct high-quality research and strategy projects. This collection, and the resources themselves, is continually evolving as my portfolio expands and practices are refined.
 
 
 
@@ -180,12 +179,15 @@ row-gap: 1rem;           /* vertical spacing when stacked */
 </style>
 
 
-My intention is for this to be a continually evolving library of materials to help support research and strategy functions.
 
 {{< columns>}}
 {{< column >}}
 
 My materials, unless otherwise communicated, are shared under CC BY-SA 4.0 [Creative Commons license - Attribution-ShareAlike 4.0 International Deed](https://creativecommons.org/licenses/by-sa/4.0/) 
+
+**Integrity and Ethics Supplement**
+
+In addition to the terms of the Creative Commons Attribution–ShareAlike 4.0 International License, I ask that these materials be used in good faith and in ways that promote ethical practice. This includes avoiding [uses that may generate misleading conclusions](https://venngage-wordpress.s3.amazonaws.com/uploads/2017/08/misleading-graphs-26.png), infringe on privacy or human rights, or contribute to discrimination, harm, or unethical conduct.
 
 {{< /column >}}
 
@@ -203,6 +205,25 @@ My materials, unless otherwise communicated, are shared under CC BY-SA 4.0 [Crea
 
 
 
-Many of my research materials (Code Scripts, document templates) are available on [Github](https://github.com/DallasNovakowski)
+
+{{< columns>}}
+{{< column >}}
+
+[Many of my research materials (Code Scripts, document templates) are available on Github](https://github.com/DallasNovakowski).
+
+
+{{< /column >}}
+
+{{< column >}}
+
 
 One that may be of particular relevance to some is my R package `novahelpers` , containing miscellanious helper functions, namely for summarizing and reporting data. Please note that this project is a work in progress, so you are best suited to copying the scripts for your own use and adaptation: https://github.com/DallasNovakowski/novahelpers
+
+Cite as:
+
+Novakowski, D. (2025). R package novahelpers, *Socia Resource Library*, Retrieved from https://github.com/DallasNovakowski/novahelpers
+
+{{< /column >}}
+{{< /columns >}}
+
+

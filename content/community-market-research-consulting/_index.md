@@ -1,5 +1,5 @@
 ---
-title: "Market Research & Strategy Consulting | Socia"
+title: "Community Market Research Consulting in Vancouver, BC | Socia"
 type: "page"
 # type: docs
 
@@ -21,12 +21,15 @@ show_children: false
 draft: false
 date: false
 lastmod: false
-description: "Socia provides community-focused market and organizational research, strategy, and consulting. We help nonprofits, businesses, and public institutions make meaningful, evidence-based decisions."
+description: "Socia is a community-focused market research consultancy based in Vancouver, Canada, helping organizations make meaningful, data-driven decisions."
 subtitle: "Stronger Communities Through Better Decisions"
 tags: ["consulting", "research", "strategy", "socia"]
 toc: false
 image: null
 ---
+
+Socia is a Vancouver-based community market research consultancy that partners with nonprofits, businesses, and public organizations across British Columbia. We specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions.
+
 
 <style>
 .cta-button {
@@ -110,18 +113,22 @@ image: null
 <div style="background-color: #f2f2f2; padding: 0rem; padding: 2rem; border-radius: 0.5rem; margin:0; margin-top:1rem; margin-bottom:1rem;">
 {{< columns center="true" >}}
 {{< column >}}
-<img src="socia_logo.png" alt="Socia Logo" width="300" style="margin: 0rem; padding: 0rem;" />
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <a href="http://socia-research.ca" target="_blank" rel="noopener noreferrer">
+      <img src="/admin/socia_logo.png" alt="Socia Logo" style="max-width: 300px; width: 100%; height: auto; margin: 0.5rem;" />
+    </a>
+  </div>
 {{< /column >}}
 {{< column >}}
-<p style="font-size:1.5rem; margin: 0rem;">I am excited to be offering research and strategy services under the brand of Socia!</p>
+<p style="font-size:1rem; margin:0; font-style:italic">
+  Through <a href="http://socia-research.ca">my community-based research consultancy, socia-research.ca</a>, 
+  my mission is to strengthen community well-being by making innovative scientific and managerial practices available for all.
+</p>
+
 {{< /column >}}
 {{< /columns >}}
 </div>
 
-<p style="font-size:1.2rem; display:flex; flex-direction:column; align-items:center; text-align:center; margin-top: 2rem; margin-bottom: 0rem; font-style: italic">
-Through Socia, my mission is to strengthen community well-being by making innovative scientific and managerial practices accessible and useful for all. <br>
-
-</p>
 
 <br> My expertise is market and organizational research. With my skills in quantitative and qualitative research methods, I collaborate with partners to create useful tools and actionable strategies.  
 
@@ -163,6 +170,44 @@ I embrace these principles to ensure high-quality tools, processes, data, and in
   </div>
 </div>
 
+## Why Vancouver / BC Matters to Me
+
+<!-- Hero / Introduction -->
+
+
+My work is deeply rooted in my community — the diverse communities of across BC's Mainland and the many unique areas throughout the province pose unique challenges facing BC’s nonprofit, public, and private sectors. 
+
+Based in Vancouver’s North Shore, I have great experience partnering with organizations across the Lower Mainland and British Columbia, and Canadian institutions more broadly.
+
+
+
+{{< columns center="true" >}}
+{{< column >}}
+
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <a href="http://nsul.ca" target="_blank" rel="noopener noreferrer">
+      <img src="/community-market-research-consulting/nsul.jpg" alt="NSUL" style="max-width: 700px; width: 100%; height: auto; margin: 0.5rem;" />
+    </a>
+  </div>
+
+{{< /column >}}
+{{< column >}}
+
+- At the College of New Caledonia I serve Central and Northern B.C. by conducting student and community surveys to better align the school's curricula and services to meet partner needs.  
+- I have developed and coordinated wellness programs with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) 
+- I have conducted cross-departmental research through [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety) to ensure that corrections programs are effective in actually reducing recidivism.  
+- I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
+
+
+{{< /column >}}
+{{< /columns >}}
+
+  <p style="font-size: 1rem; margin: 2.5rem; line-height: 1.5; font-style: italic; display: flex; justify-content: center; align-items: center;">
+  By combining local knowledge with rigorous methods, I work to deliver insights that matter to your people.
+  </p>
+
+
+
 <!-- Needs -->
 ## The Needs My Work Addresses
 
@@ -191,6 +236,8 @@ We navigate complex ethical considerations, safeguarding privacy and incorporati
 We build systems that support scalable and reproducible evidence-based practices, ensuring consistency across projects and contexts.
 {{< /column >}}
 {{< /columns >}}
+
+
 
 {{< columns >}}
 {{< column >}}
