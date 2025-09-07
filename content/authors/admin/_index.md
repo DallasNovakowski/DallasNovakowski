@@ -137,7 +137,7 @@ I am currently working as the Survey and Research Analyst with the Institutional
 {{< columns style="display: flex; align-items: center;" >}}
 {{< column >}}
 
-<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100%; ">
   <a href="https://docs.google.com/document/d/1YQyXYNVI-lz6aIExK0KynW5EbJjEGYMyc4U7-Be2G6s/edit?usp=sharing" 
      class="cta-button library" 
      style="max-width: 200px; text-align: center;">

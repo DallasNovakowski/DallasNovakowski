@@ -180,6 +180,9 @@ row-gap: 1rem;           /* vertical spacing when stacked */
 
 
 
+
+<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto;">
+
 {{< columns>}}
 {{< column >}}
 
@@ -203,13 +206,17 @@ In addition to the terms of the Creative Commons Attribution–ShareAlike 4.0 In
 {{< /column >}}
 {{< /columns >}}
 
-
+</div>
 
 
 {{< columns>}}
 {{< column >}}
 
 [Many of my research materials (Code Scripts, document templates) are available on Github](https://github.com/DallasNovakowski).
+
+Cite as:
+
+Novakowski, D. (2025). R package novahelpers, *Socia Resource Library*, Retrieved from https://github.com/DallasNovakowski/novahelpers
 
 
 {{< /column >}}
@@ -219,9 +226,6 @@ In addition to the terms of the Creative Commons Attribution–ShareAlike 4.0 In
 
 One that may be of particular relevance to some is my R package `novahelpers` , containing miscellanious helper functions, namely for summarizing and reporting data. Please note that this project is a work in progress, so you are best suited to copying the scripts for your own use and adaptation: https://github.com/DallasNovakowski/novahelpers
 
-Cite as:
-
-Novakowski, D. (2025). R package novahelpers, *Socia Resource Library*, Retrieved from https://github.com/DallasNovakowski/novahelpers
 
 {{< /column >}}
 {{< /columns >}}

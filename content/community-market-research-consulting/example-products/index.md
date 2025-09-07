@@ -31,6 +31,9 @@ header:
 This page offers some demos of what some of my work looks like. Please note that these products do not contain real data, instead being simulated for the purposes of demonstration. [The code to create these materials yourself here can be accessed via my Github site](https://github.com/DallasNovakowski/socia_demo).
 
 
+<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto;">
+
+
 {{< columns>}}
 {{< column >}}
 
@@ -47,7 +50,7 @@ Novakowski, D. (2025). Socia Example Products, Retrieved from https://github.com
 {{< /column >}}
 {{< /columns >}}
 
-
+</div>
 
 
 
@@ -245,6 +248,9 @@ My primary tools and software used revolves around the the programming language 
 
 <br>
 
+<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto;">
+
+
 <div style="padding: .5rem; border-radius: 0.5rem; margin:0rem;">
   <div class="cta-container">
 
@@ -266,18 +272,4 @@ My primary tools and software used revolves around the the programming language 
   </div>
 </div>
 
-
-
-
-{{< columns>}}
-{{< column >}}
-
-{{< /column >}}
-
-{{< column >}}
-
-
-
-{{< /column >}}
-{{< /columns >}}
-
+</div>

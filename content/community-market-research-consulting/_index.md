@@ -206,6 +206,7 @@ Based in Vancouver’s North Shore, I have great experience partnering with orga
   By combining local knowledge with rigorous methods, I work to deliver insights that matter to your people.
   </p>
 
+<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto;">
 
 
 <!-- Needs -->
@@ -250,6 +251,8 @@ We foster meaningful and considerate collaboration with internal and external ri
 We help you stay agile, adapting plans and tactics as needed to meet changing project requirements.
 {{< /column >}}
 {{< /columns >}}
+
+</div>
 
 ## The Possibilities
 
