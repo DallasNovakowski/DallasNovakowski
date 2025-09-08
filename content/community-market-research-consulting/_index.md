@@ -158,7 +158,7 @@ Socia's work ultimately seeks to foster more informed and empowered communities.
 </div>
 
 <!-- How Socia Works -->
-# How Socia is Different in the Canadian Insights, Research, and Strategy Consulting & Contracting Sector
+# How Socia is Different in the Canadian Insights Sector
 
 I believe that **the data analytics, market research, and business intelligence industries are poised for disruption**. Just like a move in the science world towards barrier-free access to data and methods makes knowledge accessible, we make our research processes more transparent so you can learn, adapt, and own your insights.
 
