@@ -50,7 +50,7 @@ superuser: true
 title: Dallas Novakowski, Ph.D.
 ---
 
-I am a behavioural management scientist interested in leveraging rigorous research and equitable partnerships to help people and organizations make decisions that are best aligned with their values.
+I am a behavioural scientist interested in leveraging rigorous research and equitable partnerships to help people and organizations make values-driven decisions.
 
 I am currently working as the Survey and Research Analyst with the Institutional Research and Enrolment Management team at the [College of New Caledonia](https://cnc.bc.ca/about/pir).
 
@@ -196,39 +196,4 @@ I am committed to acting with transparency, fairness, generosity, and integrity.
 
 
 Contact me at [dallasnovakowski\@gmail.com](mailto:dallasnovakowski@gmail.com)
-
-
-## Your organization can work with me!
-
-<!-- Hero / Introduction -->
-<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto; max-width: 900px;">
-  {{< columns center="true" >}}
-  {{< column >}}
-
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <a href="http://socia-research.ca" target="_blank" rel="noopener noreferrer">
-      <img src="/admin/socia_logo.png" alt="Socia Logo" style="max-width: 230px; width: 100%; height: auto; margin: 0.5rem;" />
-    </a>
-  </div>
-
-  {{< /column >}}
-  {{< column >}}
-  <p style="font-size: 1rem; margin: 0.5rem; line-height: 1.5; font-style: italic;">
-    I also offer research and strategy services to organizations of all sizes and sectors via 
-    <a href="http://socia-research.ca" target="_blank" rel="noopener noreferrer">my business, Socia</a>.
-  </p>
-
-  {{< /column >}}
-  {{< /columns >}}
-  
-<div style="display:flex; justify-content:center; margin-top: 1.5rem; margin-bottom: 1rem;">
-  <a href="mailto:dallasnovakowski@gmail.com" class="cta-button contact">Schedule Your Free Consultation</a>
-</div>
-
-<div style="display:flex; justify-content:center; margin:.2rem 0;">
-  <a href="/community-market-research-consulting/"  class="cta-button library">Visit socia-research.ca</a>
-</div>
-
-</div>
-
 

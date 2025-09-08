@@ -206,8 +206,8 @@ Based in Vancouver’s North Shore, I have great experience partnering with orga
 {{< column >}}
 
 - At the College of New Caledonia I serve Central and Northern B.C. by conducting student and community surveys to better align the school's curricula and services to meet partner needs.  
-- I have developed and coordinated wellness programs with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) 
-- I have conducted cross-departmental research through [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety) to ensure that corrections programs are effective in actually reducing recidivism.  
+- I ran wellness programs with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) 
+- I have conducted cross-departmental research through [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety) to ensure that corrections programs effectively reduce recidivism.  
 - I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
 
 
