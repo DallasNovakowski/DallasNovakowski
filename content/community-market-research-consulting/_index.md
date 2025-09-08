@@ -1,5 +1,5 @@
 ---
-title: "Community Market Research Consulting in Vancouver, BC | Socia"
+title: "Community-Focused Behavioural Research and Strategy Consulting in Vancouver, BC | Socia"
 type: "page"
 # type: docs
 
@@ -21,14 +21,14 @@ show_children: false
 draft: false
 date: false
 lastmod: false
-description: "Socia is a community-focused market research consultancy based in Vancouver, Canada, helping organizations make meaningful, data-driven decisions."
+description: "Socia is a community-focused behavioural research and strategy consultancy based in Vancouver, Canada, helping organizations make meaningful, data-driven decisions."
 subtitle: "Stronger Communities Through Better Decisions"
 tags: ["consulting", "research", "strategy", "socia"]
 toc: false
 image: null
 ---
 
-Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. Through Socia, my approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge research and strategic practices. 
+Socia is a North Vancouver-based community-focused behavioural research and strategy consultancy that blends the rigor of market research, the insight of behavioral science, and the collaboration of participatory design to help organizations make ethical, effective, and transparent decisions.
 
 
 
@@ -124,7 +124,7 @@ Socia is a North Vancouver-based community market research consultancy and contr
 {{< column >}}
 <p style="font-size:1rem; margin:0; font-style:italic">
   Through <a href="http://socia-research.ca">my community-based research consultancy, socia-research.ca</a>, 
-  my mission is to strengthen community well-being by making effective and ethical scientific and managerial practices available for all.
+  my mission is to strengthen community well-being by making effective scientific and managerial practices available for all.
 </p>
 
 {{< /column >}}
@@ -132,7 +132,9 @@ Socia is a North Vancouver-based community market research consultancy and contr
 </div>
 
 
-<br> I specialize in market and organizational research—blending quantitative and qualitative methods to deliver practical tools, sharp insights, and strategies that partners can act on with confidence.
+<br> 
+
+Through Socia, my approach is unique in its emphasis in making my tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge research and strategic practices. 
 
 
 
@@ -161,10 +163,14 @@ Socia is a North Vancouver-based community market research consultancy and contr
 </div>
 
 <!-- How Socia Works -->
-# How Socia is Different in the Canadian Insights Sector
+# How Socia is Different in the Canadian Insights and Market Research Sector
 
 I believe that **the data analytics, market research, and business intelligence industries are poised for disruption**. Just like a move in the science world towards barrier-free access to data and methods makes knowledge accessible, we make our research processes more transparent so you can learn, adapt, and own your insights.
 
+- **Community-Driven, Data-Rich**: my approach is not extractive; I design studies with input from clients and communities, and openly share methods and findings
+- **Strategic but Accessible**: I don’t just hand over strategies; I co-develop them, and share my methods broadly so that they can be re-produced
+- **Behavioral & Applied**: my work goes beyond the theoretical; I integrate real-world strategy and navigate organizational realities.
+- **Participatory Process with Rigor**: I am trained in scientific depth and validated data, not just conversations.
 
 I embrace these principles to ensure high-quality tools, processes, data, and insights are shared widely and responsibly, empowering organizations to make informed decisions with greater confidence and independence.
 
@@ -216,7 +222,7 @@ Based in Vancouver’s North Shore, I have great experience partnering with orga
 
 
 <!-- Needs -->
-## How Socia Addresses Canadian Community Market Research Needs
+## How Socia Addresses Canadian Insights and Strategy Needs
 
 Through my work with diverse organizations, I've identified several key challenges that teams commonly face. Here’s how my work through Socia addresses them:
 
@@ -260,7 +266,7 @@ I help you stay agile, adapting plans and tactics as needed to meet changing pro
 
 </div>
 
-## The Possibilities for Community Market Research in Vancouver, BC, Canada, and Beyond
+## The Possibilities for Community Research and Strategy in Vancouver, BC, Canada, and Beyond
 
 Imagine a future where the best practices and data of the business analytics industry are democratized and made available for everyone to work with and contribute to. How can we deploy these practices to meet the unique needs of organizations and exceed industry standards? I invite you to join me in finding innovative solutions to this exciting challenge.
 

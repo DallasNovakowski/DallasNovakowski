@@ -152,7 +152,7 @@ I am currently working as the Survey and Research Analyst with the Institutional
   <a href="/community-market-research-consulting/"  
      class="cta-button contact" 
      style="max-width: 300px; text-align: center;">
-    Visit My Consulting Business, <br> socia-research.ca
+    Visit My Insights & Strategy Business, <br> socia-research.ca
   </a>
 </div>
 

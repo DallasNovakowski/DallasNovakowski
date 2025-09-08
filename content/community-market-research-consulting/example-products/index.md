@@ -230,7 +230,7 @@ My primary tools and software used revolves around the the programming language 
 
   <!-- Button + description -->
   <div class="cta-button-wrapper">
-    <a href="https://gzlvni-dallas-novakowski.shinyapps.io/socia_demo/" class="cta-button library">Click to viewExample Dashboard</a>
+    <a href="https://gzlvni-dallas-novakowski.shinyapps.io/socia_demo/" class="cta-button library">Click to view Example Dashboard</a>
     <div class="cta-description">
       Dashboards have become popular for good reason; they give users agency to customize the analyses available, selecting particular target measures, while grouping and filtering to address their particular needs. As added value, this dashboard also showcases how to dynamically switch between <a href="/post/creating-simple-and-transparent-data-graphs-using-faded-dotplots-and-shadeplots/">raincloud plots, fadeclouds, shadeplots, boxplots, and barplots</a>, all in a single dashbaord 
       <br> <br>
