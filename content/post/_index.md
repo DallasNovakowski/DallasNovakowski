@@ -5,6 +5,6 @@ header:
   image: ""
 title: Thought-doing
 description: "Dallas Novakowski's blog, discussing consumer research, data science, data visualization, open science, and being a human."
-subtitle: "Sometimes I wish I was a thought-leader, but then I realize I'm happier when focusing on being a thought-doer."
+subtitle: "Dallas Novakowski's blog, doing and sharing thoughts on behavioural science, data visualization, open science, and being a human."
 view: 2
 ---
