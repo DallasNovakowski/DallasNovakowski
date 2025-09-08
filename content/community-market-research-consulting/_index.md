@@ -28,7 +28,7 @@ toc: false
 image: null
 ---
 
-Socia is a Vancouver-based community market research consultancy that partners with nonprofits, businesses, and public organizations across British Columbia. We specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions.
+Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. I specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions. Socia's approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge practices. Through my work at Socia, I ultimately seek to foster more informed and empowered communities.
 
 
 <style>
@@ -156,9 +156,10 @@ Socia is a Vancouver-based community market research consultancy that partners w
 </div>
 
 <!-- How Socia Works -->
-# How Socia Works
+# How Socia is Different in the Canadian Insights, Research, and Strategy Consulting & Contracting Sector
 
-I believe that **the data analytics and insights industry is poised for disruption**—similar to the shift toward *Open Science* in academic research, where [scientific data, materials, and processes are made freely available to all](https://science.gc.ca/site/science/en/open-science). By making data and analysis procedures publicly available, scientists accelerate innovation and build knowledge that is both more robust and transparent. 
+I believe that **the data analytics, market research, and business intelligence industries are poised for disruption**. Just like a move in the science world towards barrier-free access to data and methods makes knowledge accessible, we make our research processes more transparent so you can learn, adapt, and own your insights.
+
 
 I embrace these principles to ensure high-quality tools, processes, data, and insights are shared widely and responsibly, empowering organizations to make informed decisions with greater confidence and independence.
 
@@ -175,7 +176,7 @@ I embrace these principles to ensure high-quality tools, processes, data, and in
 <!-- Hero / Introduction -->
 
 
-My work is deeply rooted in my community — the diverse communities of across BC's Mainland and the many unique areas throughout the province pose unique challenges facing BC’s nonprofit, public, and private sectors. 
+My work is deeply rooted in my community — the diverse communities across Vancouver, British Columbia, and Canada pose unique challenges facing BC’s nonprofit, public, and private sectors. 
 
 Based in Vancouver’s North Shore, I have great experience partnering with organizations across the Lower Mainland and British Columbia, and Canadian institutions more broadly.
 
@@ -210,31 +211,31 @@ Based in Vancouver’s North Shore, I have great experience partnering with orga
 
 
 <!-- Needs -->
-## The Needs My Work Addresses
+## How Socia Addresses Canadian Community Market Research Needs
 
 Through my work with diverse organizations, I've identified several key challenges that teams commonly face. Here’s how my work through Socia addresses them:
 
 {{< columns >}}
 {{< column >}}
 ###  <a style="color: #D39600"> Bottom Lines & Deadlines  </a>
-We help you balance budgets and timelines while delivering high-quality insights through careful planning and thoughtful trade-offs.
+I help you balance budgets and timelines while delivering high-quality insights through careful planning and thoughtful trade-offs.
 {{< /column >}}
 
 {{< column >}}
 ###  <a style="color: #C55A11"> Usefulness  </a>
-Our findings are designed to be actionable and comparable, ensuring that knowledge informs real decisions and generates meaningful impact.
+I work with you to produce findings that are actionable and comparable, ensuring that knowledge informs real decisions and generates meaningful impact.
 {{< /column >}}
 {{< /columns >}}
 
 {{< columns >}}
 {{< column >}}
 ###  <a style="color: #714096"> Ethics & Privacy    </a>
-We navigate complex ethical considerations, safeguarding privacy and incorporating principles of Reconciliation, Equity, Diversity, and Inclusion.
+I navigate complex ethical considerations, safeguarding privacy and incorporating principles of Reconciliation, Equity, Diversity, and Inclusion.
 {{< /column >}}
 
 {{< column >}}
 ###  <a style="color: #638F8E"> Scalability  </a>
-We build systems that support scalable and reproducible evidence-based practices, ensuring consistency across projects and contexts.
+I build systems that support scalable and reproducible evidence-based practices, ensuring consistency across projects and contexts.
 {{< /column >}}
 {{< /columns >}}
 
@@ -243,21 +244,20 @@ We build systems that support scalable and reproducible evidence-based practices
 {{< columns >}}
 {{< column >}}
 ###  <a style="color: #D39600"> Trust  </a>
-We foster meaningful and considerate collaboration with internal and external rights-holders, building trust within teams and across partnerships.
+I foster meaningful and considerate collaboration with internal and external rights-holders, building trust within teams and across partnerships.
 {{< /column >}}
 
 {{< column >}}
 ###  <a style="color: #C55A11"> Adaptability  </a>
-We help you stay agile, adapting plans and tactics as needed to meet changing project requirements.
+I help you stay agile, adapting plans and tactics as needed to meet changing project requirements.
 {{< /column >}}
 {{< /columns >}}
 
 </div>
 
-## The Possibilities
+## The Possibilities for Community Market Research in Vancouver, BC, Canada, and Beyond
 
-Imagine a future where the best practices of Open Science are seamlessly integrated into the insights and analytics profession. How can we deploy these practices to meet the unique needs of organizations and exceed industry standards? I invite you to join me in finding innovative solutions to this exciting challenge.
-
+Imagine a future where the best practices and data of the business analytics industry are democratized and made available for everyone to work with and contribute to. How can we deploy these practices to meet the unique needs of organizations and exceed industry standards? I invite you to join me in finding innovative solutions to this exciting challenge.
 
 
 <div style="display:flex; justify-content:center; margin-top: 3rem; margin-bottom: 1.5rem;">
