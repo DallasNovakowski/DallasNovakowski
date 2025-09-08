@@ -28,7 +28,9 @@ toc: false
 image: null
 ---
 
-Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. I specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions. Socia's approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge practices. Through my work at Socia, I ultimately seek to foster more informed and empowered communities.
+Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. I specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions. Socia's approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge practices. 
+
+Socia's work ultimately seeks to foster more informed and empowered communities.
 
 
 <style>
