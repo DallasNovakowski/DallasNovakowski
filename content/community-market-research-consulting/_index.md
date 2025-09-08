@@ -28,9 +28,9 @@ toc: false
 image: null
 ---
 
-Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. I specialize in data-driven, community-focused insights that help organizations make meaningful, ethical, and effective decisions. Socia's approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge practices. 
+Socia is a North Vancouver-based community market research consultancy and contractor that partners with nonprofits, businesses, and public organizations across British Columbia and Canada. Through Socia, my approach is unique in its emphasis in making research and strategy tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge research and strategic practices. 
 
-Socia's work ultimately seeks to foster more informed and empowered communities.
+
 
 
 <style>
@@ -124,7 +124,7 @@ Socia's work ultimately seeks to foster more informed and empowered communities.
 {{< column >}}
 <p style="font-size:1rem; margin:0; font-style:italic">
   Through <a href="http://socia-research.ca">my community-based research consultancy, socia-research.ca</a>, 
-  my mission is to strengthen community well-being by making innovative scientific and managerial practices available for all.
+  my mission is to strengthen community well-being by making effective and ethical scientific and managerial practices available for all.
 </p>
 
 {{< /column >}}
@@ -132,7 +132,10 @@ Socia's work ultimately seeks to foster more informed and empowered communities.
 </div>
 
 
-<br> My expertise is market and organizational research. With my skills in quantitative and qualitative research methods, I collaborate with partners to create useful tools and actionable strategies.  
+<br> I specialize in market and organizational research—blending quantitative and qualitative methods to deliver practical tools, sharp insights, and strategies that partners can act on with confidence.
+
+
+
 
 <!-- Main CTAs -->
 <div style="margin-top: 2rem; margin-bottom: 4rem; border-radius: 0.5rem;">
