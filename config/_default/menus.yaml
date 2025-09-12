@@ -16,6 +16,9 @@ main:
   - name: Socia - Research & Strategy
     url: '/community-market-research-consulting'
     weight: 10
+  - name: About Me
+    url: '/about'
+    weight: 30
     
     
     
