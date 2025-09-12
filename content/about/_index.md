@@ -34,7 +34,7 @@ image: null
 
 # The Land I Live On 
 
-My current life has only been possible due to the land I have settled on: the traditional and unceded territories of many indigenous groups.
+My current life has only been possible due to the land I have settled on: the traditional territories of many indigenous groups, including lands governed by treaties, and many that remain unceded.
 
 Currently, I live in the traditional territories of the xʷməθkʷəy̓əm (Musqueam), Sḵwx̱wú7mesh (Squamish), and səl̓ílwətaʔɬ (Tsleil-Waututh) Nations, now known as North Vancouver. I have also lived on Treaty 4 Territory (the lands of the Cree, Saulteaux, Dakota, Nakota, Lakota, and the homeland of the Métis Nations), as well as Treaty 7 Territory (including the Siksika, Piikani, Kainai, Stoney Nakoda, and Tsuut’ina Nations).
 
