@@ -22,13 +22,13 @@ draft: false
 date: false
 lastmod: false
 description: "Socia is a community-focused behavioural research and strategy consultancy based in Vancouver, Canada, helping organizations make meaningful, data-driven decisions."
-subtitle: "Stronger Communities Through Better Decisions"
+subtitle: "Stronger communities through shared knowledge and better decisions"
 tags: ["consulting", "research", "strategy", "socia"]
 toc: false
 image: null
 ---
 
-Socia is a North Vancouver-based community-focused behavioural research and strategy consultancy that blends the rigor of market research, the insight of behavioral science, and the collaboration of participatory design to help organizations make ethical, effective, and transparent decisions.
+Socia is a behavioural research and strategy firm, based in North Vancouver, B.C., that blends the rigor of market research, the insight of behavioral science, and the collaboration of participatory design to help organizations make ethical, effective, and informed decisions.
 
 
 
@@ -109,10 +109,56 @@ Socia is a North Vancouver-based community-focused behavioural research and stra
   flex: 0 0 auto;
   margin-top: 0;             /* ensure top alignment */
 }
+
+
+.services-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;   /* center leftover items in the row */
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.service {
+  flex: 1 1 250px;           /* min width 250px, grow to fill */
+  max-width: 300px;
+  text-align: center;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.service:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.service-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
+.service h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.service p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #444;
+}
+
+
 </style>
 
 <!-- Hero / Introduction -->
-<div style="background-color: #f2f2f2; padding: 0rem; padding: 2rem; border-radius: 0.5rem; margin:0; margin-top:1rem; margin-bottom:1rem;">
+<div style="background-color: #f2f2f2; padding: 2rem; padding-top: 1rem;padding-bottom: 1rem; border-radius: 0.5rem; margin:0; margin-top:1rem; margin-bottom:0rem;">
 {{< columns center="true" >}}
 {{< column >}}
   <div style="display: flex; justify-content: center; align-items: center;">
@@ -123,8 +169,7 @@ Socia is a North Vancouver-based community-focused behavioural research and stra
 {{< /column >}}
 {{< column >}}
 <p style="font-size:1rem; margin:0; font-style:italic">
-  Through <a href="http://socia-research.ca">my community-based research consultancy, socia-research.ca</a>, 
-  my mission is to strengthen community well-being by making effective scientific and managerial practices available for all.
+  Through my work in Socia, my mission is to strengthen community well-being by making effective scientific and managerial practices available for all.
 </p>
 
 {{< /column >}}
@@ -134,13 +179,12 @@ Socia is a North Vancouver-based community-focused behavioural research and stra
 
 <br> 
 
-Through Socia, my approach is unique in its emphasis in making my tools and processes freely available to the public, using the best practices of open science to increase the accessibility and robustness of cutting-edge research and strategic practices. 
 
 
 
 
 <!-- Main CTAs -->
-<div style="margin-top: 2rem; margin-bottom: 4rem; border-radius: 0.5rem;">
+<div style="margin-top: 0rem; margin-bottom: 4rem; border-radius: 0.5rem;">
 
 <div style="display:flex; justify-content:center; margin-bottom: 1.5rem;">
   <a href="mailto:dallasnovakowski@gmail.com" class="cta-button contact">Schedule Your Free Consultation</a>
@@ -163,29 +207,62 @@ Through Socia, my approach is unique in its emphasis in making my tools and proc
 </div>
 
 <!-- How Socia Works -->
-# How Socia is Different in the Canadian Insights and Market Research Sector
 
-I believe that **the data analytics, market research, and business intelligence industries are poised for disruption**. Just like a move in the science world towards barrier-free access to data and methods makes knowledge accessible, we make our research processes more transparent so you can learn, adapt, and own your insights.
+# Core Services
 
-- **Community-Driven, Data-Rich**: my approach is not extractive; I design studies with input from clients and communities, and openly share methods and findings
-- **Strategic but Accessible**: I don’t just hand over strategies; I co-develop them, and share my methods broadly so that they can be re-produced
-- **Behavioral & Applied**: my work goes beyond the theoretical; I integrate real-world strategy and navigate organizational realities.
-- **Participatory Process with Rigor**: I am trained in scientific depth and validated data, not just conversations.
 
-I embrace these principles to ensure high-quality tools, processes, data, and insights are shared widely and responsibly, empowering organizations to make informed decisions with greater confidence and independence.
 
-<!-- Image Row -->
-<div style="background-color: #f2f2f2; padding: .5rem; border-radius: 0.5rem; margin:.5rem;">
-  <div style="display:flex; flex-wrap:wrap; gap:0rem; justify-content:center;">
-    <img src="competencies_full.png" style="max-height:375px; width:auto; height:auto;">
-    <img src="differentiators.png" style="max-height:375px; width:auto; height:auto;">
+<div class="services-grid">
+  <!-- Behavioural Research -->
+  <div class="service">
+    <img src="research_icon.png" style="max-height:150px; width:auto; height:auto;" alt="Research icon for Behavioural Research" class="service-icon">
+    <h3>Behavioural Research &amp; Insights</h3>
+    <p>Qualitative, quantitative, and applied research to understand users, customers, teams, and communities.</p>
+  </div>
+
+
+  <!-- Partner Integration -->
+  <div class="service">
+    <img src="network_icon.png" style="max-height:150px; width:auto; height:auto;" alt="Network icon for Partner Integration" class="service-icon">
+    <h3>Partner Integration &amp; Support</h3>
+    <p>Documentation, workflow optimization, and mentorship to help teams use data effectively and independently.</p>
+  </div>
+
+  <!-- Action & Strategy -->
+  <div class="service">
+    <img src="playbook.png" style="max-height:150px; width:auto; height:auto;" alt="Playbook icon for Action & Strategy" class="service-icon">
+    <h3>Action &amp; Strategy</h3>
+    <p>Translate research into practical plans for organizational improvement.</p>
+  </div>
+
+  <!-- Data Visualization -->
+  <div class="service">
+    <img src="presentation.png" style="max-height:150px; width:auto; height:auto;" alt="Presentation icon for Data Visualization" class="service-icon">
+    <h3>Data Visualization &amp; Reporting</h3>
+    <p>Transforming complex data into clear, actionable communications to inform decisions.</p>
+  </div>
+
+
+  <!-- Advanced Analytics -->
+  <div class="service">
+    <img src="analytics.png" style="max-height:150px; width:auto; height:auto;" alt="Analytics icon for Advanced Analytics" class="service-icon">
+    <h3>Advanced Analytics</h3>
+    <p>Statistical modeling and experimentation to generate actionable, evidence-based insights.</p>
   </div>
 </div>
 
-## Why Vancouver / BC Matters to Me
 
-<!-- Hero / Introduction -->
+# The Land I Live On 
 
+My current life has only been possible due to the land I have settled on:  the traditional and unceded territories of many indigenous groups.
+
+Currently, I live in the traditional territories of the xʷməθkʷəy̓əm (Musqueam),  Sḵwx̱wú7mesh (Squamish), and səl̓ílwətaʔɬ (Tsleil-Waututh) Nations, now known as North Vancouver. I have also lived on Treaty 4 Territory  (the lands of the Cree, Saulteaux (SO-TOE), Dakota, Nakota, Lakota, and on the homeland of the Métis Nations), in addition to Treaty 7 Territory (including the Siksika, Piikani, Kainai, Stoney Nakoda, and Tsuut’ina Nations)
+
+I likewise recognize that, as a white settler, my presence is tied to an ongoing history of colonization and displacement. In my personal life, as well as work through Socia, I am committed to I am committed to honouring the Nations whose lands I have lived and worked on by supporting Indigenous sovereignty, listening to and amplifying Indigenous voices, and ensuring that my work contributes to fostering an ethical space of respectful and reciprocal relationships. 
+
+One such measure I am currently undertaking is undergoing active training in the [First Nations principles of OCAP (Ownership, Control, Access, and Possession)](https://fnigc.ca/ocap-training/), so that I may better do my part in contributing to Indigenous Data Sovereignty. This is only one instance of what I consider to be an ongoing journey of listening and learning.
+
+## How I Contribute to My Community
 
 My work is deeply rooted in my community — the diverse communities across Vancouver, British Columbia, and Canada pose unique challenges facing BC’s nonprofit, public, and private sectors. 
 
@@ -214,62 +291,12 @@ Based in Vancouver’s North Shore, I have great experience partnering with orga
 {{< /column >}}
 {{< /columns >}}
 
-  <p style="font-size: 1rem; margin: 2.5rem; line-height: 1.5; font-style: italic; display: flex; justify-content: center; align-items: center;">
-  By combining local knowledge with rigorous methods, I work to deliver insights that matter to your people.
-  </p>
 
-<div style="background-color: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem auto;">
+# The Possibilities for Vancouver, BC, Canada, and Beyond
 
+I see my work through Socia contributing to creating a future where communities are empowered to make decisions that are informed, inclusive, and strengthen collective well-being. There are many challenges and opportunities along this pursuit, to ensure that best practices and data of the business analytics industry are are democratized and made available for everyone to work with and contribute to.  
 
-<!-- Needs -->
-## How Socia Addresses Canadian Insights and Strategy Needs
-
-Through my work with diverse organizations, I've identified several key challenges that teams commonly face. Here’s how my work through Socia addresses them:
-
-{{< columns >}}
-{{< column >}}
-###  <a style="color: #D39600"> Bottom Lines & Deadlines  </a>
-I help you balance budgets and timelines while delivering high-quality insights through careful planning and thoughtful trade-offs.
-{{< /column >}}
-
-{{< column >}}
-###  <a style="color: #C55A11"> Usefulness  </a>
-I work with you to produce findings that are actionable and comparable, ensuring that knowledge informs real decisions and generates meaningful impact.
-{{< /column >}}
-{{< /columns >}}
-
-{{< columns >}}
-{{< column >}}
-###  <a style="color: #714096"> Ethics & Privacy    </a>
-I navigate complex ethical considerations, safeguarding privacy and incorporating principles of Reconciliation, Equity, Diversity, and Inclusion.
-{{< /column >}}
-
-{{< column >}}
-###  <a style="color: #638F8E"> Scalability  </a>
-I build systems that support scalable and reproducible evidence-based practices, ensuring consistency across projects and contexts.
-{{< /column >}}
-{{< /columns >}}
-
-
-
-{{< columns >}}
-{{< column >}}
-###  <a style="color: #D39600"> Trust  </a>
-I foster meaningful and considerate collaboration with internal and external rights-holders, building trust within teams and across partnerships.
-{{< /column >}}
-
-{{< column >}}
-###  <a style="color: #C55A11"> Adaptability  </a>
-I help you stay agile, adapting plans and tactics as needed to meet changing project requirements.
-{{< /column >}}
-{{< /columns >}}
-
-</div>
-
-## The Possibilities for Community Research and Strategy in Vancouver, BC, Canada, and Beyond
-
-Imagine a future where the best practices and data of the business analytics industry are democratized and made available for everyone to work with and contribute to. How can we deploy these practices to meet the unique needs of organizations and exceed industry standards? I invite you to join me in finding innovative solutions to this exciting challenge.
-
+How can we deploy these practices to meet the unique needs of organizations and exceed industry standards? I invite you to join me in finding innovative solutions to this exciting venture.
 
 <div style="display:flex; justify-content:center; margin-top: 3rem; margin-bottom: 1.5rem;">
   <a href="mailto:dallasnovakowski@gmail.com" class="cta-button contact">Schedule Your Free Consultation</a>
