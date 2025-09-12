@@ -254,7 +254,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 
 # How I Contribute to My Community
 
-All Canadian communities sit on the traditional lands of Indigenous peoples, many of which remain unceded. See my [full land acknowledgement](/about/).
+All communities in what is now called Canada sit on the traditional lands of Indigenous peoples, including both treaty and unceded lands. See my [full land acknowledgement](/about/).
 
 My work is rooted in community—recognizing the diverse needs and perspectives across Vancouver, BC, and Canada that shape how nonprofit, public, and private sectors function. Learning from the diversity in our population also gives us the exciting chance to find new paths forward.
 
