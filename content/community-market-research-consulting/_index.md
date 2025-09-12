@@ -1,5 +1,5 @@
 ---
-title: "Community-Focused Behavioural Research and Strategy Consulting in Vancouver, BC | Socia"
+title: "Community-Focused Behavioural Insights Consulting in Vancouver, BC | Socia Research & Strategy"
 type: "page"
 # type: docs
 
@@ -169,7 +169,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 {{< /column >}}
 {{< column >}}
 <p style="font-size:1rem; margin:0; font-style:italic">
-  Through my work in Socia, my mission is to strengthen community well-being by making effective scientific and managerial practices available for all.
+  In my work through Socia, my mission is to strengthen community well-being by making effective scientific and managerial practices available for all.
 </p>
 
 {{< /column >}}
@@ -254,13 +254,13 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 
 # The Land I Live On 
 
-My current life has only been possible due to the land I have settled on:  the traditional and unceded territories of many indigenous groups.
+My current life has only been possible due to the land I have settled on: the traditional and unceded territories of many indigenous groups.
 
-Currently, I live in the traditional territories of the xʷməθkʷəy̓əm (Musqueam),  Sḵwx̱wú7mesh (Squamish), and səl̓ílwətaʔɬ (Tsleil-Waututh) Nations, now known as North Vancouver. I have also lived on Treaty 4 Territory  (the lands of the Cree, Saulteaux (SO-TOE), Dakota, Nakota, Lakota, and on the homeland of the Métis Nations), in addition to Treaty 7 Territory (including the Siksika, Piikani, Kainai, Stoney Nakoda, and Tsuut’ina Nations)
+Currently, I live in the traditional territories of the xʷməθkʷəy̓əm (Musqueam), Sḵwx̱wú7mesh (Squamish), and səl̓ílwətaʔɬ (Tsleil-Waututh) Nations, now known as North Vancouver. I have also lived on Treaty 4 Territory (the lands of the Cree, Saulteaux, Dakota, Nakota, Lakota, and the homeland of the Métis Nations), as well as Treaty 7 Territory (including the Siksika, Piikani, Kainai, Stoney Nakoda, and Tsuut’ina Nations).
 
-I likewise recognize that, as a white settler, my presence is tied to an ongoing history of colonization and displacement. In my personal life, as well as work through Socia, I am committed to I am committed to honouring the Nations whose lands I have lived and worked on by supporting Indigenous sovereignty, listening to and amplifying Indigenous voices, and ensuring that my work contributes to fostering an ethical space of respectful and reciprocal relationships. 
+I recognize that, as a white settler, my presence is tied to an ongoing history of colonization and displacement. In my personal life, as well as through my work with Socia, I am committed to honoring the Nations whose lands I have lived and worked on by supporting Indigenous sovereignty, listening to and amplifying Indigenous voices, and ensuring that my work contributes to fostering an ethical space of respectful and reciprocal relationships.
 
-One such measure I am currently undertaking is undergoing active training in the [First Nations principles of OCAP (Ownership, Control, Access, and Possession)](https://fnigc.ca/ocap-training/), so that I may better do my part in contributing to Indigenous Data Sovereignty. This is only one instance of what I consider to be an ongoing journey of listening and learning.
+One measure I am currently undertaking is active training in the [First Nations principles of OCAP (Ownership, Control, Access, and Possession)](https://fnigc.ca/ocap-training/), so that I may better contribute to Indigenous Data Sovereignty. This is just one step of what I consider to be an ongoing journey of listening and learning.
 
 ## How I Contribute to My Community
 
