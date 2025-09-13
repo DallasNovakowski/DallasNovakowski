@@ -123,7 +123,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
   flex: 1 1 250px;           /* min width 250px, grow to fill */
   max-width: 300px;
   text-align: center;
-  padding: 1.5rem;
+  padding: 1rem;
   background: #f9f9f9;
   border-radius: 16px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -184,7 +184,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 
 
 <!-- Main CTAs -->
-<div style="margin-top: 0rem; margin-bottom: 4rem; border-radius: 0.5rem;">
+<div style="margin-top: 0rem; margin-bottom: 2rem; border-radius: 0.5rem;">
 
 <div style="display:flex; justify-content:center; margin-bottom: 1.5rem;">
   <a href="mailto:dallasnovakowski@gmail.com" class="cta-button contact">Schedule Your Free Consultation</a>
@@ -215,7 +215,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 <div class="services-grid">
   <!-- Behavioural Research -->
   <div class="service">
-    <img src="research_icon.png" style="max-height:150px; width:auto; height:auto;" alt="Research icon for Behavioural Research" class="service-icon">
+    <img src="research_icon.png" style="max-height:125px; width:auto; height:auto;" alt="Research icon for Behavioural Research" class="service-icon">
     <h3>Behavioural Research &amp; Insights</h3>
     <p>Qualitative, quantitative, and applied research to understand users, customers, teams, and communities.</p>
   </div>
@@ -223,21 +223,21 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 
   <!-- Partner Integration -->
   <div class="service">
-    <img src="network_icon.png" style="max-height:150px; width:auto; height:auto;" alt="Network icon for Partner Integration" class="service-icon">
+    <img src="network_icon.png" style="max-height:125px; width:auto; height:auto;" alt="Network icon for Partner Integration" class="service-icon">
     <h3>Partner Integration &amp; Support</h3>
     <p>Documentation, workflow optimization, and mentorship to help teams use data effectively and independently.</p>
   </div>
 
   <!-- Action & Strategy -->
   <div class="service">
-    <img src="playbook.png" style="max-height:150px; width:auto; height:auto;" alt="Playbook icon for Action & Strategy" class="service-icon">
+    <img src="playbook.png" style="max-height:125px; width:auto; height:auto;" alt="Playbook icon for Action & Strategy" class="service-icon">
     <h3>Action &amp; Strategy</h3>
     <p>Translate research into practical plans for organizational improvement.</p>
   </div>
 
   <!-- Data Visualization -->
   <div class="service">
-    <img src="presentation.png" style="max-height:150px; width:auto; height:auto;" alt="Presentation icon for Data Visualization" class="service-icon">
+    <img src="presentation.png" style="max-height:125px; width:auto; height:auto;" alt="Presentation icon for Data Visualization" class="service-icon">
     <h3>Data Visualization &amp; Reporting</h3>
     <p>Transforming complex data into clear, actionable communications to inform decisions.</p>
   </div>
@@ -245,7 +245,7 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 
   <!-- Advanced Analytics -->
   <div class="service">
-    <img src="analytics.png" style="max-height:150px; width:auto; height:auto;" alt="Analytics icon for Advanced Analytics" class="service-icon">
+    <img src="analytics.png" style="max-height:125px; width:auto; height:auto;" alt="Analytics icon for Advanced Analytics" class="service-icon">
     <h3>Advanced Analytics</h3>
     <p>Statistical modeling and experimentation to generate actionable, evidence-based insights.</p>
   </div>
