@@ -252,36 +252,98 @@ Socia is a behavioural research and strategy firm, based in North Vancouver, B.C
 </div>
 
 
-# How I Contribute to My Community
 
-All communities in what is now called Canada sit on the traditional lands of Indigenous peoples, including both treaty and unceded lands. See my [full land acknowledgement](/about/).
+# How Socia Stands Out in Canadian Insights and Market Research
 
-My work is rooted in community—recognizing the diverse needs and perspectives across Vancouver, BC, and Canada that shape how nonprofit, public, and private sectors function. Learning from the diversity in our population also gives us the exciting chance to find new paths forward.
-
-Based in Vancouver’s North Shore, I have great experience partnering with organizations across the Lower Mainland and British Columbia, and Canadian institutions more broadly.
-
-
-
-{{< columns center="true" >}}
-{{< column >}}
-
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <a href="http://nsul.ca" target="_blank" rel="noopener noreferrer">
-      <img src="/community-market-research-consulting/nsul.jpg" alt="NSUL" style="max-width: 700px; width: 100%; height: auto; margin: 0.5rem;" />
-    </a>
+<div class="principles-grid">
+  <div class="principle principle-insight">
+    <h3>Rigorous and Reproducible Insight</h3>
+    <p>We apply advanced, PhD-level analytical techniques to deliver research that is both accurate and actionable.</p>
+    <p class="benefit">You receive reliable, evidence-based insights that can be applied consistently across projects and decision-making contexts.</p>
   </div>
 
-{{< /column >}}
-{{< column >}}
+  <div class="principle principle-endtoend">
+    <h3>End-to-End Research and Empowerment</h3>
+    <p>We guide the entire research process, from study design and data collection to analysis and interpretation.</p>
+    <p class="benefit">You gain the knowledge, tools, and confidence to continue applying research independently after the project ends.</p>
+  </div>
 
-- At the College of New Caledonia I serve Central and Northern B.C. by conducting student and community surveys to better align the school's curricula and services to meet partner needs.  
-- I ran wellness programs with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) 
-- I have conducted cross-departmental research through [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety) to ensure that corrections programs effectively reduce recidivism.  
-- I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
+  <div class="principle principle-translation">
+    <h3>Clear Translation of Insights</h3>
+    <p>We turn complex data into clear, actionable stories tailored to your organization.</p>
+    <p class="benefit">You get findings and recommendations that are directly aligned with your goals, benchmarks, and operational capacity.</p>
+  </div>
+
+  <div class="principle principle-ethics">
+    <h3>Ethical Partnership</h3>
+    <p>We collaborate respectfully with your team and community, ensuring research is grounded in ethical practice, and the needs of your people.</p>
+    <p class="benefit">You build trust with rights-holders and communities, while amplifying voices that are often unheard.</p>
+  </div>
+
+  <div class="principle principle-openness">
+    <h3>Responsible Openness</h3>
+    <p>We share data and code generously, while safeguarding privacy, ethical standards, and organizational integrity.</p>
+    <p class="benefit">You benefit from transparent, reproducible research that contributes to a wider culture of knowledge-sharing.</p>
+  </div>
+</div>
 
 
-{{< /column >}}
-{{< /columns >}}
+<style>
+.principles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* centers leftover items on the last row */
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.principle {
+  flex: 1 1 260px;       /* min width 260px, grow to fill row */
+  max-width: 300px;      /* prevents cards from becoming too wide */
+  display: flex;
+  flex-direction: column; /* makes text stretch and benefit align */
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-left: 6px solid; 
+  padding: 1.2rem 1rem;
+  border-radius: 12px;
+  transition: transform 0.15s ease;
+}
+
+.principle:hover {
+  transform: translateY(-3px);
+}
+
+.principle h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.principle p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.benefit {
+  font-style: italic;
+  background: #f9f9f9;
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: #333;
+  margin-top: auto;  /* pushes benefit to bottom for equal height alignment */
+}
+
+/* Accent colors */
+.principle-insight { border-left-color: #595959; }       /* Advanced Analytics */
+.principle-endtoend { border-left-color:  #C55A11; }     /* Action & Strategy */
+.principle-translation { border-left-color: #714096; }  /* Data Visualization & Reporting */
+.principle-ethics { border-left-color: #D39600; }       /* Partner Integration & Support */
+.principle-openness { border-left-color: #638F8E; }     /* Behavioural Research & Insights */
+</style>
+
 
 
 # The Possibilities for Vancouver, BC, Canada, and Beyond

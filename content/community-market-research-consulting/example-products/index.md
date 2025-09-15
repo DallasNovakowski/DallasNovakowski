@@ -273,3 +273,37 @@ My primary tools and software used revolves around the the programming language 
 </div>
 
 </div>
+
+
+
+# How I Contribute to My Community
+
+All communities in what is now called Canada sit on the traditional lands of Indigenous peoples, including both treaty and unceded lands. See my [full land acknowledgement](/about/).
+
+My work is rooted in community—recognizing the diverse needs and perspectives across Vancouver, BC, and Canada that shape how nonprofit, public, and private sectors function. Learning from the diversity in our population also gives us the exciting chance to find new paths forward.
+
+Based in Vancouver’s North Shore, I have great experience partnering with organizations across the Lower Mainland and British Columbia, and Canadian institutions more broadly.
+
+
+
+{{< columns center="true" >}}
+{{< column >}}
+
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <a href="http://nsul.ca" target="_blank" rel="noopener noreferrer">
+      <img src="/community-market-research-consulting/nsul.jpg" alt="NSUL" style="max-width: 700px; width: 100%; height: auto; margin: 0.5rem;" />
+    </a>
+  </div>
+
+{{< /column >}}
+{{< column >}}
+
+- At the College of New Caledonia I serve Central and Northern B.C. by conducting student and community surveys to better align the school's curricula and services to meet partner needs.  
+- I ran wellness programs with the [Saskatchewan Brain Injury Association](https://www.sbia.ca) 
+- I have conducted cross-departmental research through [Saskatchewan Government's Corrections and Policing division](https://www.saskatchewan.ca/government/government-structure/ministries/corrections-policing-and-public-safety) to ensure that corrections programs effectively reduce recidivism.  
+- I also currently volunteer as an organizer for the [North Shore Ultimate League](http://nsul.ca) - a pick-up ultimate frisbee group in North Vancouver.
+
+
+{{< /column >}}
+{{< /columns >}}
+
