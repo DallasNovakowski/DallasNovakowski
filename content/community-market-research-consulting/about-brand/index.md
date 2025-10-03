@@ -204,8 +204,6 @@ The vertical offset in the logo also represents impact and action. Every project
 
 The surrounding braided circle captures the deeply contextualized, interconnected, and humanistic components of my work, recognizing that [quality and ethical work necessarily brings together different people, perspectives, systems, and ways of knowing to create stronger combined products and processes](https://braidingknowledgescanada.ca/en/home/).
 
-Braiding Knowledge is the coming together of knowledges, in which each knowledge system is a strand of a braid
-
 
 In short, the logo embodies transparency, actionable insight, and a human-centered approach—making complex information accessible, understandable, and useful for everyone involved.  
 
