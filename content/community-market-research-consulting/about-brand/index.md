@@ -198,9 +198,14 @@ Ultimately, Socia represents collaboration, inclusivity, and human-centered prob
 {{< column >}}
 ## The Logo
 
-The logo grew out of my interest in data visualization and clear communication. I aim to present the full story behind the data, not just averages or summaries. While many companies use simple bar charts to signal that they are "data-driven," I chose a stacked dotplot instead. Its design is simple enough that anyone can see: two groups of points, one clearly higher than the other. This reflects my belief that [people are naturally capable of understanding data when it’s presented clearly](https://www.annualreviews.org/docserver/fulltext/psych/76/1/annurev-psych-020924-124753.pdf?expires=1756499477&id=id&accname=guest&checksum=C7834A9F3E254D49CB549672B0C50E1F).  
+The logo grew out of my interest in data visualization and clear communication. I aim to present the full story behind the data, not just averages or summaries. The stacked dotplot design is simple enough that anyone can see: two groups of points, one clearly higher than the other. This reflects my belief that [people are naturally capable of understanding data when it’s presented clearly](https://www.annualreviews.org/docserver/fulltext/psych/76/1/annurev-psych-020924-124753.pdf?expires=1756499477&id=id&accname=guest&checksum=C7834A9F3E254D49CB549672B0C50E1F).  
 
 The vertical offset in the logo also represents impact and action. Every project I take on is designed to generate meaningful insights that can inform real decisions and drive change. I strive to honor the time, attention, and resources my partners invest, while keeping in mind the broader ripple effect of my work on those affected downstream.  
+
+The surrounding braided circle captures the deeply contextualized, interconnected, and humanistic components of my work, recognizing that [quality and ethical work necessarily brings together different people, perspectives, systems, and ways of knowing to create stronger combined products and processes](https://braidingknowledgescanada.ca/en/home/).
+
+Braiding Knowledge is the coming together of knowledges, in which each knowledge system is a strand of a braid
+
 
 In short, the logo embodies transparency, actionable insight, and a human-centered approach—making complex information accessible, understandable, and useful for everyone involved.  
 
